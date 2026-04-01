@@ -179,7 +179,7 @@ namespace StationeryShop.Data
                 Phone = "+375292746680",
                 Address = "Главный офис",
                 IsAdmin = true,
-                Password = "123123",
+                Password = BCrypt.Net.BCrypt.HashPassword("123123")
             };
             context.Customers.Add(admin);
 
@@ -192,7 +192,7 @@ namespace StationeryShop.Data
                 Phone = "+375296401050",
                 Address = "ул. Примерная, д. 123",
                 IsAdmin = false,
-                Password = "123123",
+                Password = BCrypt.Net.BCrypt.HashPassword("123123"),
             };
             context.Customers.Add(testUser);
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// AccountController.cs
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StationeryShop.Data;
 using StationeryShop.Models;
@@ -10,11 +11,13 @@ namespace StationeryShop.Controllers
     {
         private readonly StationeryDbContext _context;
         private readonly CartService _cartService;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(StationeryDbContext context, CartService cartService)
+        public AccountController(StationeryDbContext context, CartService cartService, ILogger<AccountController> logger)
         {
             _context = context;
             _cartService = cartService;
+            _logger = logger;
         }
 
         // GET: Account/Login
@@ -30,7 +33,6 @@ namespace StationeryShop.Controllers
         {
             try
             {
-                // Проверяем входные параметры
                 if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 {
                     ViewBag.Error = "Email и пароль обязательны для заполнения";
@@ -38,27 +40,24 @@ namespace StationeryShop.Controllers
                 }
 
                 var customer = _context.Customers
-                    .FirstOrDefault(c => c.Email == email && c.Password == password);
+                    .FirstOrDefault(c => c.Email == email);
 
-                if (customer != null)
+                // Проверяем пароль с помощью BCrypt
+                if (customer != null && VerifyPassword(password, customer.Password))
                 {
-                    // Сохраняем старый ID сессии перед аутентификацией
                     var oldSessionId = HttpContext.Session.Id;
 
-                    // Устанавливаем данные сессии
                     HttpContext.Session.SetInt32("CustomerID", customer.CustomerID);
                     HttpContext.Session.SetString("CustomerName", customer.FullName ?? "");
                     HttpContext.Session.SetString("IsAdmin", customer.IsAdmin ? "true" : "false");
 
-                    // Переносим корзину из анонимной сессии в сессию пользователя
                     try
                     {
                         _cartService.TransferCart(oldSessionId, customer.CustomerID);
                     }
                     catch (Exception ex)
                     {
-                        // Логируем ошибку, но не прерываем процесс входа
-                        Console.WriteLine($"Ошибка при переносе корзины: {ex.Message}");
+                        _logger.LogError(ex, "Ошибка при переносе корзины");
                     }
 
                     TempData["Success"] = $"Добро пожаловать, {customer.FullName}!";
@@ -72,8 +71,7 @@ namespace StationeryShop.Controllers
             }
             catch (Exception ex)
             {
-                // Логируем ошибку для отладки
-                Console.WriteLine($"Ошибка при входе: {ex.Message}");
+                _logger.LogError(ex, "Ошибка при входе");
                 ViewBag.Error = "Произошла ошибка при входе. Попробуйте еще раз.";
                 return View();
             }
@@ -88,10 +86,17 @@ namespace StationeryShop.Controllers
         // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(Customer customer)
+        public IActionResult Register(Customer customer, string confirmPassword)
         {
             try
             {
+                // Проверяем, что пароль и подтверждение совпадают
+                if (customer.Password != confirmPassword)
+                {
+                    ModelState.AddModelError("", "Пароли не совпадают");
+                    return View(customer);
+                }
+
                 if (!ModelState.IsValid)
                     return View(customer);
 
@@ -102,7 +107,10 @@ namespace StationeryShop.Controllers
                     return View(customer);
                 }
 
+                // Хешируем пароль перед сохранением
+                customer.Password = HashPassword(customer.Password);
                 customer.IsAdmin = false; // обычный пользователь
+
                 _context.Customers.Add(customer);
                 _context.SaveChanges();
 
@@ -116,13 +124,13 @@ namespace StationeryShop.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при регистрации: {ex.Message}");
+                _logger.LogError(ex, "Ошибка при регистрации");
                 ViewBag.Error = "Произошла ошибка при регистрации. Попробуйте еще раз.";
                 return View(customer);
             }
         }
 
-        // GET: Account/Profile - Личный кабинет
+        // GET: Account/Profile
         public IActionResult Profile()
         {
             if (!IsAuthenticated())
@@ -142,7 +150,7 @@ namespace StationeryShop.Controllers
             return View(customer);
         }
 
-        // POST: Account/UpdateProfile - Обновление профиля
+        // POST: Account/UpdateProfile
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult UpdateProfile(Customer updatedCustomer)
@@ -174,10 +182,10 @@ namespace StationeryShop.Controllers
                 existingCustomer.Phone = updatedCustomer.Phone;
                 existingCustomer.Address = updatedCustomer.Address;
 
-                // Если указан новый пароль, обновляем его
+                // Если указан новый пароль, хешируем и обновляем его
                 if (!string.IsNullOrEmpty(updatedCustomer.Password))
                 {
-                    existingCustomer.Password = updatedCustomer.Password;
+                    existingCustomer.Password = HashPassword(updatedCustomer.Password);
                 }
 
                 _context.Customers.Update(existingCustomer);
@@ -191,7 +199,7 @@ namespace StationeryShop.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при обновлении профиля: {ex.Message}");
+                _logger.LogError(ex, "Ошибка при обновлении профиля");
                 TempData["Error"] = "Произошла ошибка при обновлении профиля";
                 return RedirectToAction("Profile");
             }
@@ -207,7 +215,7 @@ namespace StationeryShop.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при выходе: {ex.Message}");
+                _logger.LogError(ex, "Ошибка при выходе");
                 TempData["Error"] = "Произошла ошибка при выходе из системы.";
                 return RedirectToAction("Index", "Home");
             }
@@ -222,6 +230,24 @@ namespace StationeryShop.Controllers
         {
             TempData["Error"] = "Для доступа необходимо авторизоваться";
             return RedirectToAction("Login");
+        }
+
+        // ==================== МЕТОДЫ ДЛЯ РАБОТЫ С ПАРОЛЯМИ ====================
+
+        /// <summary>
+        /// Хеширование пароля с помощью BCrypt
+        /// </summary>
+        private string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        /// <summary>
+        /// Проверка пароля с хешем
+        /// </summary>
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
     }
 }

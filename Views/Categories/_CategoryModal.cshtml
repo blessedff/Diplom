@@ -1,0 +1,82 @@
+﻿@model StationeryShop.Models.Category
+
+@{
+    bool isAdmin = Context.Session.GetString("IsAdmin") == "true";
+}
+
+<div class="p-4">
+    <!-- Заголовок -->
+    <div class="text-center mb-4">
+        <i class="bi bi-tags display-4 text-primary mb-3"></i>
+        <h4 class="text-primary">@Model.Name</h4>
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="text-muted mb-0">@Model.Description</p>
+        }
+    </div>
+
+    <!-- Список товаров -->
+    @if (Model.Products.Any())
+    {
+        <div class="mb-4">
+            <h6 class="mb-3">Товары в категории (@Model.Products.Count):</h6>
+            
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th class="text-end">Цена</th>
+                            <th class="text-end">Количество</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model.Products.OrderBy(p => p.Name))
+                        {
+                            <tr>
+                                <td>@product.Name</td>
+                                <td class="text-end text-success fw-bold">@product.Price.ToString("0.00") byn</td>
+                                <td class="text-end">
+                                    @if (product.StockQuantity > 0)
+                                    {
+                                        <span class="badge bg-success">@product.StockQuantity</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">0</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle"></i>
+            В этой категории пока нет товаров
+        </div>
+    }
+
+    <!-- Кнопки действий -->
+    <div class="d-grid gap-2">
+        <a asp-action="Products" asp-route-id="@Model.CategoryID" class="btn btn-primary">
+            <i class="bi bi-eye"></i> Перейти к товарам категории
+        </a>
+        
+        @if (isAdmin)
+        {
+            <div class="btn-group">
+                <a asp-action="Edit" asp-route-id="@Model.CategoryID" class="btn btn-outline-warning">
+                    <i class="bi bi-pencil"></i> Редактировать
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.CategoryID" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Удалить
+                </a>
+            </div>
+        }
+    </div>
+</div>

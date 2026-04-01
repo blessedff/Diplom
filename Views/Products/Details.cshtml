@@ -1,0 +1,49 @@
+﻿@model StationeryShop.Models.Product
+
+@{
+    ViewData["Title"] = "Информация о товаре";
+    bool isAdmin = Context.Session.GetString("IsAdmin") == "true";
+}
+
+<h2>Информация о товаре</h2>
+
+<div class="card p-3">
+    <div class="row">
+        <div class="col-md-4">
+            @if (Model.PhotoBase64 != null)
+            {
+                <img src="data:image/png;base64,@Model.PhotoBase64" class="img-fluid rounded" />
+            }
+            else
+            {
+                <p class="text-muted">Фото отсутствует</p>
+            }
+        </div>
+        <div class="col-md-8">
+            <dl class="row">
+                <dt class="col-sm-4">Название:</dt>
+                <dd class="col-sm-8">@Model.Name</dd>
+
+                <dt class="col-sm-4">Описание:</dt>
+                <dd class="col-sm-8">@Model.Description</dd>
+
+                <dt class="col-sm-4">Категория:</dt>
+                <dd class="col-sm-8">@Model.Category?.Name</dd>
+
+                <dt class="col-sm-4">Цена:</dt>
+                <dd class="col-sm-8">@Model.Price.ToString("0.00") byn</dd>
+
+                <dt class="col-sm-4">Количество на складе:</dt>
+                <dd class="col-sm-8">@Model.StockQuantity</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<p class="mt-3">
+    @if (isAdmin)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.ProductID" class="btn btn-warning">Редактировать</a>
+    }
+    <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+</p>

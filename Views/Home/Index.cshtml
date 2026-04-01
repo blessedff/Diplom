@@ -1,0 +1,64 @@
+﻿@{
+    ViewData["Title"] = "Главная страница";
+}
+
+<!-- Герой секция -->
+<div class="hero-section text-center py-5 mb-5 rounded-3" style="
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">Добро пожаловать в Канцелярский Магазин!</h1>
+        <p class="lead mb-4">Широкий ассортимент качественных канцтоваров для офиса, школы и творчества</p>
+        <a class="btn btn-light btn-lg px-4" asp-controller="Products" asp-action="Index">
+            <i class="bi bi-bag me-2"></i>Начать покупки
+        </a>
+    </div>
+</div>
+
+<!-- Преимущества -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card text-center h-100 border-0">
+            <div class="card-body p-4">
+                <i class="bi bi-truck display-4 text-primary mb-3"></i>
+                <h5 class="card-title">Быстрая доставка</h5>
+                <p class="card-text text-muted">Доставка по городу в течение 24 часов</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100 border-0">
+            <div class="card-body p-4">
+                <i class="bi bi-shield-check display-4 text-success mb-3"></i>
+                <h5 class="card-title">Гарантия качества</h5>
+                <p class="card-text text-muted">Все товары проходят строгий контроль качества</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100 border-0">
+            <div class="card-body p-4">
+                <i class="bi bi-headset display-4 text-info mb-3"></i>
+                <h5 class="card-title">Поддержка 24/7</h5>
+                <p class="card-text text-muted">Всегда готовы помочь с выбором товаров</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Призыв к действию -->
+<div class="card bg-light border-0">
+    <div class="card-body text-center py-5">
+        <h3 class="mb-3">Готовы сделать заказ?</h3>
+        <p class="text-muted mb-4">Начните покупки прямо сейчас и получите лучшие товары по выгодным ценам</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a class="btn btn-primary btn-lg" asp-controller="Products" asp-action="Index">
+                <i class="bi bi-box-seam me-2"></i>Смотреть каталог
+            </a>
+            <a class="btn btn-outline-primary btn-lg" asp-controller="Categories" asp-action="Index">
+                <i class="bi bi-tags me-2"></i>Посмотреть категории
+            </a>
+        </div>
+    </div>
+</div>

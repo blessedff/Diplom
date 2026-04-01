@@ -1,0 +1,32 @@
+﻿@model StationeryShop.Models.Product
+
+@{
+    ViewData["Title"] = "Удалить товар";
+}
+
+<h2>Удалить товар</h2>
+
+<h4>Вы уверены, что хотите удалить этот товар?</h4>
+
+<div class="card p-3">
+    <dl class="row">
+        <dt class="col-sm-4">Название:</dt>
+        <dd class="col-sm-8">@Model.Name</dd>
+
+        <dt class="col-sm-4">Цена:</dt>
+        <dd class="col-sm-8">@Model.Price.ToString("0.00") руб.</dd>
+
+        <dt class="col-sm-4">Категория:</dt>
+        <dd class="col-sm-8">@Model.Category?.Name</dd>
+    </dl>
+
+    @if (Model.PhotoBase64 != null)
+    {
+        <img src="data:image/png;base64,@Model.PhotoBase64" width="200" class="rounded" />
+    }
+</div>
+
+<form asp-action="Delete" asp-route-id="@Model.ProductID" method="post">
+    <button type="submit" class="btn btn-danger">Удалить</button>
+    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+</form>

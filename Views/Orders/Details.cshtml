@@ -1,0 +1,94 @@
+﻿@model StationeryShop.Models.Order
+
+@{
+    ViewData["Title"] = "Детали заказа";
+    bool isAdmin = Context.Session.GetString("IsAdmin") == "true";
+}
+
+<h2 class="mb-4">Детали заказа #@Model.OrderID</h2>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Информация о заказе</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Номер заказа:</strong> #@Model.OrderID</p>
+                <p><strong>Дата заказа:</strong> @Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</p>
+                <p><strong>Статус:</strong> 
+                    <span class="badge 
+                        @(Model.Status == "Выполнен" ? "bg-success" :
+                          Model.Status == "Отменен" ? "bg-danger" :
+                          Model.Status == "Готов к выдаче" ? "bg-warning" : "bg-info")">
+                        @Model.Status
+                    </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                @if (isAdmin)
+                {
+                    <p><strong>Клиент:</strong> @Model.Customer?.FullName</p>
+                    <p><strong>Телефон:</strong> @Model.Customer?.Phone</p>
+                    <p><strong>Email:</strong> @Model.Customer?.Email</p>
+                }
+                <p><strong>Адрес доставки:</strong> @Model.ShippingAddress</p>
+                <p><strong>Общая сумма:</strong> <span class="fw-bold text-success">@Model.TotalAmount.ToString("0.00") byn</span></p>
+            </div>
+        </div>
+
+        <h6 class="mt-4">Состав заказа:</h6>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Товар</th>
+                        <th>Цена</th>
+                        <th>Количество</th>
+                        <th>Сумма</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    @if (item.Product?.PhotoBase64 != null)
+                                    {
+                                        <img src="data:image/png;base64,@item.Product.PhotoBase64" 
+                                             alt="@item.Product.Name" 
+                                             class="img-thumbnail me-2" 
+                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                    }
+                                    <div>
+                                        <div class="fw-bold">@item.Product?.Name</div>
+                                        @if (!string.IsNullOrEmpty(item.Product?.Description))
+                                        {
+                                            <small class="text-muted">@item.Product.Description</small>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@item.UnitPrice.ToString("0.00") byn</td>
+                            <td>@item.Quantity</td>
+                            <td>@((item.Quantity * item.UnitPrice).ToString("0.00")) byn</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="table-active">
+                        <td colspan="3" class="text-end"><strong>Итого:</strong></td>
+                        <td><strong>@Model.TotalAmount.ToString("0.00") byn</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Назад к списку заказов
+    </a>
+</div>

@@ -1,0 +1,153 @@
+﻿@model StationeryShop.Models.Product
+
+@{
+    bool isAuthenticated = Context.Session.GetInt32("CustomerID") != null;
+    bool isAdmin = Context.Session.GetString("IsAdmin") == "true";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        @if (Model.PhotoBase64 != null)
+        {
+            <img src="data:image/png;base64,@Model.PhotoBase64" 
+                 class="img-fluid rounded" 
+                 alt="@Model.Name"
+                 style="max-height: 400px; object-fit: cover;">
+        }
+        else
+        {
+            <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                 style="height: 300px;">
+                <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+            </div>
+        }
+    </div>
+    
+    <div class="col-md-6">
+        <h4 class="text-primary">@Model.Name</h4>
+        
+        <div class="mb-3">
+            <span class="badge bg-info">@Model.Category?.Name</span>
+            @if (Model.StockQuantity > 10)
+            {
+                <span class="badge bg-success ms-2">В наличии</span>
+            }
+            else if (Model.StockQuantity > 0)
+            {
+                <span class="badge bg-warning ms-2">Мало осталось</span>
+            }
+            else
+            {
+                <span class="badge bg-danger ms-2">Нет в наличии</span>
+            }
+        </div>
+
+        <div class="mb-3">
+            <h3 class="text-success">@Model.Price.ToString("0.00") byn</h3>
+            <small class="text-muted">Количество на складе: @Model.StockQuantity</small>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <div class="mb-4">
+                <h6>Описание:</h6>
+                <p class="text-muted">@Model.Description</p>
+            </div>
+        }
+
+        <div class="d-grid gap-2">
+            @if (isAuthenticated && !isAdmin)
+            {
+                if (Model.StockQuantity > 0)
+                {
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-grid">
+                        <input type="hidden" name="productId" value="@Model.ProductID" />
+                        <input type="hidden" name="quantity" value="1" />
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-cart-plus"></i> Добавить в корзину
+                        </button>
+                    </form>
+                    <div class="text-center">
+                        <small class="text-muted">Товар будет добавлен в вашу корзину</small>
+                    </div>
+                }
+                else
+                {
+                    <button class="btn btn-secondary btn-lg" disabled>
+                        <i class="bi bi-cart-x"></i> Товара нет в наличии
+                    </button>
+                }
+            }
+            else if (!isAuthenticated)
+            {
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle"></i>
+                    Для добавления товара в корзину необходимо 
+                    <a asp-controller="Account" asp-action="Login" class="alert-link">войти в систему</a>
+                </div>
+            }
+            
+            @if (isAdmin)
+            {
+                <div class="btn-group w-100" role="group">
+                    <a asp-action="Edit" asp-route-id="@Model.ProductID" 
+                       class="btn btn-outline-warning">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                    <a asp-action="Details" asp-route-id="@Model.ProductID" 
+                       class="btn btn-outline-info">
+                        <i class="bi bi-eye"></i> Детали
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Характеристики товара -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Информация о товаре</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Категория:</strong></td>
+                                <td>@Model.Category?.Name</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Цена:</strong></td>
+                                <td class="text-success fw-bold">@Model.Price.ToString("0.00") byn</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Наличие:</strong></td>
+                                <td>
+                                    @if (Model.StockQuantity > 0)
+                                    {
+                                        <span class="text-success">В наличии (@Model.StockQuantity шт.)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">Нет в наличии</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>ID товара:</strong></td>
+                                <td>#@Model.ProductID</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

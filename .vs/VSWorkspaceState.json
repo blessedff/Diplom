@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Controllers",
+    "\\Data",
+    "\\Views",
+    "\\Views\\Admin",
+    "\\Views\\Cart",
+    "\\Views\\Categories",
+    "\\Views\\Orders",
+    "\\Views\\Products",
+    "\\Views\\Shared"
+  ],
+  "SelectedNode": "\\appsettings.json",
+  "PreviewInSolutionExplorer": false
+}

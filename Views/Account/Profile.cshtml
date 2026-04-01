@@ -1,0 +1,180 @@
+﻿@model StationeryShop.Models.Customer
+
+@{
+    ViewData["Title"] = "Личный кабинет";
+}
+
+<h2 class="mb-4"><i class="bi bi-person-circle"></i> Личный кабинет</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Информация о профиле</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="UpdateProfile" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Phone" class="form-label"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Address" class="form-label"></label>
+                        <input asp-for="Address" class="form-control" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="form-label">Новый пароль</label>
+                        <input asp-for="Password" type="password" class="form-control" 
+                               placeholder="Оставьте пустым, если не хотите менять пароль" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <small class="form-text text-muted">Минимум 6 символов</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check-circle"></i> Сохранить изменения
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <!-- Статистика пользователя -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Моя статистика</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border rounded p-3">
+                            <h4 class="text-primary">@Model.Orders.Count</h4>
+                            <small class="text-muted">Всего заказов</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3">
+                            <h4 class="text-success">
+                                @Model.Orders.Where(o => o.Status == "Выполнен").Count()
+                            </h4>
+                            <small class="text-muted">Выполнено</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Быстрые ссылки -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Быстрые действия</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-primary">
+                        <i class="bi bi-bag"></i> Мои заказы
+                    </a>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-outline-success">
+                        <i class="bi bi-cart"></i> Продолжить покупки
+                    </a>
+                    <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-info">
+                        <i class="bi bi-cart3"></i> Корзина
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Последние заказы -->
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Последние заказы</h5>
+        <a asp-controller="Orders" asp-action="Index" class="btn btn-sm btn-outline-primary">Все заказы</a>
+    </div>
+    <div class="card-body">
+        @if (Model.Orders.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Номер</th>
+                            <th>Дата</th>
+                            <th>Сумма</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.Orders.OrderByDescending(o => o.OrderDate).Take(5))
+                        {
+                            <tr>
+                                <td>#@order.OrderID</td>
+                                <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
+                                <td>@order.TotalAmount.ToString("0.00") byn</td>
+                                <td>
+                                    <span class="badge 
+                                        @(order.Status == "Выполнен" ? "bg-success" :
+                                          order.Status == "Отменен" ? "bg-danger" :
+                                          order.Status == "Готов к выдаче" ? "bg-warning" : "bg-info")">
+                                        @order.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderID" 
+                                       class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted text-center">У вас пока нет заказов</p>
+            <div class="text-center">
+                <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
+                    <i class="bi bi-bag"></i> Сделать первый заказ
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

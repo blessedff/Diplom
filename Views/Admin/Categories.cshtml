@@ -1,0 +1,49 @@
+﻿@model IEnumerable<StationeryShop.Models.Category>
+
+@{
+    ViewData["Title"] = "Управление категориями";
+}
+
+<h2 class="mb-4"><i class="bi bi-tags"></i> Управление категориями</h2>
+
+<div class="d-flex justify-content-between mb-3">
+    <a asp-controller="Categories" asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Добавить категорию
+    </a>
+    <span class="text-muted">Всего категорий: @Model.Count()</span>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Товаров</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model)
+            {
+                <tr>
+                    <td>@category.Name</td>
+                    <td>@category.Description</td>
+                    <td>
+                        <span class="badge bg-primary">@category.Products.Count</span>
+                    </td>
+                    <td>
+                        <a asp-controller="Categories" asp-action="Edit" asp-route-id="@category.CategoryID" 
+                           class="btn btn-sm btn-warning" title="Редактировать">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a asp-controller="Categories" asp-action="Details" asp-route-id="@category.CategoryID" 
+                           class="btn btn-sm btn-info" title="Просмотр">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

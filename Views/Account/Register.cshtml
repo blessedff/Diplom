@@ -1,0 +1,47 @@
+﻿@model StationeryShop.Models.Customer
+
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<h2 class="text-center">Регистрация клиента</h2>
+
+<form asp-action="Register" method="post" class="w-50 mx-auto mt-4">
+    <div class="mb-3">
+        <label asp-for="FullName" class="form-label"></label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Address" class="form-label"></label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,430 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Data\\DbInitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Data\\DbInitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Home\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Home\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Shared\\_Layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Shared\\_Layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Cart\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Cart\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Admin\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Admin\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\Details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Products\\Details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Orders\\Details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Orders\\Details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Categories\\Details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Orders\\Create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Orders\\Create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Orders\\Confirm.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Orders\\Confirm.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\_ProductModal.cshtml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Products\\_ProductModal.cshtml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Products\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\_CategoryModal.cshtml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Categories\\_CategoryModal.cshtml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Products.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Categories\\Products.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Controllers\\ProductsController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\ProductsController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Categories\\Index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Controllers\\CategoriesController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\CategoriesController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Products.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Categories\\Products.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\_CategoryModal.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Categories\\_CategoryModal.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\Index.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Products\\Index.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\_ProductModal.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Products\\_ProductModal.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\dotnet\\sdk\\9.0.101\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.PackageDependencyResolution.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 14,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DbInitializer.cs",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Data\\DbInitializer.cs",
+              "RelativeDocumentMoniker": "Data\\DbInitializer.cs",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Data\\DbInitializer.cs",
+              "RelativeToolTip": "Data\\DbInitializer.cs",
+              "ViewState": "AgIAAIoAAAAAAAAAAAAqwKoAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T20:39:15.124Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Cart\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Cart\\Index.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Cart\\Index.cshtml",
+              "RelativeToolTip": "Views\\Cart\\Index.cshtml",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAswEcAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:34:08.011Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Admin\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Admin\\Index.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Admin\\Index.cshtml",
+              "RelativeToolTip": "Views\\Admin\\Index.cshtml",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAswE8AAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:33:44.275Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Details.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\Details.cshtml",
+              "RelativeDocumentMoniker": "Views\\Products\\Details.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\Details.cshtml",
+              "RelativeToolTip": "Views\\Products\\Details.cshtml",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAACEAAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:33:36.541Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Details.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Orders\\Details.cshtml",
+              "RelativeDocumentMoniker": "Views\\Orders\\Details.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Orders\\Details.cshtml",
+              "RelativeToolTip": "Views\\Orders\\Details.cshtml",
+              "ViewState": "AgIAADcAAAAAAAAAAAAswFEAAABLAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:33:19.681Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Details.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Details.cshtml",
+              "RelativeDocumentMoniker": "Views\\Categories\\Details.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Details.cshtml",
+              "RelativeToolTip": "Views\\Categories\\Details.cshtml",
+              "ViewState": "AgIAACYAAAAAAAAAAAAAACYAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:33:14.576Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Orders\\Create.cshtml",
+              "RelativeDocumentMoniker": "Views\\Orders\\Create.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Orders\\Create.cshtml",
+              "RelativeToolTip": "Views\\Orders\\Create.cshtml",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAAAEYAAABrAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:33:07.883Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Confirm.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Orders\\Confirm.cshtml",
+              "RelativeDocumentMoniker": "Views\\Orders\\Confirm.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Orders\\Confirm.cshtml",
+              "RelativeToolTip": "Views\\Orders\\Confirm.cshtml",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAswB0AAABzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:32:53.083Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "_CategoryModal.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\_CategoryModal.cshtml",
+              "RelativeDocumentMoniker": "Views\\Categories\\_CategoryModal.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\_CategoryModal.cshtml",
+              "RelativeToolTip": "Views\\Categories\\_CategoryModal.cshtml",
+              "ViewState": "AgIAABQAAAAAAAAAAAAswCUAAABtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:11:51.914Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAGEBAAAAAAAAAAAtwHIBAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:03:14.649Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAABbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-11-10T19:41:05.621Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Products.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Products.cshtml",
+              "RelativeDocumentMoniker": "Views\\Categories\\Products.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Products.cshtml",
+              "RelativeToolTip": "Views\\Categories\\Products.cshtml",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAswC4AAABeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:12:43.402Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T19:41:44.987Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Categories\\Index.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Index.cshtml",
+              "RelativeToolTip": "Views\\Categories\\Index.cshtml",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAmwIUAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:11:24.962Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Products.cshtml.cs",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Products.cshtml.cs",
+              "RelativeDocumentMoniker": "Views\\Categories\\Products.cshtml.cs",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\Products.cshtml.cs",
+              "RelativeToolTip": "Views\\Categories\\Products.cshtml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T20:12:53.992Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "CategoriesController.cs",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Controllers\\CategoriesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CategoriesController.cs",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Controllers\\CategoriesController.cs",
+              "RelativeToolTip": "Controllers\\CategoriesController.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAAAEUAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T20:09:01.498Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ProductsController.cs",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Controllers\\ProductsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ProductsController.cs",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Controllers\\ProductsController.cs",
+              "RelativeToolTip": "Controllers\\ProductsController.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAADgvzYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T19:49:53.772Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Products\\Index.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\Index.cshtml",
+              "RelativeToolTip": "Views\\Products\\Index.cshtml",
+              "ViewState": "AgIAAMQAAAAAAAAAAAAswNUAAABiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T19:51:13.029Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "_ProductModal.cshtml",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\_ProductModal.cshtml",
+              "RelativeDocumentMoniker": "Views\\Products\\_ProductModal.cshtml",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\_ProductModal.cshtml",
+              "RelativeToolTip": "Views\\Products\\_ProductModal.cshtml",
+              "ViewState": "AgIAAGoAAAAAAAAAAAAswHsAAABfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-10T20:01:31.651Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "_CategoryModal.cshtml.cs",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\_CategoryModal.cshtml.cs",
+              "RelativeDocumentMoniker": "Views\\Categories\\_CategoryModal.cshtml.cs",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Categories\\_CategoryModal.cshtml.cs",
+              "RelativeToolTip": "Views\\Categories\\_CategoryModal.cshtml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T20:12:11.052Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "_ProductModal.cshtml.cs",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\_ProductModal.cshtml.cs",
+              "RelativeDocumentMoniker": "Views\\Products\\_ProductModal.cshtml.cs",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\_ProductModal.cshtml.cs",
+              "RelativeToolTip": "Views\\Products\\_ProductModal.cshtml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T20:02:16.653Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "Index.cshtml.cs",
+              "DocumentMoniker": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\Index.cshtml.cs",
+              "RelativeDocumentMoniker": "Views\\Products\\Index.cshtml.cs",
+              "ToolTip": "C:\\Users\\blessedf\\Desktop\\BI4KOV_8LAB\\StationeryShop\\Views\\Products\\Index.cshtml.cs",
+              "RelativeToolTip": "Views\\Products\\Index.cshtml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T19:55:25.773Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "Microsoft.PackageDependencyResolution.targets",
+              "DocumentMoniker": "C:\\Program Files\\dotnet\\sdk\\9.0.101\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.PackageDependencyResolution.targets",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\9.0.101\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.PackageDependencyResolution.targets",
+              "ToolTip": "C:\\Program Files\\dotnet\\sdk\\9.0.101\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.PackageDependencyResolution.targets",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\9.0.101\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.PackageDependencyResolution.targets",
+              "ViewState": "AgIAAPgAAAAAAAAAAAAWwAkBAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2025-11-10T19:52:43.759Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

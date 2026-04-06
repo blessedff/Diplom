@@ -57,18 +57,7 @@ namespace StationeryShop.Controllers
             return _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"].ToString() ?? "Unknown";
         }
 
-        private async Task<bool> IsBlocked(string email, string ipAddress)
-        {
-            var blockUntil = DateTime.Now.AddMinutes(-_blockMinutes);
-
-            var failedAttempts = await _context.LoginAttempts
-                .Where(a => (a.Email == email || a.IpAddress == ipAddress)
-                            && a.AttemptTime >= blockUntil
-                            && !a.IsSuccessful)
-                .CountAsync();
-
-            return failedAttempts >= _maxFailedAttempts;
-        }
+  
 
         private async Task LogLoginAttempt(string email, bool isSuccessful)
         {
@@ -189,16 +178,7 @@ namespace StationeryShop.Controllers
             //    return View();
             //}
             var isRecapthaValid = true;
-            // Проверка на блокировку
-            var ipAddress = GetClientIpAddress();
-            Console.WriteLine($"IP адрес: {ipAddress}");
-
-            if (await IsBlocked(email, ipAddress))
-            {
-                Console.WriteLine("Аккаунт заблокирован!");
-                ViewBag.Error = $"Слишком много неудачных попыток. Попробуйте через {_blockMinutes} минут.";
-                return View();
-            }
+            
 
             // Поиск пользователя
             Console.WriteLine($"Ищем пользователя с email: {email}");
@@ -244,7 +224,7 @@ namespace StationeryShop.Controllers
                     Console.WriteLine($"Ошибка переноса корзины: {ex.Message}");
                 }
 
-                _logger.LogInformation($"Успешный вход: {email}, IP: {ipAddress}");
+                _logger.LogInformation($"Успешный вход: {email}, IP: {GetClientIpAddress()}");
                 TempData["Success"] = $"Добро пожаловать, {customer.FullName}!";
 
                 Console.WriteLine("РЕДИРЕКТ на Home/Index");
@@ -254,25 +234,15 @@ namespace StationeryShop.Controllers
             {
                 Console.WriteLine("НЕВЕРНЫЙ ПАРОЛЬ или пользователь не найден");
 
-                var blockUntil = DateTime.Now.AddMinutes(-_blockMinutes);
-                var recentFailed = await _context.LoginAttempts
-                    .Where(a => (a.Email == email || a.IpAddress == ipAddress)
-                                && a.AttemptTime >= blockUntil
-                                && !a.IsSuccessful)
-                    .CountAsync();
+               
 
-                var remainingAttempts = _maxFailedAttempts - recentFailed;
+              
 
-                if (remainingAttempts > 0)
-                {
-                    ViewBag.Error = $"Неверный email или пароль. Осталось попыток: {remainingAttempts}";
-                }
-                else
-                {
-                    ViewBag.Error = $"Аккаунт заблокирован на {_blockMinutes} минут. Попробуйте позже.";
-                }
+         
+                    ViewBag.Error = $"Неверный email или пароль.";
 
-                _logger.LogWarning($"Неудачный вход: {email}, IP: {ipAddress}");
+
+                _logger.LogWarning($"Неудачный вход: {email}, IP: {GetClientIpAddress()}");
                 return View();
             }
         }

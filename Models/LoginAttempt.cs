@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,12 +19,12 @@ namespace StationeryShop.Models
         public DateTime AttemptTime { get; set; } = DateTime.Now;
 
         [Required]
-        [StringLength(20)]
+        [StringLength(50)]
         public string IpAddress { get; set; } = string.Empty;
 
         public bool IsSuccessful { get; set; } = false;
 
-        [StringLength(50)]
+        [StringLength(500)]
         public string? UserAgent { get; set; }
     }
 }

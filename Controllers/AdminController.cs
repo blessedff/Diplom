@@ -14,6 +14,18 @@ namespace StationeryShop.Controllers
             _context = context;
         }
 
+        public async Task<IActionResult> LoginAttempts()
+        {
+            if (!IsAdmin())
+                return RedirectToHome();
+
+            var attempts = await _context.LoginAttempts
+                .OrderByDescending(a => a.AttemptTime)
+                .Take(100)
+                .ToListAsync();
+
+            return View(attempts);
+        }
         private bool IsAdmin()
         {
             return HttpContext.Session.GetString("IsAdmin") == "true";
@@ -143,6 +155,8 @@ namespace StationeryShop.Controllers
                 return Json(new { success = false, message = $"Ошибка: {ex.Message}" });
             }
         }
+
+
 
         // Быстрое обновление количества товара
         [HttpPost]

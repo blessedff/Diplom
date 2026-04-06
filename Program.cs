@@ -28,6 +28,30 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddLogging();
 
 var app = builder.Build();
+// Ручное создание таблицы LoginAttempts
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<StationeryDbContext>();
+
+    string createTableSql = @"
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'LoginAttempts')
+        BEGIN
+            CREATE TABLE [LoginAttempts] (
+                [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                [Email] NVARCHAR(100) NOT NULL,
+                [AttemptTime] DATETIME2 NOT NULL,
+                [IpAddress] NVARCHAR(50) NOT NULL,
+                [IsSuccessful] BIT NOT NULL DEFAULT 0,
+                [UserAgent] NVARCHAR(500) NULL
+            );
+            
+            CREATE INDEX IX_LoginAttempts_Email_AttemptTime ON [LoginAttempts] ([Email], [AttemptTime]);
+            CREATE INDEX IX_LoginAttempts_IpAddress_AttemptTime ON [LoginAttempts] ([IpAddress], [AttemptTime]);
+        END
+    ";
+
+    context.Database.ExecuteSqlRaw(createTableSql);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

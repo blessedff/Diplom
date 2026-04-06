@@ -1,0 +1,42 @@
+﻿@model IEnumerable<StationeryShop.Models.LoginAttempt>
+
+@{
+    ViewData["Title"] = "Попытки входа";
+}
+
+<h2 class="mb-4"><i class="bi bi-shield-lock"></i> Журнал попыток входа</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Email</th>
+                <th>Время</th>
+                <th>IP-адрес</th>
+                <th>Статус</th>
+                <th>User Agent</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var attempt in Model)
+            {
+                <tr>
+                    <td>@attempt.Email</td>
+                    <td>@attempt.AttemptTime.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                    <td>@attempt.IpAddress</td>
+                    <td>
+                        @if (attempt.IsSuccessful)
+                        {
+                            <span class="badge bg-success">Успех</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Неудача</span>
+                        }
+                    </td>
+                    <td>@(attempt.UserAgent?.Length > 50 ? attempt.UserAgent.Substring(0, 50) + "..." : attempt.UserAgent)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

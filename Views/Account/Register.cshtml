@@ -6,7 +6,7 @@
 
 <h2 class="text-center">Регистрация клиента</h2>
 
-<form asp-action="Register" method="post" class="w-50 mx-auto mt-4">
+<form asp-action="Register" method="post" class="w-50 mx-auto mt-4" id="registerForm">
     <div class="mb-3">
         <label asp-for="FullName" class="form-label"></label>
         <input asp-for="FullName" class="form-control" />
@@ -23,12 +23,12 @@
         <label asp-for="Password" class="form-label"></label>
         <input asp-for="Password" type="password" class="form-control" />
         <span asp-validation-for="Password" class="text-danger"></span>
+        <small class="form-text text-muted">Минимум 8 символов, включая цифры и заглавные буквы</small>
     </div>
 
     <div class="mb-3">
         <label class="form-label">Подтверждение пароля</label>
         <input type="password" name="confirmPassword" class="form-control" required />
-        <small class="form-text text-muted">Повторите пароль для подтверждения</small>
     </div>
 
     <div class="mb-3">
@@ -43,6 +43,11 @@
         <span asp-validation-for="Address" class="text-danger"></span>
     </div>
 
+    <!-- reCAPTCHA -->
+    <div class="mb-3">
+        <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey"></div>
+    </div>
+
     <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
 
     <p class="text-center mt-3">
@@ -51,6 +56,28 @@
 </form>
 
 @section Scripts {
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            var recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                e.preventDefault();
+                alert('Пожалуйста, подтвердите, что вы не робот');
+                return false;
+            }
+            
+            // Создаем скрытое поле и добавляем его в форму
+            var hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden';
+            hiddenField.name = 'recaptchaToken';
+            hiddenField.value = recaptchaResponse;
+            this.appendChild(hiddenField);
+            
+            console.log('Форма отправляется, токен добавлен');
+            return true;
+        });
+    </script>
+    
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

@@ -1,11 +1,10 @@
-﻿// Controllers/AccountController.cs (обновленная версия)
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StationeryShop.Data;
 using StationeryShop.Models;
 using StationeryShop.Services;
-using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace StationeryShop.Controllers
 {
@@ -15,22 +14,32 @@ namespace StationeryShop.Controllers
         private readonly CartService _cartService;
         private readonly ILogger<AccountController> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IConfiguration _configuration;
 
-        // Google reCAPTCHA секретный ключ (получить с https://www.google.com/recaptcha)
-        private const string RECAPTCHA_SECRET_KEY = "ВАШ_СЕКРЕТНЫЙ_КЛЮЧ";
-        private const int MAX_FAILED_ATTEMPTS = 5;
-        private const int BLOCK_MINUTES = 15;
+        // reCAPTCHA ключи из конфигурации
+        private readonly string _recaptchaSecretKey;
+        private readonly int _maxFailedAttempts;
+        private readonly int _blockMinutes;
+        private readonly string _recaptchaSiteKey;
 
         public AccountController(
             StationeryDbContext context,
             CartService cartService,
             ILogger<AccountController> logger,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IConfiguration configuration)
         {
             _context = context;
             _cartService = cartService;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _configuration = configuration;
+
+            // Читаем настройки из appsettings.json
+            _recaptchaSecretKey = _configuration["ReCaptcha:SecretKey"] ?? "";
+            _recaptchaSiteKey = _configuration["ReCaptcha:SiteKey"] ?? "";
+            _maxFailedAttempts = _configuration.GetValue<int>("Security:MaxFailedLoginAttempts", 5);
+            _blockMinutes = _configuration.GetValue<int>("Security:LoginBlockMinutes", 15);
         }
 
         // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
@@ -50,7 +59,7 @@ namespace StationeryShop.Controllers
 
         private async Task<bool> IsBlocked(string email, string ipAddress)
         {
-            var blockUntil = DateTime.Now.AddMinutes(-BLOCK_MINUTES);
+            var blockUntil = DateTime.Now.AddMinutes(-_blockMinutes);
 
             var failedAttempts = await _context.LoginAttempts
                 .Where(a => (a.Email == email || a.IpAddress == ipAddress)
@@ -58,7 +67,7 @@ namespace StationeryShop.Controllers
                             && !a.IsSuccessful)
                 .CountAsync();
 
-            return failedAttempts >= MAX_FAILED_ATTEMPTS;
+            return failedAttempts >= _maxFailedAttempts;
         }
 
         private async Task LogLoginAttempt(string email, bool isSuccessful)
@@ -85,33 +94,68 @@ namespace StationeryShop.Controllers
         private async Task<bool> VerifyRecaptcha(string recaptchaResponse)
         {
             if (string.IsNullOrEmpty(recaptchaResponse))
+            {
+                Console.WriteLine("recaptchaResponse ПУСТОЙ");
                 return false;
+            }
 
             using var client = new HttpClient();
             var response = await client.PostAsync(
                 "https://www.google.com/recaptcha/api/siteverify",
                 new FormUrlEncodedContent(new[]
                 {
-                    new KeyValuePair<string, string>("secret", RECAPTCHA_SECRET_KEY),
+                    new KeyValuePair<string, string>("secret", _recaptchaSecretKey),
                     new KeyValuePair<string, string>("response", recaptchaResponse)
                 })
             );
 
             var json = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<RecaptchaResponse>(json);
+            Console.WriteLine($"Ответ Google: {json}");
 
-            return result?.Success == true;
+            try
+            {
+                var result = JsonSerializer.Deserialize<RecaptchaResponse>(json);
+                return result?.Success == true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        // ==================== LOGIN ====================
+        private bool IsAuthenticated()
+        {
+            return HttpContext.Session.GetInt32("CustomerID") != null;
+        }
+
+        private string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
+
+        private bool IsPasswordStrong(string password)
+        {
+            return password.Length >= 8 &&
+                   password.Any(char.IsDigit) &&
+                   password.Any(char.IsUpper);
+        }
+
+        // ==================== LOGIN (ВХОД) ====================
 
         [HttpGet]
         public IActionResult Login()
         {
-            // Если пользователь уже авторизован — перенаправляем
+            Console.WriteLine("=== GET Login вызван ===");
+
             if (IsAuthenticated())
                 return RedirectToAction("Index", "Home");
 
+            ViewBag.ReCaptchaSiteKey = _recaptchaSiteKey;
             return View();
         }
 
@@ -119,12 +163,23 @@ namespace StationeryShop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password, string recaptchaToken)
         {
-            // Если уже авторизован
+            Console.WriteLine($"=== POST Login вызван ===");
+            Console.WriteLine($"Email: {email}");
+            Console.WriteLine($"recaptchaToken: {(string.IsNullOrEmpty(recaptchaToken) ? "ПУСТО" : recaptchaToken.Substring(0, Math.Min(20, recaptchaToken.Length)))}");
+
+            ViewBag.ReCaptchaSiteKey = _recaptchaSiteKey;
+
             if (IsAuthenticated())
+            {
+                Console.WriteLine("Пользователь уже авторизован, редирект на Home");
                 return RedirectToAction("Index", "Home");
+            }
 
             // Проверка reCAPTCHA
+            Console.WriteLine("Проверяем reCAPTCHA...");
             var isRecaptchaValid = await VerifyRecaptcha(recaptchaToken);
+            Console.WriteLine($"reCAPTCHA результат: {isRecaptchaValid}");
+
             if (!isRecaptchaValid)
             {
                 ViewBag.Error = "Подтвердите, что вы не робот";
@@ -133,64 +188,77 @@ namespace StationeryShop.Controllers
 
             // Проверка на блокировку
             var ipAddress = GetClientIpAddress();
+            Console.WriteLine($"IP адрес: {ipAddress}");
+
             if (await IsBlocked(email, ipAddress))
             {
-                ViewBag.Error = $"Слишком много неудачных попыток. Попробуйте через {BLOCK_MINUTES} минут.";
+                Console.WriteLine("Аккаунт заблокирован!");
+                ViewBag.Error = $"Слишком много неудачных попыток. Попробуйте через {_blockMinutes} минут.";
                 return View();
             }
 
             // Поиск пользователя
+            Console.WriteLine($"Ищем пользователя с email: {email}");
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(c => c.Email == email);
 
             // Проверка пароля
             bool isValid = customer != null && VerifyPassword(password, customer.Password);
+            Console.WriteLine($"Пользователь найден: {customer != null}, Пароль верен: {isValid}");
 
             // Логируем попытку
             await LogLoginAttempt(email, isValid);
 
             if (isValid)
             {
-                // Успешный вход — очищаем старые попытки для этого email
+                Console.WriteLine("УСПЕШНЫЙ ВХОД!");
+
+                // Успешный вход — очищаем старые попытки
                 var oldAttempts = _context.LoginAttempts
                     .Where(a => a.Email == email && !a.IsSuccessful);
                 _context.LoginAttempts.RemoveRange(oldAttempts);
                 await _context.SaveChangesAsync();
 
-                // Устанавливаем сессию
                 var oldSessionId = HttpContext.Session.Id;
+                Console.WriteLine($"Старая сессия: {oldSessionId}");
+
+                // Устанавливаем новую сессию
                 HttpContext.Session.SetInt32("CustomerID", customer.CustomerID);
                 HttpContext.Session.SetString("CustomerName", customer.FullName ?? "");
                 HttpContext.Session.SetString("IsAdmin", customer.IsAdmin ? "true" : "false");
 
-                // Регенерируем ID сессии для защиты от фиксации сессии
-                HttpContext.Session.SetString("SessionRegenerated", "true");
+                Console.WriteLine($"Установлена сессия: CustomerID={customer.CustomerID}, Name={customer.FullName}");
 
                 // Переносим корзину
                 try
                 {
                     _cartService.TransferCart(oldSessionId, customer.CustomerID);
+                    Console.WriteLine("Корзина перенесена");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Ошибка при переносе корзины");
+                    Console.WriteLine($"Ошибка переноса корзины: {ex.Message}");
                 }
 
                 _logger.LogInformation($"Успешный вход: {email}, IP: {ipAddress}");
                 TempData["Success"] = $"Добро пожаловать, {customer.FullName}!";
+
+                Console.WriteLine("РЕДИРЕКТ на Home/Index");
                 return RedirectToAction("Index", "Home");
             }
             else
             {
-                // Проверяем, сколько осталось попыток
-                var blockUntil = DateTime.Now.AddMinutes(-BLOCK_MINUTES);
+                Console.WriteLine("НЕВЕРНЫЙ ПАРОЛЬ или пользователь не найден");
+
+                var blockUntil = DateTime.Now.AddMinutes(-_blockMinutes);
                 var recentFailed = await _context.LoginAttempts
                     .Where(a => (a.Email == email || a.IpAddress == ipAddress)
                                 && a.AttemptTime >= blockUntil
                                 && !a.IsSuccessful)
                     .CountAsync();
 
-                var remainingAttempts = MAX_FAILED_ATTEMPTS - recentFailed;
+                var remainingAttempts = _maxFailedAttempts - recentFailed;
 
                 if (remainingAttempts > 0)
                 {
@@ -198,7 +266,7 @@ namespace StationeryShop.Controllers
                 }
                 else
                 {
-                    ViewBag.Error = $"Аккаунт заблокирован на {BLOCK_MINUTES} минут. Попробуйте позже.";
+                    ViewBag.Error = $"Аккаунт заблокирован на {_blockMinutes} минут. Попробуйте позже.";
                 }
 
                 _logger.LogWarning($"Неудачный вход: {email}, IP: {ipAddress}");
@@ -206,30 +274,41 @@ namespace StationeryShop.Controllers
             }
         }
 
-        // ==================== REGISTER ====================
+        // ==================== REGISTER (РЕГИСТРАЦИЯ) ====================
 
         [HttpGet]
         public IActionResult Register()
         {
+            Console.WriteLine("=== GET Register вызван ===");
+
             if (IsAuthenticated())
                 return RedirectToAction("Index", "Home");
 
+            ViewBag.ReCaptchaSiteKey = _recaptchaSiteKey;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(Customer customer, string confirmPassword, string recaptchaToken)
+        public async Task<IActionResult> Register(Customer customer, string confirmPassword)
         {
+            Console.WriteLine($"=== POST Register вызван ===");
+            Console.WriteLine($"Email: {customer.Email}");
+            Console.WriteLine($"RecaptchaToken: {(string.IsNullOrEmpty(customer.RecaptchaToken) ? "ПУСТО" : customer.RecaptchaToken.Substring(0, Math.Min(20, customer.RecaptchaToken.Length)))}");
+
+            ViewBag.ReCaptchaSiteKey = _recaptchaSiteKey;
+
             // Проверка reCAPTCHA
-            var isRecaptchaValid = await VerifyRecaptcha(recaptchaToken);
+            var isRecaptchaValid = await VerifyRecaptcha(customer.RecaptchaToken);
+            Console.WriteLine($"reCAPTCHA результат: {isRecaptchaValid}");
+
             if (!isRecaptchaValid)
             {
                 ModelState.AddModelError("", "Подтвердите, что вы не робот");
                 return View(customer);
             }
 
-            // Проверка пароля
+            // Проверка совпадения паролей
             if (customer.Password != confirmPassword)
             {
                 ModelState.AddModelError("", "Пароли не совпадают");
@@ -259,6 +338,7 @@ namespace StationeryShop.Controllers
 
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
+            Console.WriteLine($"Пользователь создан с ID: {customer.CustomerID}");
 
             // Автоматический вход после регистрации
             HttpContext.Session.SetInt32("CustomerID", customer.CustomerID);
@@ -267,39 +347,127 @@ namespace StationeryShop.Controllers
 
             _logger.LogInformation($"Новая регистрация: {customer.Email}, IP: {GetClientIpAddress()}");
             TempData["Success"] = $"Регистрация успешна! Добро пожаловать, {customer.FullName}!";
+
+            Console.WriteLine("РЕДИРЕКТ на Home/Index");
             return RedirectToAction("Index", "Home");
         }
 
-        // ==================== ДРУГИЕ МЕТОДЫ ====================
+        // ==================== PROFILE (ПРОФИЛЬ) ====================
 
-        private bool IsAuthenticated()
+        [HttpGet]
+        public IActionResult Profile()
         {
-            return HttpContext.Session.GetInt32("CustomerID") != null;
+            if (!IsAuthenticated())
+            {
+                TempData["Error"] = "Для доступа необходимо авторизоваться";
+                return RedirectToAction("Login");
+            }
+
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            var customer = _context.Customers
+                .Include(c => c.Orders)
+                .FirstOrDefault(c => c.CustomerID == customerId);
+
+            if (customer == null)
+            {
+                TempData["Error"] = "Пользователь не найден";
+                return RedirectToAction("Login");
+            }
+
+            return View(customer);
         }
 
-        private string HashPassword(string password)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateProfile(Customer updatedCustomer)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            if (!IsAuthenticated())
+                return RedirectToAction("Login");
+
+            try
+            {
+                var customerId = HttpContext.Session.GetInt32("CustomerID");
+                var existingCustomer = _context.Customers.Find(customerId);
+
+                if (existingCustomer == null)
+                {
+                    TempData["Error"] = "Пользователь не найден";
+                    return RedirectToAction("Login");
+                }
+
+                // Проверяем, не используется ли email другим пользователем
+                if (_context.Customers.Any(c => c.Email == updatedCustomer.Email && c.CustomerID != customerId))
+                {
+                    ModelState.AddModelError("Email", "Этот email уже используется другим пользователем");
+                    return View("Profile", existingCustomer);
+                }
+
+                // Обновляем разрешенные поля
+                existingCustomer.FullName = updatedCustomer.FullName;
+                existingCustomer.Email = updatedCustomer.Email;
+                existingCustomer.Phone = updatedCustomer.Phone;
+                existingCustomer.Address = updatedCustomer.Address;
+
+                // Если указан новый пароль, хешируем
+                if (!string.IsNullOrEmpty(updatedCustomer.Password))
+                {
+                    if (!IsPasswordStrong(updatedCustomer.Password))
+                    {
+                        ModelState.AddModelError("Password", "Пароль должен содержать минимум 8 символов, включая цифры и заглавные буквы");
+                        return View("Profile", existingCustomer);
+                    }
+                    existingCustomer.Password = HashPassword(updatedCustomer.Password);
+                }
+
+                _context.Customers.Update(existingCustomer);
+                _context.SaveChanges();
+
+                // Обновляем имя в сессии
+                HttpContext.Session.SetString("CustomerName", existingCustomer.FullName);
+
+                TempData["Success"] = "Профиль успешно обновлен!";
+                return RedirectToAction("Profile");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при обновлении профиля");
+                TempData["Error"] = "Произошла ошибка при обновлении профиля";
+                return RedirectToAction("Profile");
+            }
         }
 
-        private bool VerifyPassword(string password, string hashedPassword)
+        // ==================== LOGOUT (ВЫХОД) ====================
+
+        public IActionResult Logout()
         {
-            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            try
+            {
+                HttpContext.Session.Clear();
+                TempData["Success"] = "Вы успешно вышли из системы.";
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при выходе");
+                TempData["Error"] = "Произошла ошибка при выходе из системы.";
+                return RedirectToAction("Index", "Home");
+            }
         }
 
-        private bool IsPasswordStrong(string password)
-        {
-            return password.Length >= 8 &&
-                   password.Any(char.IsDigit) &&
-                   password.Any(char.IsUpper);
-        }
+        // ==================== КЛАСС ДЛЯ ОТВЕТА RECAPTCHA ====================
 
-        // Класс для ответа от Google reCAPTCHA
         private class RecaptchaResponse
         {
+            [JsonPropertyName("success")]
             public bool Success { get; set; }
-            public string? Challenge_ts { get; set; }
+
+            [JsonPropertyName("challenge_ts")]
+            public string? ChallengeTs { get; set; }
+
+            [JsonPropertyName("hostname")]
             public string? Hostname { get; set; }
+
+            [JsonPropertyName("error-codes")]
             public List<string>? ErrorCodes { get; set; }
         }
     }

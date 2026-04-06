@@ -1,18 +1,24 @@
-﻿@{
-    ViewData["Title"] = "Вход";
+﻿﻿@{
+ViewData["Title"] = "Вход";
 }
 
 <h2 class="text-center">Вход в систему</h2>
 
-<form asp-action="Login" method="post" class="w-50 mx-auto mt-4">
+<form asp-action="Login" method="post" class="w-50 mx-auto mt-4" id="loginForm">
     <div class="mb-3">
         <label class="form-label">Email</label>
-        <input type="email" name="email" class="form-control" required />
+        <input type="email" name="email" class="form-control" required autofocus />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Пароль</label>
         <input type="password" name="password" class="form-control" required />
+    </div>
+
+    <!-- reCAPTCHA -->
+    <div class="mb-3">
+        <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey"></div>
+        <input type="hidden" name="recaptchaToken" id="recaptchaToken" />
     </div>
 
     @if (ViewBag.Error != null)
@@ -26,3 +32,18 @@
         Нет аккаунта? <a asp-action="Register">Зарегистрироваться</a>
     </p>
 </form>
+
+@section Scripts {
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                e.preventDefault();
+                alert('Пожалуйста, подтвердите, что вы не робот');
+                return false;
+            }
+            document.getElementById('recaptchaToken').value = recaptchaResponse;
+        });
+    </script>
+}

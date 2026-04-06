@@ -40,6 +40,9 @@ namespace StationeryShop.Models
         [Display(Name = "Администратор")]
         public bool IsAdmin { get; set; } = false;
 
+        [NotMapped]
+        public string? RecaptchaToken { get; set; }
+
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

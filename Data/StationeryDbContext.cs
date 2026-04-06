@@ -15,6 +15,9 @@ namespace StationeryShop.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 
+        
+        public DbSet<LoginAttempt> LoginAttempts { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Product
@@ -64,6 +67,30 @@ namespace StationeryShop.Data
             modelBuilder.Entity<OrderItem>()
                 .HasKey(e => e.OrderItemID);
 
+            // 👇 НАСТРОЙКА ДЛЯ ТАБЛИЦЫ LoginAttempts (добавлена)
+            modelBuilder.Entity<LoginAttempt>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Email)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.IpAddress)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.UserAgent)
+                    .HasMaxLength(500);
+
+                // Индексы для быстрого поиска (важно для проверки блокировок)
+                entity.HasIndex(e => new { e.Email, e.AttemptTime })
+                    .HasDatabaseName("IX_LoginAttempts_Email_AttemptTime");
+
+                entity.HasIndex(e => new { e.IpAddress, e.AttemptTime })
+                    .HasDatabaseName("IX_LoginAttempts_IpAddress_AttemptTime");
+            });
+
             // Связи
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
@@ -86,4 +113,4 @@ namespace StationeryShop.Data
                 .HasForeignKey(oi => oi.ProductID);
         }
     }
-}   
+}

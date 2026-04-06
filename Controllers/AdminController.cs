@@ -38,6 +38,20 @@ namespace StationeryShop.Controllers
         }
 
         // Главная страница админки — статистика и обзор
+
+        public IActionResult Analytics()
+        {
+            if (!IsAdmin()) return RedirectToHome();
+            ViewData["Title"] = "Аналитика продаж";
+            return View();
+        }
+
+        public IActionResult Settings()
+        {
+            if (!IsAdmin()) return RedirectToHome();
+            ViewData["Title"] = "Настройки магазина";
+            return View();
+        }
         public IActionResult Index()
         {
             if (!IsAdmin())

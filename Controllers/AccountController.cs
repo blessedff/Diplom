@@ -93,6 +93,7 @@ namespace StationeryShop.Controllers
 
         private async Task<bool> VerifyRecaptcha(string recaptchaResponse)
         {
+
             if (string.IsNullOrEmpty(recaptchaResponse))
             {
                 Console.WriteLine("recaptchaResponse ПУСТОЙ");
@@ -177,15 +178,17 @@ namespace StationeryShop.Controllers
 
             // Проверка reCAPTCHA
             Console.WriteLine("Проверяем reCAPTCHA...");
-            var isRecaptchaValid = await VerifyRecaptcha(recaptchaToken);
-            Console.WriteLine($"reCAPTCHA результат: {isRecaptchaValid}");
 
-            if (!isRecaptchaValid)
-            {
-                ViewBag.Error = "Подтвердите, что вы не робот";
-                return View();
-            }
+            //Отключение капчи временно + вьюшка аккаунт/логин
+            //var isRecaptchaValid = await VerifyRecaptcha(recaptchaToken);
+            //Console.WriteLine($"reCAPTCHA результат: {isRecaptchaValid}");
 
+            //if (!isRecaptchaValid)
+            //{
+            //    ViewBag.Error = "Подтвердите, что вы не робот";
+            //    return View();
+            //}
+            var isRecapthaValid = true;
             // Проверка на блокировку
             var ipAddress = GetClientIpAddress();
             Console.WriteLine($"IP адрес: {ipAddress}");

@@ -4,48 +4,36 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Админ-панель - @ViewData["Title"]</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* Простые стили без сложностей */
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Сайдбар - фиксирован слева */
         .admin-sidebar {
             position: fixed;
             top: 0;
             left: 0;
             width: 260px;
             height: 100vh;
-            background-color: #1a1a2e;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: white;
             overflow-y: auto;
-            z-index: 1000;
+            z-index: 100;
         }
 
-            .admin-sidebar .logo {
-                padding: 20px;
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-                text-align: center;
-            }
-
-            .admin-sidebar .nav-link {
-                color: rgba(255,255,255,0.8);
-                padding: 12px 20px;
-                display: block;
-                text-decoration: none;
-            }
-
-                .admin-sidebar .nav-link:hover {
-                    background-color: rgba(255,255,255,0.1);
-                }
-
-                .admin-sidebar .nav-link.active {
-                    background-color: #3a7bd5;
-                }
-
-                .admin-sidebar .nav-link i {
-                    margin-right: 10px;
-                    width: 20px;
-                }
-
+        /* Основной контент - сдвинут вправо на ширину сайдбара */
         .admin-content {
             margin-left: 260px;
             padding: 20px;
@@ -53,40 +41,183 @@
             background-color: #f0f2f5;
         }
 
+        /* Верхняя панель */
         .admin-header {
             background: white;
-            border-radius: 10px;
-            padding: 15px 20px;
+            border-radius: 12px;
+            padding: 12px 20px;
             margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .test-banner {
-            background: #28a745;
-            color: white;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            text-align: center;
+            .admin-header h2 {
+                margin: 0;
+                font-size: 1.3rem;
+                font-weight: 600;
+                color: #333;
+            }
+
+        /* Выпадающее меню пользователя */
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
         }
+
+        .user-dropdown-btn {
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+            .user-dropdown-btn:hover {
+                background-color: #f0f0f0;
+            }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: #2c5aa0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .user-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 180px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-dropdown.open .user-dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+            .dropdown-item:hover {
+                background-color: #f0f0f0;
+            }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 6px 0;
+        }
+
+        /* Стили сайдбара */
+        .admin-sidebar .logo {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+        }
+
+            .admin-sidebar .logo h4 {
+                margin: 0;
+                font-size: 1.2rem;
+            }
+
+            .admin-sidebar .logo small {
+                font-size: 11px;
+                opacity: 0.6;
+            }
+
+        .sidebar-divider {
+            margin: 10px 15px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            font-size: 10px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            padding-top: 8px;
+        }
+
+        .admin-sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+            .admin-sidebar .nav-link:hover {
+                background-color: rgba(255,255,255,0.1);
+            }
+
+            .admin-sidebar .nav-link.active {
+                background: rgba(255,255,255,0.15);
+                border-left: 3px solid #3a7bd5;
+            }
+
+            .admin-sidebar .nav-link i {
+                width: 28px;
+                margin-right: 10px;
+                font-size: 1.1rem;
+            }
+
+        /* Карточки */
+        .stat-card {
+            border: none;
+            border-radius: 12px;
+            transition: transform 0.2s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+            }
     </style>
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <!-- БОКОВОЕ МЕНЮ -->
+    <!-- Сайдбар -->
     <div class="admin-sidebar">
         <div class="logo">
-            <h5><i class="bi bi-shop-window"></i> Admin Panel</h5>
+            <h4><i class="bi bi-shop-window"></i> Admin Panel</h4>
             <small>Канцелярский магазин</small>
         </div>
 
-        <div class="sidebar-divider" style="padding: 10px 20px; font-size: 12px; color: rgba(255,255,255,0.5);">НАВИГАЦИЯ</div>
+        <div class="sidebar-divider">ОСНОВНОЕ</div>
 
         <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
            asp-controller="Admin" asp-action="Index">
             <i class="bi bi-speedometer2"></i> Главная
         </a>
+
+        <div class="sidebar-divider">УПРАВЛЕНИЕ</div>
 
         <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Products" ? "active" : "")"
            asp-controller="Admin" asp-action="Products">
@@ -108,6 +239,8 @@
             <i class="bi bi-people"></i> Клиенты
         </a>
 
+        <div class="sidebar-divider">АНАЛИТИКА</div>
+
         <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Analytics" ? "active" : "")"
            asp-controller="Admin" asp-action="Analytics">
             <i class="bi bi-graph-up"></i> Аналитика
@@ -118,34 +251,75 @@
             <i class="bi bi-shield-lock"></i> Логи входов
         </a>
 
+        <div class="sidebar-divider">СИСТЕМА</div>
+
         <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : "")"
            asp-controller="Admin" asp-action="Settings">
             <i class="bi bi-gear"></i> Настройки
         </a>
 
         <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
-            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-light w-100">
-                <i class="bi bi-box-arrow-left"></i> На сайт
-            </a>
+           
         </div>
     </div>
 
-    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <!-- Основной контент -->
     <div class="admin-content">
         <div class="admin-header">
             <h2>@ViewData["Title"]</h2>
-            <div>
-                <span><i class="bi bi-person-circle"></i> @Context.Session.GetString("CustomerName")</span>
-                <a asp-controller="Account" asp-action="Logout" class="btn btn-danger btn-sm ms-3">Выйти</a>
+
+            <div class="user-dropdown" id="userDropdown">
+                <button class="user-dropdown-btn" id="userDropdownBtn">
+                    <div class="user-avatar">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <span class="user-name">@Context.Session.GetString("CustomerName")</span>
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+                <div class="user-dropdown-menu">
+                    
+                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                        <i class="bi bi-person"></i> Личный кабинет
+                    </a>
+                    <a class="dropdown-item" asp-controller="Orders" asp-action="Index">
+                        <i class="bi bi-bag"></i> Мои заказы
+                    </a>
+                    <a class="dropdown-item" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-box-arrow-left"></i> На сайт
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="bi bi-box-arrow-right"></i> Выйти
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
-
-
 
         @RenderBody()
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Выпадающее меню
+        const userDropdown = document.getElementById('userDropdown');
+        const userDropdownBtn = document.getElementById('userDropdownBtn');
+
+        if (userDropdownBtn) {
+            userDropdownBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('open');
+            });
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('open');
+            });
+            userDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

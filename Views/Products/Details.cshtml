@@ -1,6 +1,7 @@
 ﻿@model StationeryShop.Models.Product
 
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Информация о товаре";
     bool isAdmin = Context.Session.GetString("IsAdmin") == "true";
 }
@@ -45,5 +46,5 @@
     {
         <a asp-action="Edit" asp-route-id="@Model.ProductID" class="btn btn-warning">Редактировать</a>
     }
-    <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+    <a asp-controller="Admin" asp-action="Products" class="btn btn-secondary">Назад</a>
 </p>

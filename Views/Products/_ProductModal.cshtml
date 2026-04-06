@@ -9,23 +9,23 @@
     <div class="col-md-6">
         @if (Model.PhotoBase64 != null)
         {
-            <img src="data:image/png;base64,@Model.PhotoBase64" 
-                 class="img-fluid rounded" 
+            <img src="data:image/png;base64,@Model.PhotoBase64"
+                 class="img-fluid rounded"
                  alt="@Model.Name"
                  style="max-height: 400px; object-fit: cover;">
         }
         else
         {
-            <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+            <div class="bg-light rounded d-flex align-items-center justify-content-center"
                  style="height: 300px;">
                 <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
             </div>
         }
     </div>
-    
+
     <div class="col-md-6">
         <h4 class="text-primary">@Model.Name</h4>
-        
+
         <div class="mb-3">
             <span class="badge bg-info">@Model.Category?.Name</span>
             @if (Model.StockQuantity > 10)
@@ -43,7 +43,7 @@
         </div>
 
         <div class="mb-3">
-            <h3 class="text-success">@Model.Price.ToString("0.00") byn</h3>
+            <h3 class="text-success">@Model.Price.ToString("0.00") BYN</h3>
             <small class="text-muted">Количество на складе: @Model.StockQuantity</small>
         </div>
 
@@ -55,6 +55,7 @@
             </div>
         }
 
+        <!-- Кнопки для обычных пользователей (только "В корзину") -->
         <div class="d-grid gap-2">
             @if (isAuthenticated && !isAdmin)
             {
@@ -67,9 +68,6 @@
                             <i class="bi bi-cart-plus"></i> Добавить в корзину
                         </button>
                     </form>
-                    <div class="text-center">
-                        <small class="text-muted">Товар будет добавлен в вашу корзину</small>
-                    </div>
                 }
                 else
                 {
@@ -82,24 +80,12 @@
             {
                 <div class="alert alert-info text-center">
                     <i class="bi bi-info-circle"></i>
-                    Для добавления товара в корзину необходимо 
+                    Для добавления товара в корзину необходимо
                     <a asp-controller="Account" asp-action="Login" class="alert-link">войти в систему</a>
                 </div>
             }
-            
-            @if (isAdmin)
-            {
-                <div class="btn-group w-100" role="group">
-                    <a asp-action="Edit" asp-route-id="@Model.ProductID" 
-                       class="btn btn-outline-warning">
-                        <i class="bi bi-pencil"></i> Редактировать
-                    </a>
-                    <a asp-action="Details" asp-route-id="@Model.ProductID" 
-                       class="btn btn-outline-info">
-                        <i class="bi bi-eye"></i> Детали
-                    </a>
-                </div>
-            }
+
+            <!-- Кнопки для администратора убраны полностью! -->
         </div>
     </div>
 </div>
@@ -121,7 +107,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Цена:</strong></td>
-                                <td class="text-success fw-bold">@Model.Price.ToString("0.00") byn</td>
+                                <td class="text-success fw-bold">@Model.Price.ToString("0.00") BYN</td>
                             </tr>
                         </table>
                     </div>

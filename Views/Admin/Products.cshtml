@@ -1,126 +1,428 @@
-﻿@model IEnumerable<StationeryShop.Models.Product>
-
-@{
+﻿@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Управление товарами";
 }
 
-<h2 class="mb-4"><i class="bi bi-box-seam"></i> Управление товарами</h2>
+<style>
+    .product-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+    }
 
-<div class="d-flex justify-content-between mb-3">
-    <a asp-controller="Products" asp-action="Create" class="btn btn-success">
-        <i class="bi bi-plus-circle"></i> Добавить товар
-    </a>
-    <span class="text-muted">Всего товаров: @Model.Count()</span>
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+    .stock-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .stock-high {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .stock-medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .stock-low {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .stock-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: #e9ecef;
+        overflow: hidden;
+    }
+
+    .stock-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .filter-section {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        background: #f8f9fa;
+    }
+
+    /* Плавающая кнопка добавления */
+    .floating-add-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        color: white;
+        font-size: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        text-decoration: none;
+    }
+
+        .floating-add-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+            color: white;
+        }
+
+    /* Таблица */
+    .table-products th {
+        background: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .table-products td {
+        vertical-align: middle;
+    }
+
+    .table-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .view-toggle {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+        .view-toggle .btn {
+            padding: 6px 15px;
+            border-radius: 30px;
+        }
+
+
+
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box-seam"></i> Управление товарами</h2>
+
+    <!-- Переключатель вида карточки/таблица -->
+    <div class="view-toggle">
+        <button id="cardViewBtn" class="btn btn-outline-primary active">
+            <i class="bi bi-grid-3x3-gap-fill"></i> Карточки
+        </button>
+        <button id="tableViewBtn" class="btn btn-outline-secondary">
+            <i class="bi bi-table"></i> Таблица
+        </button>
+    </div>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>Фото</th>
-                <th>Название</th>
-                <th>Категория</th>
-                <th>Цена</th>
-                <th>Запас</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var product in Model)
-            {
+<!-- Фильтры и поиск -->
+<div class="filter-section">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label fw-bold">🔍 Поиск</label>
+            <input type="text" id="searchInput" class="form-control" placeholder="Название товара...">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">📁 Категория</label>
+            <select id="categoryFilter" class="form-select">
+                <option value="">Все категории</option>
+                @foreach (var cat in ViewBag.Categories as List<StationeryShop.Models.Category> ?? new List<StationeryShop.Models.Category>())
+                {
+                    <option value="@cat.CategoryID">@cat.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">📊 Сортировать по</label>
+            <select id="sortBy" class="form-select">
+                <option value="Name">Названию (А-Я)</option>
+                <option value="NameDesc">Названию (Я-А)</option>
+                <option value="Price">Цене (возр.)</option>
+                <option value="PriceDesc">Цене (убыв.)</option>
+                <option value="Stock">Остатку (возр.)</option>
+                <option value="StockDesc">Остатку (убыв.)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button id="resetFilters" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-repeat"></i> Сброс
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Контейнер для карточек -->
+<div id="cardsContainer" class="row g-4">
+    <div class="col-12 text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Загрузка товаров...</p>
+    </div>
+</div>
+
+<!-- Контейнер для таблицы (скрыт по умолчанию) -->
+<div id="tableViewContainer" style="display: none;">
+    <div class="table-responsive">
+        <table class="table table-hover table-products">
+            <thead>
                 <tr>
-                    <td>
-                        @if (product.PhotoBase64 != null)
-                        {
-                            <img src="data:image/png;base64,@product.PhotoBase64" 
-                                 alt="Фото" class="img-thumbnail" 
-                                 style="width: 50px; height: 50px; object-fit: cover;">
-                        }
-                        else
-                        {
-                            <span class="text-muted">Нет</span>
-                        }
-                    </td>
-                    <td>@product.Name</td>
-                    <td>@product.Category?.Name</td>
-                    <td>@product.Price.ToString("0.00") byn</td>
-                    <td>
-                        <div class="input-group input-group-sm" style="width: 120px;">
-                            <input type="number" class="form-control stock-input" 
-                                   value="@product.StockQuantity" min="0"
-                                   data-product-id="@product.ProductID">
-                            <button class="btn btn-outline-primary update-stock-btn" type="button">
-                                <i class="bi bi-arrow-clockwise"></i>
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.ProductID" 
-                           class="btn btn-sm btn-warning" title="Редактировать">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductID" 
-                           class="btn btn-sm btn-info" title="Просмотр">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                    </td>
+                    <th>Фото</th>
+                    <th>Название</th>
+                    <th>Категория</th>
+                    <th>Цена</th>
+                    <th>Остаток</th>
+                    <th>Действия</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<!-- Плавающая кнопка добавления товара -->
+<a asp-controller="Products" asp-action="Create" class="floating-add-btn" title="Добавить товар">
+    <i class="bi bi-plus-lg"></i>
+</a>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Обновление запаса товара
-        document.querySelectorAll('.update-stock-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const input = this.previousElementSibling;
-                const productId = input.dataset.productId;
-                const newStock = parseInt(input.value);
-                
-                if (isNaN(newStock) || newStock < 0) {
-                    showNotification('Введите корректное количество', 'error');
-                    return;
-                }
-                
-                fetch('/Admin/UpdateProductStock', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `productId=${productId}&newStock=${newStock}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Запас товара обновлен', 'success');
-                        input.value = data.newStock;
-                    } else {
-                        showNotification(data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    showNotification('Ошибка при обновлении запаса', 'error');
-                });
+        let currentProducts = [];
+        let currentView = 'cards'; // cards или table
+
+        function getStockClass(quantity) {
+            if (quantity >= 20) return 'stock-high';
+            if (quantity >= 5) return 'stock-medium';
+            return 'stock-low';
+        }
+
+        function getStockBarColor(quantity) {
+            if (quantity >= 20) return '#28a745';
+            if (quantity >= 5) return '#ffc107';
+            return '#dc3545';
+        }
+
+        async function loadProducts() {
+            const search = $('#searchInput').val();
+            const categoryId = $('#categoryFilter').val();
+            const sortBy = $('#sortBy').val();
+
+            let sortField = 'Name';
+            let ascending = true;
+
+            switch(sortBy) {
+                case 'NameDesc': sortField = 'Name'; ascending = false; break;
+                case 'Price': sortField = 'Price'; ascending = true; break;
+                case 'PriceDesc': sortField = 'Price'; ascending = false; break;
+                case 'Stock': sortField = 'Stock'; ascending = true; break;
+                case 'StockDesc': sortField = 'Stock'; ascending = false; break;
+                default: sortField = 'Name'; ascending = true;
+            }
+
+            $('#cardsContainer').html(`
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Загрузка товаров...</p>
+                </div>
+            `);
+            $('#tableBody').html('<tr><td colspan="6" class="text-center">Загрузка...</td></tr>');
+
+            try {
+                const response = await fetch(`/Admin/GetProducts?search=${encodeURIComponent(search)}&categoryId=${categoryId}&sortBy=${sortField}&ascending=${ascending}`);
+                const products = await response.json();
+                currentProducts = products;
+                renderCards(products);
+                renderTable(products);
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                $('#cardsContainer').html('<div class="col-12 text-center py-5 text-danger">Ошибка загрузки товаров</div>');
+                $('#tableBody').html('<tr><td colspan="6" class="text-center text-danger">Ошибка загрузки</td></tr>');
+            }
+        }
+
+        function renderCards(products) {
+            if (!products.length) {
+                $('#cardsContainer').html(`
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+                        <p class="mt-3 text-muted">Товары не найдены</p>
+                    </div>
+                `);
+                return;
+            }
+
+            let html = '';
+            for (const product of products) {
+                const stockPercent = Math.min((product.stockQuantity / 50) * 100, 100);
+                const stockClass = getStockClass(product.stockQuantity);
+                const barColor = getStockBarColor(product.stockQuantity);
+
+                html += `
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="card product-card h-100">
+                            <div class="position-relative">
+                                ${product.photoBase64 ?
+                                    `<img src="data:image/png;base64,${product.photoBase64}" class="product-image" alt="${product.name}">` :
+                                    `<div class="product-image d-flex align-items-center justify-content-center bg-light">
+                                        <i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i>
+                                     </div>`
+                                }
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="stock-badge ${stockClass}">${product.stockQuantity} шт</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold">${escapeHtml(product.name)}</h6>
+                                <p class="card-text text-muted small">${escapeHtml(product.description?.substring(0, 60) || 'Без описания')}${product.description?.length > 60 ? '...' : ''}</p>
+                                <div class="mb-2">
+                                    <span class="badge bg-secondary">${product.categoryName || 'Без категории'}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="stock-bar">
+                                        <div class="stock-bar-fill" style="width: ${stockPercent}%; background: ${barColor};"></div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="h5 mb-0 text-success">${product.price.toFixed(2)} BYN</span>
+                                    <div class="btn-group">
+                                        <a href="/Products/Details/${product.productID}" class="btn btn-sm btn-outline-info" title="Детали">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="/Products/Edit/${product.productID}" class="btn btn-sm btn-outline-primary" title="Редактировать">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="/Products/Delete/${product.productID}" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            $('#cardsContainer').html(html);
+        }
+
+        function renderTable(products) {
+            if (!products.length) {
+                $('#tableBody').html('<tr><td colspan="6" class="text-center text-muted">Товары не найдены</td></tr>');
+                return;
+            }
+
+            let html = '';
+            for (const product of products) {
+                const stockClass = getStockClass(product.stockQuantity);
+                html += `
+                    <tr>
+                        <td>
+                            ${product.photoBase64 ?
+                                `<img src="data:image/png;base64,${product.photoBase64}" class="table-img" alt="${product.name}">` :
+                                `<div class="table-img d-flex align-items-center justify-content-center bg-light rounded">
+                                    <i class="bi bi-image text-muted"></i>
+                                 </div>`
+                            }
+                        </td>
+                        <td class="fw-bold">${escapeHtml(product.name)}</td>
+                        <td><span class="badge bg-secondary">${product.categoryName || 'Без категории'}</span></td>
+                        <td class="text-success fw-bold">${product.price.toFixed(2)} BYN</td>
+                        <td><span class="stock-badge ${stockClass}">${product.stockQuantity} шт</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="/Products/Details/${product.productID}" class="btn btn-outline-info" title="Детали">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="/Products/Edit/${product.productID}" class="btn btn-outline-primary" title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="/Products/Delete/${product.productID}" class="btn btn-outline-danger" title="Удалить">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+            $('#tableBody').html(html);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
             });
+        }
+
+        // Переключение вида
+        function setView(view) {
+            currentView = view;
+            if (view === 'cards') {
+                $('#cardsContainer').show();
+                $('#tableViewContainer').hide();
+                $('#cardViewBtn').removeClass('btn-outline-primary').addClass('btn-primary');
+                $('#tableViewBtn').removeClass('btn-primary').addClass('btn-outline-secondary');
+            } else {
+                $('#cardsContainer').hide();
+                $('#tableViewContainer').show();
+                $('#tableViewBtn').removeClass('btn-outline-secondary').addClass('btn-primary');
+                $('#cardViewBtn').removeClass('btn-primary').addClass('btn-outline-primary');
+            }
+        }
+
+        // Обработчики событий
+        $('#cardViewBtn').on('click', () => setView('cards'));
+        $('#tableViewBtn').on('click', () => setView('table'));
+
+        $('#searchInput').on('input', debounce(loadProducts, 500));
+        $('#categoryFilter').on('change', loadProducts);
+        $('#sortBy').on('change', loadProducts);
+        $('#resetFilters').on('click', function() {
+            $('#searchInput').val('');
+            $('#categoryFilter').val('');
+            $('#sortBy').val('Name');
+            loadProducts();
         });
 
-        function showNotification(message, type) {
-            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            const alert = document.createElement('div');
-            alert.className = `alert ${alertClass} alert-dismissible fade show`;
-            alert.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            document.querySelector('h2').after(alert);
-            
-            setTimeout(() => {
-                alert.remove();
-            }, 3000);
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, arguments), wait);
+            };
         }
+
+        $(document).ready(function() {
+            loadProducts();
+            setView('cards');
+        });
     </script>
 }

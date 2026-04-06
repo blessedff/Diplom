@@ -7,13 +7,20 @@
 
     <h2 class="mb-4 text-center">Категории товаров</h2>
 
-    @if (isAdmin)
+@if (isAdmin)
 {
-    <div class="text-end mb-4">
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Добавить категорию
-        </a>
+    <div class="admin-notice mb-4 text-center p-3 rounded" style="background: linear-gradient(135deg, #2c5aa0, #3a7bd5); color: white;">
+        <i class="bi bi-shield-lock-fill me-2"></i>
+        <strong>Режим администратора</strong>
+        <br>
+        <small>
+            Управление категориями доступно в
+            <a asp-controller="Admin" asp-action="Categories" class="text-white fw-bold" style="text-decoration: underline;">
+                <i></i> Панели администратора
+            </a>
+        </small>
     </div>
+
 }
 
     <div class="row g-3">

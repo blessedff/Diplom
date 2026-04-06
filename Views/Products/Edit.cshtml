@@ -1,8 +1,9 @@
-﻿@model StationeryShop.Models.Product
-
-@{
-    ViewData["Title"] = "Редактировать товар";
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Редактирование товара";
 }
+
+@model StationeryShop.Models.Product
 
 <h2>Редактировать товар</h2>
 
@@ -50,12 +51,12 @@
             <p class="text-muted">Фото отсутствует</p>
         }
 
-        <label class="form-label">Новое фото</label>
+        <label class="form-label mt-2">Новое фото</label>
         <input type="file" name="photoFile" class="form-control" />
     </div>
 
     <button type="submit" class="btn btn-success">Сохранить</button>
-    <a asp-action="Index" class="btn btn-secondary">Назад</a>
+    <a asp-controller="Admin" asp-action="Products" class="btn btn-secondary">Назад</a>
 </form>
 
 @section Scripts {

@@ -99,6 +99,8 @@ namespace StationeryShop.Controllers
             var products = _context.Products
                 .Include(p => p.Category)
                 .ToList();
+            ViewBag.Categories = _context.Categories.ToList();
+            return View();
 
             return View(products);
         }
@@ -195,6 +197,73 @@ namespace StationeryShop.Controllers
             {
                 return Json(new { success = false, message = $"Ошибка: {ex.Message}" });
             }
+        }
+        // GET: Admin/GetProducts (AJAX) поиск/фильтрация
+        [HttpGet]
+        public async Task<IActionResult> GetProducts(string search = "", int? categoryId = null, string sortBy = "Name", bool ascending = true)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var query = _context.Products
+                .Include(p => p.Category)
+                .AsQueryable();
+
+            // Поиск по названию
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(p => p.Name.Contains(search));
+            }
+
+            // Фильтр по категории
+            if (categoryId.HasValue && categoryId > 0)
+            {
+                query = query.Where(p => p.CategoryID == categoryId);
+            }
+
+            // Сортировка
+            query = sortBy switch
+            {
+                "Price" => ascending ? query.OrderBy(p => p.Price) : query.OrderByDescending(p => p.Price),
+                "Stock" => ascending ? query.OrderBy(p => p.StockQuantity) : query.OrderByDescending(p => p.StockQuantity),
+                "Category" => ascending ? query.OrderBy(p => p.Category.Name) : query.OrderByDescending(p => p.Category.Name),
+                _ => ascending ? query.OrderBy(p => p.Name) : query.OrderByDescending(p => p.Name)
+            };
+
+            var products = await query.ToListAsync();
+
+            return Json(products.Select(p => new
+            {
+                p.ProductID,
+                p.Name,
+                p.Description,
+                p.Price,
+                p.StockQuantity,
+                CategoryName = p.Category?.Name,
+                p.CategoryID,
+                PhotoBase64 = p.PhotoBase64
+            }));
+        }
+
+        // POST: Admin/UpdateStock (быстрое обновление остатка)
+        [HttpPost]
+        public async Task<IActionResult> UpdateStock([FromBody] UpdateStockRequest request)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var product = await _context.Products.FindAsync(request.ProductId);
+            if (product == null) return NotFound(new { success = false, message = "Товар не найден" });
+
+            product.StockQuantity = request.NewStock;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Остаток обновлён" });
+        }
+
+       
+        public class UpdateStockRequest
+        {
+            public int ProductId { get; set; }
+            public int NewStock { get; set; }
         }
     }
 }

@@ -1,8 +1,9 @@
-﻿@model StationeryShop.Models.Product
-
-@{
-    ViewData["Title"] = "Удалить товар";
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Удаление товара";
 }
+
+@model StationeryShop.Models.Product
 
 <h2>Удалить товар</h2>
 
@@ -14,7 +15,7 @@
         <dd class="col-sm-8">@Model.Name</dd>
 
         <dt class="col-sm-4">Цена:</dt>
-        <dd class="col-sm-8">@Model.Price.ToString("0.00") руб.</dd>
+        <dd class="col-sm-8">@Model.Price.ToString("0.00") BYN</dd>
 
         <dt class="col-sm-4">Категория:</dt>
         <dd class="col-sm-8">@Model.Category?.Name</dd>
@@ -28,5 +29,5 @@
 
 <form asp-action="Delete" asp-route-id="@Model.ProductID" method="post">
     <button type="submit" class="btn btn-danger">Удалить</button>
-    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+    <a asp-controller="Admin" asp-action="Products" class="btn btn-secondary">Назад</a>
 </form>

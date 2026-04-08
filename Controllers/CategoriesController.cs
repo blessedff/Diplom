@@ -31,7 +31,7 @@ namespace StationeryShop.Controllers
             if (id == null) return NotFound();
 
             var category = _context.Categories
-                .Include(c => c.Products) // Загружаем товары
+                .Include(c => c.Products) 
                 .FirstOrDefault(m => m.CategoryID == id);
 
             if (category == null) return NotFound();
@@ -92,7 +92,7 @@ namespace StationeryShop.Controllers
             {
                 _context.Categories.Add(category);
                 _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Categories","Admin");
             }
             return View(category);
         }
@@ -125,7 +125,7 @@ namespace StationeryShop.Controllers
                 {
                     _context.Update(category);
                     _context.SaveChanges();
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Categories", "Admin");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -163,7 +163,7 @@ namespace StationeryShop.Controllers
                 _context.SaveChanges();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Categories", "Admin");
         }
     }
 }

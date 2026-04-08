@@ -1,34 +1,148 @@
-﻿@model StationeryShop.Models.Category
-
-@{
-    ViewData["Title"] = "Удалить категорию";
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Удаление категории";
 }
 
-<h2>Удалить категорию</h2>
+@model StationeryShop.Models.Category
 
-<h4>Вы уверены, что хотите удалить эту категорию?</h4>
+<style>
+    .delete-container {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        max-width: 600px;
+        margin: 0 auto;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
 
-<div class="card p-3">
-    <dl class="row">
-        <dt class="col-sm-4">Название:</dt>
-        <dd class="col-sm-8">@Model.Name</dd>
+    .warning-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
 
-        <dt class="col-sm-4">Описание:</dt>
-        <dd class="col-sm-8">@Model.Description</dd>
+    .category-info {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
 
-        <dt class="col-sm-4">Количество товаров:</dt>
-        <dd class="col-sm-8">@Model.Products?.Count</dd>
-    </dl>
+        .category-info dt {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .category-info dd {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+        padding: 10px 25px;
+        font-weight: 600;
+    }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        border: none;
+        padding: 10px 25px;
+        font-weight: 600;
+    }
+
+    .page-header {
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+        .page-header h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #dc3545;
+        }
+
+    .product-list {
+        max-height: 200px;
+        overflow-y: auto;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+        .product-list .badge {
+            margin: 3px;
+        }
+</style>
+
+<div class="delete-container">
+    <div class="page-header">
+        <h2><i class="bi bi-trash"></i> Удаление категории</h2>
+        <p class="text-muted">Вы уверены, что хотите удалить эту категорию?</p>
+    </div>
+
+    <div class="warning-box">
+        <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+        <strong>Внимание!</strong> Это действие нельзя отменить.
+    </div>
+
+    <div class="category-info">
+        <dl>
+            <dt>Название категории</dt>
+            <dd>@Model.Name</dd>
+
+            <dt>Описание</dt>
+            <dd>@(string.IsNullOrEmpty(Model.Description) ? "—" : Model.Description)</dd>
+
+            <dt>Количество товаров</dt>
+            <dd>
+                <span class="badge @(Model.Products?.Count > 0 ? "bg-warning" : "bg-secondary")">
+                    @(Model.Products?.Count ?? 0) товаров
+                </span>
+            </dd>
+        </dl>
+    </div>
 
     @if (Model.Products != null && Model.Products.Any())
     {
-        <div class="alert alert-warning">
-            <strong>Внимание!</strong> В этой категории есть товары. При удалении категории все товары в ней также будут удалены.
+        <div class="alert alert-warning mb-3">
+            <i class="bi bi-info-circle"></i>
+            <strong>Предупреждение!</strong> В этой категории есть товары. При удалении категории все товары в ней также будут удалены.
+        </div>
+
+        <div class="product-list mb-3">
+            <small class="text-muted">Товары в этой категории:</small>
+            <div class="mt-2">
+                @foreach (var product in Model.Products.Take(10))
+                {
+                    <span class="badge bg-secondary">@product.Name</span>
+                }
+                @if (Model.Products.Count > 10)
+                {
+                    <span class="badge bg-secondary">+ ещё @(Model.Products.Count - 10)</span>
+                }
+            </div>
         </div>
     }
-</div>
 
-<form asp-action="Delete" asp-route-id="@Model.CategoryID" method="post">
-    <button type="submit" class="btn btn-danger">Удалить</button>
-    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
-</form>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="CategoryID" />
+        <div class="d-flex justify-content-end gap-3">
+            <a asp-controller="Admin" asp-action="Categories" class="btn btn-cancel text-white">
+                <i class="bi bi-arrow-left"></i> Отмена
+            </a>
+            <button type="submit" class="btn btn-delete text-white">
+                <i class="bi bi-trash"></i> Удалить
+            </button>
+        </div>
+    </form>
+</div>

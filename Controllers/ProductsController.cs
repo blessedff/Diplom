@@ -88,7 +88,7 @@ namespace StationeryShop.Controllers
 
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Products", "Admin");
             }
 
             ViewData["CategoryID"] = new SelectList(_context.Categories, "CategoryID", "Name", product.CategoryID);
@@ -136,7 +136,7 @@ namespace StationeryShop.Controllers
                 {
                     _context.Update(product);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Products", "Admin");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -179,7 +179,7 @@ namespace StationeryShop.Controllers
                 _context.SaveChanges();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Products", "Admin");
         }
     }
 }

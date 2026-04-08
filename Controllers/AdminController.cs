@@ -244,26 +244,60 @@ namespace StationeryShop.Controllers
             }));
         }
 
-        // POST: Admin/UpdateStock (быстрое обновление остатка)
-        [HttpPost]
-        public async Task<IActionResult> UpdateStock([FromBody] UpdateStockRequest request)
+        // GET: Admin/GetCategories
+        [HttpGet]
+        public async Task<IActionResult> GetCategories(string search = "", string sortBy = "Name", bool ascending = true)
         {
             if (!IsAdmin()) return Unauthorized();
 
-            var product = await _context.Products.FindAsync(request.ProductId);
-            if (product == null) return NotFound(new { success = false, message = "Товар не найден" });
+            var query = _context.Categories
+                .Include(c => c.Products)
+                .AsQueryable();
 
-            product.StockQuantity = request.NewStock;
-            await _context.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(c => c.Name.Contains(search));
+            }
 
-            return Ok(new { success = true, message = "Остаток обновлён" });
+            query = sortBy switch
+            {
+                "NameDesc" => query.OrderByDescending(c => c.Name),
+                "Products" => query.OrderBy(c => c.Products.Count),
+                "ProductsDesc" => query.OrderByDescending(c => c.Products.Count),
+                _ => ascending ? query.OrderBy(c => c.Name) : query.OrderByDescending(c => c.Name)
+            };
+
+            var categories = await query.ToListAsync();
+
+            return Json(categories.Select(c => new
+            {
+                c.CategoryID,
+                c.Name,
+                c.Description,
+                ProductsCount = c.Products.Count
+            }));
         }
 
-       
-        public class UpdateStockRequest
-        {
-            public int ProductId { get; set; }
-            public int NewStock { get; set; }
-        }
+        //// POST: Admin/UpdateStock (быстрое обновление остатка)
+        //[HttpPost]
+        //public async Task<IActionResult> UpdateStock([FromBody] UpdateStockRequest request)
+        //{
+        //    if (!IsAdmin()) return Unauthorized();
+
+        //    var product = await _context.Products.FindAsync(request.ProductId);
+        //    if (product == null) return NotFound(new { success = false, message = "Товар не найден" });
+
+        //    product.StockQuantity = request.NewStock;
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok(new { success = true, message = "Остаток обновлён" });
+        //}
+
+
+        //public class UpdateStockRequest
+        //{
+        //    public int ProductId { get; set; }
+        //    public int NewStock { get; set; }
+        //}
     }
 }

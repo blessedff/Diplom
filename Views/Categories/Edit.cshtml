@@ -1,29 +1,103 @@
-﻿@model StationeryShop.Models.Category
-
-@{
-    ViewData["Title"] = "Редактировать категорию";
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Редактирование категории";
 }
 
-<h2>Редактировать категорию</h2>
+@model StationeryShop.Models.Category
 
-<form asp-action="Edit" method="post" class="mt-3">
-    <input type="hidden" asp-for="CategoryID" />
+<style>
+    .edit-form-container {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        max-width: 700px;
+        margin: 0 auto;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
 
-    <div class="form-group mb-3">
-        <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        padding: 10px 15px;
+    }
+
+        .form-control:focus {
+            border-color: #3a7bd5;
+            box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.1);
+        }
+
+    .btn-save {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        padding: 10px 25px;
+        font-weight: 600;
+    }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        border: none;
+        padding: 10px 25px;
+        font-weight: 600;
+    }
+
+    .page-header {
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+        .page-header h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1a1a2e 0%, #3a7bd5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+</style>
+
+<div class="edit-form-container">
+    <div class="page-header">
+        <h2><i class="bi bi-pencil-square"></i> Редактирование категории</h2>
+        <p class="text-muted">Измените данные категории и нажмите "Сохранить"</p>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="CategoryID" />
 
-    <button type="submit" class="btn btn-success">Сохранить</button>
-    <a asp-action="Index" class="btn btn-secondary">Назад</a>
-</form>
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">Название категории</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">Описание</label>
+            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+            <small class="text-muted">Краткое описание категории (необязательно)</small>
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 mt-4">
+            <a asp-controller="Admin" asp-action="Categories" class="btn btn-cancel text-white">
+                <i class="bi bi-x-circle"></i> Отмена
+            </a>
+            <button type="submit" class="btn btn-save text-white">
+                <i class="bi bi-check-circle"></i> Сохранить
+            </button>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     @{

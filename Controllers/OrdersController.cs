@@ -12,12 +12,14 @@ namespace StationeryShop.Controllers
         private readonly StationeryDbContext _context;
         private readonly CartService _cartService;
         private readonly ILogger<OrdersController> _logger;
+        private readonly EmailService _emailService;
 
-        public OrdersController(StationeryDbContext context, CartService cartService, ILogger<OrdersController> logger)
+        public OrdersController(StationeryDbContext context, CartService cartService, ILogger<OrdersController> logger, EmailService emailService)
         {
             _context = context;
             _cartService = cartService;
             _logger = logger;
+            _emailService = emailService;
         }
 
         private bool IsAuthenticated()
@@ -196,7 +198,47 @@ namespace StationeryShop.Controllers
                 // Очищаем корзину
                 _cartService.ClearCart();
                 _logger.LogInformation("Корзина очищена");
+                _logger.LogInformation("Начинаем отправку email уведомления для заказа #{OrderID}", order.OrderID);
 
+                try
+                {
+                    // Получаем данные клиента отдельно
+                    _logger.LogInformation("Пытаемся получить данные клиента с ID: {CustomerID}", order.CustomerID);
+                    var customer = await _context.Customers.FirstOrDefaultAsync(c => c.CustomerID == order.CustomerID);
+
+                    if (customer == null)
+                    {
+                        _logger.LogWarning("Клиент с ID {CustomerID} не найден", order.CustomerID);
+                    }
+                    else if (string.IsNullOrEmpty(customer.Email))
+                    {
+                        _logger.LogWarning("У клиента {CustomerName} (ID: {CustomerID}) отсутствует email", customer.FullName, customer.CustomerID);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Найден клиент: {CustomerName}, Email: {Email}", customer.FullName, customer.Email);
+                        _logger.LogInformation("Вызываем EmailService.SendOrderCreatedNotification для заказа #{OrderID}", order.OrderID);
+
+                        bool emailSent = await _emailService.SendOrderCreatedNotification(
+                            customer.Email,
+                            customer.FullName,
+                            order.OrderID
+                        );
+
+                        if (emailSent)
+                        {
+                            _logger.LogInformation("✅ Уведомление о создании заказа #{OrderID} успешно отправлено на {Email}", order.OrderID, customer.Email);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("❌ EmailService вернул false при отправке уведомления для заказа #{OrderID}", order.OrderID);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "❌ КРИТИЧЕСКАЯ ОШИБКА при отправке email для заказа #{OrderID}: {ErrorMessage}", order.OrderID, ex.Message);
+                }
                 return RedirectToAction("Confirm", new { id = order.OrderID });
             }
             catch (Exception ex)

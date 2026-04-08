@@ -2,16 +2,19 @@
 using Microsoft.EntityFrameworkCore;
 using StationeryShop.Data;
 using StationeryShop.Models;
+using StationeryShop.Services;
 
 namespace StationeryShop.Controllers
 {
     public class AdminController : Controller
     {
         private readonly StationeryDbContext _context;
+        private readonly EmailService _emailService;
 
-        public AdminController(StationeryDbContext context)
+        public AdminController(StationeryDbContext context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> LoginAttempts()
@@ -328,15 +331,42 @@ namespace StationeryShop.Controllers
 
             try
             {
-                var order = await _context.Orders.FindAsync(request.OrderId);
+                var order = await _context.Orders
+                    .Include(o => o.Customer)
+                    .FirstOrDefaultAsync(o => o.OrderID == request.OrderId);
+
                 if (order == null)
                     return Json(new { success = false, message = "Заказ не найден" });
 
-                order.Status = request.Status;
+                string oldStatus = order.Status;
+                string newStatus = request.Status;
+
+                order.Status = newStatus;
                 _context.Orders.Update(order);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = "Статус обновлен" });
+                string message = $"Статус заказа #{order.OrderID} изменён с '{oldStatus}' на '{newStatus}'";
+
+                // Отправляем email уведомление ТОЛЬКО если новый статус = "Готов к выдаче"
+                if (newStatus == "Готов к выдаче" && order.Customer != null && !string.IsNullOrEmpty(order.Customer.Email))
+                {
+                    bool emailSent = await _emailService.SendOrderReadyNotification(
+                        order.Customer.Email,
+                        order.Customer.FullName,
+                        order.OrderID
+                    );
+
+                    if (emailSent)
+                    {
+                        message += $". Уведомление о готовности отправлено на {order.Customer.Email}";
+                    }
+                    else
+                    {
+                        message += ". Не удалось отправить уведомление (ошибка почты)";
+                    }
+                }
+
+                return Json(new { success = true, message = message });
             }
             catch (Exception ex)
             {
@@ -344,7 +374,7 @@ namespace StationeryShop.Controllers
             }
         }
 
-        // Вспомогательный класс для приёма данных
+        // Класс для получения данных из JavaScript
         public class UpdateOrderStatusRequest
         {
             public int OrderId { get; set; }

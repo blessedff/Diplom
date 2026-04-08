@@ -26,6 +26,7 @@ builder.Services.AddScoped<CartService>();
 
 // Add logging
 builder.Services.AddLogging();
+builder.Services.AddScoped<EmailService>();
 
 var app = builder.Build();
 // Ручное создание таблицы LoginAttempts

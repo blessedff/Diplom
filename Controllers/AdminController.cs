@@ -147,33 +147,6 @@ namespace StationeryShop.Controllers
             return View(customers);
         }
 
-        // Быстрое обновление статуса заказа
-        [HttpPost]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId, string status)
-        {
-            if (!IsAdmin())
-                return Json(new { success = false, message = "Доступ запрещен" });
-
-            try
-            {
-                var order = await _context.Orders.FindAsync(orderId);
-                if (order == null)
-                    return Json(new { success = false, message = "Заказ не найден" });
-
-                order.Status = status;
-                _context.Orders.Update(order);
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Статус обновлен" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Ошибка: {ex.Message}" });
-            }
-        }
-
-
-
         // Быстрое обновление количества товара
         [HttpPost]
         public async Task<IActionResult> UpdateProductStock(int productId, int newStock)
@@ -278,6 +251,105 @@ namespace StationeryShop.Controllers
             }));
         }
 
+        // GET: Admin/GetOrders
+        [HttpGet]
+        public async Task<IActionResult> GetOrders(
+            string search = "",
+            string status = "",
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            string sortBy = "Date",
+            bool ascending = false)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var query = _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                .AsQueryable();
+
+            // Фильтр по поиску (номер заказа или имя клиента)
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(o =>
+                    o.OrderID.ToString().Contains(search) ||
+                    (o.Customer != null && o.Customer.FullName.Contains(search)) ||
+                    (o.Customer != null && o.Customer.Email.Contains(search)));
+            }
+
+            // Фильтр по статусу
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(o => o.Status == status);
+            }
+
+            // Фильтр по дате
+            if (startDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate >= startDate.Value);
+            }
+            if (endDate.HasValue)
+            {
+                var end = endDate.Value.AddDays(1);
+                query = query.Where(o => o.OrderDate < end);
+            }
+
+            // Сортировка
+            query = sortBy switch
+            {
+                "Id" => ascending ? query.OrderBy(o => o.OrderID) : query.OrderByDescending(o => o.OrderID),
+                "Customer" => ascending ? query.OrderBy(o => o.Customer.FullName) : query.OrderByDescending(o => o.Customer.FullName),
+                "Amount" => ascending ? query.OrderBy(o => o.TotalAmount) : query.OrderByDescending(o => o.TotalAmount),
+                "Status" => ascending ? query.OrderBy(o => o.Status) : query.OrderByDescending(o => o.Status),
+                _ => ascending ? query.OrderBy(o => o.OrderDate) : query.OrderByDescending(o => o.OrderDate)
+            };
+
+            var orders = await query.ToListAsync();
+
+            return Json(orders.Select(o => new
+            {
+                o.OrderID,
+                o.OrderDate,
+                o.TotalAmount,
+                o.Status,
+                o.ShippingAddress,
+                CustomerName = o.Customer?.FullName ?? "Не указан",
+                CustomerEmail = o.Customer?.Email ?? "",
+                CustomerPhone = o.Customer?.Phone ?? "",
+                ItemsCount = o.OrderItems.Sum(i => i.Quantity)
+            }));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusRequest request)
+        {
+            if (!IsAdmin())
+                return Json(new { success = false, message = "Доступ запрещен" });
+
+            try
+            {
+                var order = await _context.Orders.FindAsync(request.OrderId);
+                if (order == null)
+                    return Json(new { success = false, message = "Заказ не найден" });
+
+                order.Status = request.Status;
+                _context.Orders.Update(order);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Статус обновлен" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Ошибка: {ex.Message}" });
+            }
+        }
+
+        // Вспомогательный класс для приёма данных
+        public class UpdateOrderStatusRequest
+        {
+            public int OrderId { get; set; }
+            public string Status { get; set; }
+        }
         //// POST: Admin/UpdateStock (быстрое обновление остатка)
         //[HttpPost]
         //public async Task<IActionResult> UpdateStock([FromBody] UpdateStockRequest request)

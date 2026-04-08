@@ -1,0 +1,267 @@
+﻿@model StationeryShop.Models.Order
+
+@{
+    Layout = null;  
+    ViewData["Title"] = $"Накладная #{Model.OrderID}";
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>Накладная #@Model.OrderID</title>
+    <style>
+        /* Стили для печати */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fff;
+            padding: 20px;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* Шапка накладной */
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+            .invoice-header h1 {
+                color: #2c5aa0;
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+
+            .invoice-header .subtitle {
+                color: #6c757d;
+                font-size: 14px;
+            }
+
+        /* Информация о заказе */
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .info-block {
+            flex: 1;
+        }
+
+            .info-block h4 {
+                font-size: 14px;
+                color: #6c757d;
+                margin-bottom: 8px;
+            }
+
+            .info-block p {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+
+            .info-block .label {
+                font-weight: 600;
+                color: #2d3748;
+            }
+
+        /* Таблица товаров */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+            .items-table th {
+                background: #2c5aa0;
+                color: white;
+                padding: 10px;
+                text-align: left;
+                font-size: 13px;
+            }
+
+            .items-table td {
+                padding: 8px 10px;
+                border-bottom: 1px solid #e9ecef;
+                font-size: 13px;
+            }
+
+            .items-table .text-right {
+                text-align: right;
+            }
+
+        /* Итоговая строка */
+        .total-row {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        /* Блок итогов */
+        .totals {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #e9ecef;
+        }
+
+            .totals p {
+                margin-bottom: 5px;
+                font-size: 14px;
+            }
+
+            .totals .grand-total {
+                font-size: 18px;
+                font-weight: bold;
+                color: #28a745;
+                margin-top: 10px;
+            }
+
+        /* Футер */
+        .invoice-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        /* Кнопка печати */
+        .print-btn {
+            display: block;
+            width: 200px;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            background: #2c5aa0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+            .print-btn:hover {
+                background: #1e3a6f;
+            }
+
+
+
+        body {
+            padding: 0;
+        }
+
+        .info-section {
+            background: none;
+            border: 1px solid #ddd;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Шапка -->
+        <div class="invoice-header">
+            <h1>ТОВАРНАЯ НАКЛАДНАЯ</h1>
+            <p class="subtitle">Канцелярский магазин</p>
+            <p class="subtitle">г. Гомель, ул. Богдановича, д. 16 | тел. +375 (29) 274-66-80</p>
+        </div>
+
+        <!-- Информация о заказе -->
+        <div class="info-section">
+            <div class="info-block">
+                <h4>ЗАКАЗ</h4>
+                <p><span class="label">Номер:</span> #@Model.OrderID</p>
+                <p><span class="label">Дата:</span> @Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</p>
+                <p><span class="label">Статус:</span> @Model.Status</p>
+            </div>
+            <div class="info-block">
+                <h4>ПОКУПАТЕЛЬ</h4>
+                <p><span class="label">ФИО:</span> @Model.Customer?.FullName</p>
+                <p><span class="label">Телефон:</span> @Model.Customer?.Phone</p>
+                <p><span class="label">Email:</span> @Model.Customer?.Email</p>
+            </div>
+            <div class="info-block">
+                <h4>ДОСТАВКА</h4>
+                <p><span class="label">Адрес:</span> @Model.ShippingAddress</p>
+                <p><span class="label">Способ оплаты:</span> Наличными при получении</p>
+            </div>
+        </div>
+
+        <!-- Таблица товаров -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Наименование товара</th>
+                    <th class="text-right">Кол-во</th>
+                    <th class="text-right">Цена</th>
+                    <th class="text-right">Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int counter = 1;
+                    decimal subtotal = 0;
+                }
+                @foreach (var item in Model.OrderItems)
+                {
+                    decimal itemTotal = item.Quantity * item.UnitPrice;
+                    subtotal += itemTotal;
+                    <tr>
+                        <td>@counter</td>
+                        <td>@item.Product?.Name</td>
+                        <td class="text-right">@item.Quantity шт.</td>
+                        <td class="text-right">@item.UnitPrice.ToString("0.00") BYN</td>
+                        <td class="text-right">@itemTotal.ToString("0.00") BYN</td>
+                    </tr>
+                    counter++;
+                }
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="4" class="text-right"><strong>Итого:</strong></td>
+                    <td class="text-right"><strong>@subtotal.ToString("0.00") BYN</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+       
+        <div class="totals">
+            <p>Товаров в заказе: @Model.OrderItems.Sum(i => i.Quantity) шт.</p>
+            <p>Сумма к оплате: @subtotal.ToString("0.00") BYN</p>
+            <div class="grand-total">ИТОГО: @Model.TotalAmount.ToString("0.00") BYN</div>
+        </div>
+
+       
+        <div class="invoice-footer">
+            <p>Спасибо за покупку!</p>
+            <p>Накладная действительна при предъявлении документа, удостоверяющего личность</p>
+        </div>
+
+       
+        <button class="print-btn" onclick="window.print();">
+            <i class="bi bi-printer"></i> Распечатать / Сохранить PDF
+        </button>
+    </div>
+
+    <script>
+
+    </script>
+</body>
+</html>

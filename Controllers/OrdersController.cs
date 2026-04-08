@@ -31,7 +31,7 @@ namespace StationeryShop.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        // =================== СПИСОК ЗАКАЗОВ ===================
+     
         public async Task<IActionResult> Index()
         {
             if (!IsAuthenticated())
@@ -256,25 +256,33 @@ namespace StationeryShop.Controllers
 
             return View(order);
         }
-
-        // =================== ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА (для админа) ===================
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(int orderId, string status)
+        // GET: Orders/PrintInvoice/5
+        public async Task<IActionResult> PrintInvoice(int id)
         {
-            if (!IsAuthenticated() || HttpContext.Session.GetString("IsAdmin") != "true")
-                return Forbid();
+            // Проверяем авторизацию
+            if (!IsAuthenticated())
+                return RedirectToLogin();
 
-            var order = await _context.Orders.FindAsync(orderId);
+            // Загружаем заказ со всеми связанными данными
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.OrderID == id);
+
+            // Если заказ не найден
             if (order == null)
                 return NotFound();
 
-            order.Status = status;
-            _context.Orders.Update(order);
-            await _context.SaveChangesAsync();
+            // Проверяем права доступа (админ или владелец заказа)
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            bool isAdmin = HttpContext.Session.GetString("IsAdmin") == "true";
 
-            TempData["Success"] = "Статус заказа обновлен!";
-            return RedirectToAction(nameof(Index));
+            if (!isAdmin && order.CustomerID != customerId)
+                return Forbid();
+
+            return View(order);
         }
     }
+
 }

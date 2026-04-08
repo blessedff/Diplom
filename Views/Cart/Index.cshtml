@@ -4,96 +4,387 @@
     ViewData["Title"] = "Корзина покупок";
 }
 
-<h2 class="mb-4">Корзина покупок</h2>
+<style>
+    .cart-container {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+    .cart-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+        .cart-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
 
-@if (Model != null && Model.Any())
-{
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>Товар</th>
-                    <th>Цена</th>
-                    <th>Количество</th>
-                    <th>Итого</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.ProductName</td>
-                        <td>@item.Price.ToString("0.00") byn</td>
-                        <td>
-                            <form asp-action="UpdateQuantity" method="post" class="d-inline">
-                                <input type="hidden" name="productId" value="@item.ProductId" />
-                                <div class="input-group input-group-sm" style="width: 120px;">
-                                    <input type="number" name="quantity" value="@item.Quantity" 
-                                           min="1" max="100" class="form-control" />
-                                    <button type="submit" class="btn btn-outline-primary">
-                                        <i class="bi bi-arrow-clockwise"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </td>
-                        <td>@item.TotalPrice.ToString("0.00") byn</td>
-                        <td>
-                            <form asp-action="RemoveFromCart" method="post" class="d-inline">
-                                <input type="hidden" name="productId" value="@item.ProductId" />
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="bi bi-trash"></i> Удалить
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr class="table-active">
-                    <td colspan="3" class="text-end"><strong>Общая сумма:</strong></td>
-                    <td colspan="2"><strong>@ViewBag.TotalPrice.ToString("0.00") byn</strong></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+    .cart-table {
+        border-radius: 20px;
+        overflow: hidden;
+    }
 
-    <div class="d-flex justify-content-between mt-4">
-        <a asp-controller="Products" asp-action="Index" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Продолжить покупки
-        </a>
-        
-        <div>
-            <form asp-action="ClearCart" method="post" class="d-inline">
-                <button type="submit" class="btn btn-outline-danger">
-                    <i class="bi bi-cart-x"></i> Очистить корзину
-                </button>
-            </form>
-            
-<a asp-controller="Orders" asp-action="Create" class="btn btn-success ms-2">
-    <i class="bi bi-bag-check"></i> Оформить заказ
-</a>
+        .cart-table thead th {
+            background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
+            color: white;
+            font-weight: 600;
+            padding: 15px;
+            border: none;
+        }
+
+        .cart-table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+    .product-name {
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+
+    .price {
+        font-weight: 600;
+        color: #2c5aa0;
+    }
+
+    .total-price {
+        font-weight: 700;
+        color: #28a745;
+    }
+
+    .quantity-input {
+        width: 80px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+        .quantity-input:focus {
+            border-color: #2c5aa0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+        }
+
+        .quantity-input.loading {
+            background: #f0f2f5;
+            opacity: 0.7;
+        }
+
+    .btn-remove {
+        background: none;
+        border: none;
+        color: #dc3545;
+        transition: all 0.2s ease;
+        padding: 5px 10px;
+        border-radius: 10px;
+    }
+
+        .btn-remove:hover {
+            background: #fee2e2;
+            transform: scale(1.05);
+        }
+
+    .btn-clear {
+        background: none;
+        border: 1px solid #dc3545;
+        color: #dc3545;
+        border-radius: 30px;
+        padding: 8px 20px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-clear:hover {
+            background: #dc3545;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .btn-checkout {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 30px;
+        padding: 10px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+    .btn-continue {
+        background: #6c757d;
+        border: none;
+        border-radius: 30px;
+        padding: 10px 25px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            background: #5a6268;
+        }
+
+    .empty-cart {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-cart i {
+            font-size: 5rem;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+
+    .total-row {
+        background: #f8f9fa;
+    }
+
+        .total-row td {
+            padding: 15px;
+            font-weight: 600;
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .cart-container {
+        animation: fadeIn 0.4s ease-out;
+    }
+</style>
+
+<div class="cart-container">
+    <h2 class="cart-title"><i class="bi bi-cart3 me-2"></i> Корзина покупок</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    </div>
-}
-else
-{
-    <div class="text-center py-5">
-        <i class="bi bi-cart-x" style="font-size: 4rem; color: #6c757d;"></i>
-        <h3 class="mt-3">Ваша корзина пуста</h3>
-        <p class="text-muted">Добавьте товары из каталога, чтобы сделать заказ</p>
-        <a asp-controller="Products" asp-action="Index" class="btn btn-primary mt-3">
-            <i class="bi bi-arrow-left"></i> Перейти к покупкам
-        </a>
-    </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table cart-table">
+                <thead>
+                    <tr>
+                        <th>Товар</th>
+                        <th>Цена</th>
+                        <th>Количество</th>
+                        <th>Итого</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr data-product-id="@item.ProductId">
+                            <td class="product-name">@item.ProductName</td>
+                            <td class="price">@item.Price.ToString("0.00") BYN</td>
+                            <td>
+                                <input type="number"
+                                       class="quantity-input"
+                                       value="@item.Quantity"
+                                       min="1"
+                                       max="100"
+                                       data-product-id="@item.ProductId"
+                                       data-original-value="@item.Quantity">
+                            </td>
+                            <td class="total-price" data-total="@item.TotalPrice">
+                                @item.TotalPrice.ToString("0.00") BYN
+                            </td>
+                            <td>
+                                <button class="btn-remove" data-product-id="@item.ProductId" title="Удалить">
+                                    <i class="bi bi-trash3 fs-5"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="3" class="text-end"><strong>Общая сумма:</strong></td>
+                        <td colspan="2"><strong id="cartTotal">@ViewBag.TotalPrice.ToString("0.00") BYN</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
+            <a asp-controller="Products" asp-action="Index" class="btn btn-continue text-white">
+                <i class="bi bi-arrow-left me-2"></i> Продолжить покупки
+            </a>
+
+            <div class="d-flex gap-3">
+                <form asp-action="ClearCart" method="post" class="d-inline" id="clearCartForm">
+                    <button type="submit" class="btn-clear">
+                        <i class="bi bi-cart-x me-2"></i> Очистить корзину
+                    </button>
+                </form>
+
+                <a asp-controller="Orders" asp-action="Create" class="btn btn-checkout text-white">
+                    <i class="bi bi-bag-check me-2"></i> Оформить заказ
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">
+            <i class="bi bi-cart-x"></i>
+            <h3>Ваша корзина пуста</h3>
+            <p class="text-muted">Добавьте товары из каталога, чтобы сделать заказ</p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-primary rounded-pill px-4 mt-2">
+                <i class="bi bi-arrow-left me-2"></i> Перейти к покупкам
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Функция обновления количества (автоматически при потере фокуса или Enter)
+            function updateQuantity(productId, quantity, $input) {
+                if (quantity < 1) {
+                    showNotification('Количество не может быть меньше 1', 'error');
+                    $input.val($input.data('original-value'));
+                    return;
+                }
+
+                $input.addClass('loading');
+
+                $.ajax({
+                    url: '/Cart/UpdateQuantity',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: quantity
+                    },
+                    success: function(response) {
+                        // Обновляем общую сумму корзины через перезагрузку страницы
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        showNotification('Ошибка при обновлении количества', 'error');
+                        $input.val($input.data('original-value'));
+                        $input.removeClass('loading');
+                    }
+                });
+            }
+
+            // Событие: при потере фокуса с поля количества
+            $(document).on('blur', '.quantity-input', function() {
+                const $input = $(this);
+                const productId = $input.data('product-id');
+                const newQuantity = parseInt($input.val());
+                const oldQuantity = parseInt($input.data('original-value'));
+
+                if (newQuantity !== oldQuantity && !isNaN(newQuantity)) {
+                    updateQuantity(productId, newQuantity, $input);
+                }
+            });
+
+            // Событие: при нажатии Enter в поле количества
+            $(document).on('keypress', '.quantity-input', function(e) {
+                if (e.which === 13) { // Enter key
+                    e.preventDefault();
+                    const $input = $(this);
+                    const productId = $input.data('product-id');
+                    const newQuantity = parseInt($input.val());
+                    const oldQuantity = parseInt($input.data('original-value'));
+
+                    if (newQuantity !== oldQuantity && !isNaN(newQuantity)) {
+                        updateQuantity(productId, newQuantity, $input);
+                    }
+                    $input.blur();
+                }
+            });
+
+            // Удаление товара из корзины
+            $(document).on('click', '.btn-remove', function() {
+                const productId = $(this).data('product-id');
+
+                if (confirm('Удалить этот товар из корзины?')) {
+                    $.ajax({
+                        url: '/Cart/RemoveFromCart',
+                        type: 'POST',
+                        data: {
+                            productId: productId
+                        },
+                        success: function(response) {
+                            location.reload();
+                        },
+                        error: function() {
+                            showNotification('Ошибка при удалении товара', 'error');
+                        }
+                    });
+                }
+            });
+
+            // Подтверждение очистки корзины
+            $('#clearCartForm').on('submit', function(e) {
+                if (!confirm('Вы уверены, что хотите полностью очистить корзину?')) {
+                    e.preventDefault();
+                }
+            });
+
+            function showNotification(message, type) {
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                const alert = $(`<div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>`);
+                $('.cart-container').prepend(alert);
+                setTimeout(() => alert.fadeOut(() => alert.remove()), 3000);
+            }
+        });
+    </script>
 }

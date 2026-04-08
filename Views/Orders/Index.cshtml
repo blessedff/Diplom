@@ -5,28 +5,195 @@
     bool isAdmin = Context.Session.GetString("IsAdmin") == "true";
 }
 
-<h2 class="mb-4">Список заказов</h2>
+<style>
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
+
+    .orders-table {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+        .orders-table thead th {
+            background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
+            color: white;
+            font-weight: 600;
+            padding: 15px;
+            border: none;
+        }
+
+        .orders-table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .orders-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+    .order-number {
+        font-weight: 700;
+        color: #2c5aa0;
+    }
+
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-completed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-ready {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-default {
+        background: #cfe2ff;
+        color: #084298;
+    }
+
+    .status-select {
+        border-radius: 30px;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid #e2e8f0;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .status-select:focus {
+            border-color: #2c5aa0;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.1);
+        }
+
+    .btn-details {
+        background: #6c757d;
+        border: none;
+        border-radius: 30px;
+        padding: 5px 15px;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+    }
+
+        .btn-details:hover {
+            transform: translateY(-2px);
+            background: #5a6268;
+        }
+
+    .empty-orders {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+        .empty-orders i {
+            font-size: 5rem;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+
+        .empty-orders h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+
+    .btn-shop {
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border: none;
+        border-radius: 30px;
+        padding: 10px 25px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-shop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+        }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .orders-table, .empty-orders {
+        animation: fadeInUp 0.4s ease-out;
+    }
+</style>
+
+<h2 class="page-title">
+    <i class="bi bi-list-ul me-2"></i> Список заказов
+</h2>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 
 @if (Model != null && Model.Any())
 {
     <div class="table-responsive">
-        <table class="table table-striped">
-            <thead class="table-dark">
+        <table class="table orders-table">
+            <thead>
                 <tr>
                     @if (isAdmin)
                     {
-                        <th>Клиент</th>
+                        <th><i class="bi bi-person me-1"></i> Клиент</th>
                     }
-                    <th>Номер заказа</th>
-                    <th>Дата</th>
-                    <th>Сумма</th>
-                    <th>Статус</th>
-                    <th>Действия</th>
+                    <th><i class="bi bi-upc-scan me-1"></i> Номер заказа</th>
+                    <th><i class="bi bi-calendar3 me-1"></i> Дата</th>
+                    <th><i class="bi bi-currency-dollar me-1"></i> Сумма</th>
+                    <th><i class="bi bi-tag me-1"></i> Статус</th>
+                    <th><i class="bi bi-gear me-1"></i> Действия</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,38 +202,38 @@
                     <tr>
                         @if (isAdmin)
                         {
-                            <td>@order.Customer?.FullName</td>
+                            <td class="fw-semibold">@order.Customer?.FullName</td>
                         }
-                        <td>#@order.OrderID</td>
+                        <td class="order-number">#@order.OrderID</td>
                         <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
-                        <td>@order.TotalAmount.ToString("0.00") byn</td>
-                        <td>
-                            @if (isAdmin)
-                            {
-                                <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                    <input type="hidden" name="orderId" value="@order.OrderID" />
-                                    <select name="status" onchange="this.form.submit()" class="form-select form-select-sm">
-                                        <option value="Принят" selected="@(order.Status == "Принят")">Принят</option>
-                                        <option value="Сформирован" selected="@(order.Status == "Сформирован")">Сформирован</option>
-                                        <option value="Готов к выдаче" selected="@(order.Status == "Готов к выдаче")">Готов к выдаче</option>
-                                        <option value="Выполнен" selected="@(order.Status == "Выполнен")">Выполнен</option>
-                                        <option value="Отменен" selected="@(order.Status == "Отменен")">Отменен</option>
-                                    </select>
-                                </form>
-                            }
-                            else
-                            {
-                                <span class="badge 
-                                    @(order.Status == "Выполнен" ? "bg-success" :
-                                      order.Status == "Отменен" ? "bg-danger" :
-                                      order.Status == "Готов к выдаче" ? "bg-warning" : "bg-info")">
-                                    @order.Status
-                                </span>
-                            }
+                        <td class="fw-semibold text-primary">@order.TotalAmount.ToString("0.00") BYN</td>
+                    <td class="text-center">
+                        <span class="status-badge
+            @(order.Status == "Выполнен" ? "status-completed" :
+                                        order.Status == "Отменен" ? "status-cancelled" :
+                                        order.Status == "Готов к выдаче" ? "status-ready" : "status-default")">
+                        @if (order.Status == "Выполнен")
+                                {
+                                    <i class="bi bi-check-circle me-1"></i>
+                                }
+                                else if (order.Status == "Отменен")
+                                {
+                                    <i class="bi bi-x-circle me-1"></i>
+                                }
+                                else if (order.Status == "Готов к выдаче")
+                                {
+                                    <i class="bi bi-clock-history me-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-hourglass-split me-1"></i>
+                                }
+                                @order.Status
+                            </span>
                         </td>
                         <td>
-                            <a asp-action="Details" asp-route-id="@order.OrderID" class="btn btn-sm btn-info">
-                                <i class="bi bi-eye"></i> Детали
+                            <a asp-action="Details" asp-route-id="@order.OrderID" class="btn btn-details text-white">
+                                <i class="bi bi-eye me-1"></i> Детали
                             </a>
                         </td>
                     </tr>
@@ -77,12 +244,12 @@
 }
 else
 {
-    <div class="text-center py-5">
-        <i class="bi bi-bag-x" style="font-size: 4rem; color: #6c757d;"></i>
-        <h3 class="mt-3">Заказы отсутствуют</h3>
+    <div class="empty-orders">
+        <i class="bi bi-bag-x"></i>
+        <h3>Заказы отсутствуют</h3>
         <p class="text-muted">У вас пока нет оформленных заказов</p>
-        <a asp-controller="Products" asp-action="Index" class="btn btn-primary mt-3">
-            <i class="bi bi-bag"></i> Перейти к покупкам
+        <a asp-controller="Products" asp-action="Index" class="btn btn-shop text-white mt-2">
+            <i class="bi bi-bag me-2"></i> Перейти к покупкам
         </a>
     </div>
 }

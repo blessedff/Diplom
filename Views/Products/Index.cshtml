@@ -1,132 +1,271 @@
 ﻿@model IEnumerable<StationeryShop.Models.Product>
 
 @{
-    ViewData["Title"] = "Список товаров";
+    ViewData["Title"] = "Каталог товаров";
     bool isAdmin = ViewBag.IsAdmin;
     bool isAuthenticated = ViewBag.IsAuthenticated;
 }
 
 <style>
+    /* Современные стили в стиле админ-панели */
     .filter-section {
         background: white;
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-radius: 24px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .filter-section .form-control,
+    .filter-section .form-select {
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        padding: 10px 15px;
+    }
+    
+    .filter-section .form-control:focus,
+    .filter-section .form-select:focus {
+        border-color: #2c5aa0;
+        box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
     }
     
     .product-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: all 0.3s ease;
         border: none;
-        border-radius: 16px;
+        border-radius: 20px;
         overflow: hidden;
+        background: white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
     }
+    
     .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(44, 90, 160, 0.12);
     }
+    
     .product-image {
-        height: 200px;
+        height: 220px;
         object-fit: cover;
-        transition: transform 0.3s ease;
+        transition: transform 0.5s ease;
     }
+    
     .product-card:hover .product-image {
         transform: scale(1.05);
     }
+    
     .card-title {
         cursor: pointer;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: color 0.2s ease;
+        margin-bottom: 8px;
     }
+    
     .card-title:hover {
-        color: #0d6efd;
+        color: #2c5aa0;
     }
+    
     .stock-badge {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 600;
     }
     .stock-high { background: #d4edda; color: #155724; }
     .stock-medium { background: #fff3cd; color: #856404; }
     .stock-low { background: #f8d7da; color: #721c24; }
     
-    .view-toggle {
-        display: flex;
-        gap: 10px;
-        align-items: center;
+    .price {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2c5aa0;
     }
-    .view-toggle .btn {
-        padding: 6px 15px;
+    
+    .btn-cart {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
         border-radius: 30px;
+        padding: 8px 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+        width: 100%;
+    }
+    
+    .btn-cart:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        color: white;
+    }
+    
+    .btn-cart:disabled {
+        background: #adb5bd;
+        transform: none;
+        cursor: not-allowed;
+    }
+    
+    .category-badge {
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .view-toggle .btn {
+        padding: 8px 20px;
+        border-radius: 40px;
+        font-weight: 500;
+    }
+    
+    .table-products {
+        border-radius: 20px;
+        overflow: hidden;
     }
     
     .table-products th {
         background: #f8f9fa;
         font-weight: 600;
+        padding: 15px;
+        border-bottom: 2px solid #e9ecef;
     }
+    
     .table-products td {
+        padding: 12px 15px;
         vertical-align: middle;
     }
+    
     .table-img {
         width: 50px;
         height: 50px;
         object-fit: cover;
-        border-radius: 8px;
+        border-radius: 12px;
     }
     
-    .admin-notice, .auth-notice {
-        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+    .admin-notice {
+        background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
+        border-radius: 20px;
+        padding: 15px 25px;
+        margin-bottom: 25px;
         color: white;
     }
+    
     .auth-notice {
         background: linear-gradient(135deg, #6c757d, #5a6268);
+        border-radius: 20px;
+        padding: 15px 25px;
+        margin-bottom: 25px;
+        color: white;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border-radius: 2px;
+    }
+    
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .product-card {
+        animation: fadeInUp 0.5s ease-out;
+    }
+    
+    .modal-content {
+        border: none;
+        border-radius: 24px;
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid #e9ecef;
+        padding: 20px 25px;
     }
 </style>
 
-<h2 class="mb-4 text-center">Каталог товаров</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+   
+    
+    @if (isAdmin)
+    {
+        <div class="view-toggle">
+            <button id="cardViewBtn" class="btn btn-outline-primary active">
+                <i class="bi bi-grid-3x3-gap-fill"></i> Карточки
+            </button>
+            <button id="tableViewBtn" class="btn btn-outline-secondary">
+                <i class="bi bi-table"></i> Таблица
+            </button>
+        </div>
+    }
+</div>
 
-<!-- Постоянный блок для администратора -->
+<!-- Блок для администратора -->
 @if (isAdmin)
 {
-    <div class="admin-notice mb-4 text-center p-3 rounded">
+    <div class="admin-notice">
         <i class="bi bi-shield-lock-fill me-2"></i>
         <strong>Режим администратора</strong>
         <br>
         <small>
             Управление товарами, категориями и заказами доступно в 
-            <a asp-controller="Admin" asp-action="Index" class="text-white fw-bold" style="text-decoration: underline;">
+            <a asp-controller="Admin" asp-action="Index" class="text-white fw-bold text-decoration-underline">
                 <i class="bi bi-speedometer2"></i> Админ-панели
             </a>
         </small>
     </div>
 }
 
-<!-- Постоянный блок для неавторизованных пользователей -->
+<!-- Блок для неавторизованных -->
 @if (!isAuthenticated)
 {
-    <div class="auth-notice mb-4 text-center p-3 rounded">
+    <div class="auth-notice">
         <i class="bi bi-info-circle-fill me-2"></i>
         <strong>Для оформления заказа необходимо авторизоваться</strong>
         <br>
         <small>
-            <a asp-controller="Account" asp-action="Login" class="text-white fw-bold" style="text-decoration: underline;">
+            <a asp-controller="Account" asp-action="Login" class="text-white fw-bold text-decoration-underline">
                 <i class="bi bi-box-arrow-in-right"></i> Войти
             </a>
             или 
-            <a asp-controller="Account" asp-action="Register" class="text-white fw-bold" style="text-decoration: underline;">
+            <a asp-controller="Account" asp-action="Register" class="text-white fw-bold text-decoration-underline">
                 <i class="bi bi-person-plus"></i> Зарегистрироваться
             </a>
         </small>
     </div>
 }
 
-<!-- Фильтры и поиск -->
+<!-- Фильтры -->
 <div class="filter-section">
     <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label fw-bold">🔍 Поиск</label>
-            <input type="text" id="searchInput" class="form-control" placeholder="Название товара...">
+        <div class="col-md-5">
+            <label class="form-label fw-bold">🔍 Поиск товаров</label>
+            <input type="text" id="searchInput" class="form-control" placeholder="Введите название...">
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label class="form-label fw-bold">📁 Категория</label>
             <select id="categoryFilter" class="form-select">
                 <option value="">Все категории</option>
@@ -137,7 +276,7 @@
             </select>
         </div>
         <div class="col-md-3">
-            <label class="form-label fw-bold">📊 Сортировать по</label>
+            <label class="form-label fw-bold">📊 Сортировка</label>
             <select id="sortBy" class="form-select">
                 <option value="Name">Названию (А-Я)</option>
                 <option value="NameDesc">Названию (Я-А)</option>
@@ -147,38 +286,25 @@
                 <option value="StockDesc">Остатку (убыв.)</option>
             </select>
         </div>
-        <div class="col-md-2">
-            <button id="resetFilters" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-arrow-repeat"></i> Сброс
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <button id="resetFilters" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-repeat"></i> Сбросить фильтры
             </button>
         </div>
     </div>
 </div>
 
-<!-- Переключатель вида (только для администратора) -->
-@if (isAdmin)
-{
-    <div class="d-flex justify-content-end mb-3">
-        <div class="view-toggle">
-            <button id="cardViewBtn" class="btn btn-outline-primary active">
-                <i class="bi bi-grid-3x3-gap-fill"></i> Карточки
-            </button>
-            <button id="tableViewBtn" class="btn btn-outline-secondary">
-                <i class="bi bi-table"></i> Таблица
-            </button>
-        </div>
-    </div>
-}
-
-<!-- Контейнер для карточек -->
+<!-- Карточки товаров -->
 <div id="cardsContainer" class="row g-4">
     <div class="col-12 text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2">Загрузка товаров...</p>
+        <p class="mt-2 text-muted">Загрузка товаров...</p>
     </div>
 </div>
 
-<!-- Контейнер для таблицы (только для админа, скрыт по умолчанию) -->
+<!-- Таблица (только для админа) -->
 @if (isAdmin)
 {
     <div id="tableViewContainer" style="display: none;">
@@ -200,19 +326,18 @@
     </div>
 }
 
-<!-- Модальное окно для деталей товара -->
-<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+<!-- Модальное окно -->
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="productModalLabel">Информация о товаре</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">📋 Информация о товаре</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="productModalBody">
                 <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Загрузка...</span>
-                    </div>
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Загрузка...</p>
                 </div>
             </div>
         </div>
@@ -252,12 +377,11 @@
             $('#cardsContainer').html(`
                 <div class="col-12 text-center py-5">
                     <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2">Загрузка товаров...</p>
+                    <p class="mt-2 text-muted">Загрузка товаров...</p>
                 </div>
             `);
             
             try {
-                // Получаем все товары из модели (они уже загружены)
                 let products = @Html.Raw(Json.Serialize(Model.Select(p => new {
                     p.ProductID,
                     p.Name,
@@ -268,17 +392,13 @@
                     p.PhotoBase64
                 })));
                 
-                // Фильтрация по поиску
                 if (search) {
                     products = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
                 }
-                
-                // Фильтрация по категории
                 if (category) {
                     products = products.filter(p => p.categoryName === category);
                 }
                 
-                // Сортировка
                 products.sort((a, b) => {
                     let valA, valB;
                     if (sortField === 'Name') {
@@ -291,12 +411,7 @@
                         valA = a.stockQuantity;
                         valB = b.stockQuantity;
                     }
-                    
-                    if (ascending) {
-                        return valA > valB ? 1 : -1;
-                    } else {
-                        return valA < valB ? 1 : -1;
-                    }
+                    return ascending ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
                 });
                 
                 currentProducts = products;
@@ -337,22 +452,22 @@
                                      </div>`
                                 }
                                 <div class="position-absolute top-0 start-0 m-2">
-                                    <span class="badge bg-primary">${escapeHtml(product.categoryName) || 'Без категории'}</span>
+                                    <span class="category-badge">${escapeHtml(product.categoryName) || 'Без категории'}</span>
                                 </div>
                                 <div class="position-absolute top-0 end-0 m-2">
                                     <span class="stock-badge ${stockClass}">${product.stockQuantity} шт</span>
                                 </div>
                             </div>
-                            <div class="card-body d-flex flex-column">
+                            <div class="card-body d-flex flex-column p-3">
                                 <h5 class="card-title" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productModal" data-product-id="${product.productID}">
                                     ${escapeHtml(product.name)}
                                 </h5>
-                                <p class="card-text text-muted small flex-grow-1">
-                                    ${escapeHtml(product.description?.substring(0, 100) || 'Без описания')}${product.description?.length > 100 ? '...' : ''}
+                                <p class="card-text text-muted small flex-grow-1" style="font-size: 0.8rem;">
+                                    ${escapeHtml(product.description?.substring(0, 80) || 'Без описания')}${product.description?.length > 80 ? '...' : ''}
                                 </p>
-                                <div class="mt-auto">
+                                <div class="mt-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="h5 mb-0 text-success">${product.price.toFixed(2)} BYN</span>
+                                        <span class="price">${product.price.toFixed(2)} BYN</span>
                                         <small class="text-muted">Осталось: ${product.stockQuantity}</small>
                                     </div>
                                     ${isAuthenticated && !isAdminUser ? 
@@ -360,16 +475,16 @@
                                             `<form action="/Cart/AddToCart" method="post" class="d-grid">
                                                 <input type="hidden" name="productId" value="${product.productID}" />
                                                 <input type="hidden" name="quantity" value="1" />
-                                                <button type="submit" class="btn btn-success btn-sm">
+                                                <button type="submit" class="btn-cart">
                                                     <i class="bi bi-cart-plus"></i> В корзину
                                                 </button>
                                             </form>` :
-                                            `<button class="btn btn-outline-secondary btn-sm w-100" disabled>
+                                            `<button class="btn-cart" disabled>
                                                 <i class="bi bi-cart-x"></i> Нет в наличии
                                             </button>`
                                         ) : 
                                         (!isAuthenticated ?
-                                            `<button class="btn btn-outline-secondary btn-sm w-100" disabled title="Для добавления в корзину необходимо авторизоваться">
+                                            `<button class="btn-cart" disabled title="Для добавления в корзину необходимо авторизоваться">
                                                 <i class="bi bi-cart-plus"></i> В корзину
                                             </button>` : ''
                                         )
@@ -382,9 +497,8 @@
             }
             $('#cardsContainer').html(html);
             
-            // Привязываем события для модального окна
             $('[data-bs-toggle="modal"]').on('click', function(e) {
-                if ($(this).hasClass('btn') || $(this).closest('form').length) return;
+                if ($(this).hasClass('btn-cart') || $(this).closest('form').length) return;
                 const productId = $(this).data('product-id');
                 if (productId) {
                     loadProductModal(productId);
@@ -394,7 +508,7 @@
         
         function renderTable(products) {
             if (!products.length) {
-                $('#tableBody').html('<tr><td colspan="6" class="text-center text-muted">Товары не найдены</td></tr>');
+                $('#tableBody').html('<tr><td colspan="6" class="text-center text-muted py-5">Товары не найдены</td><tr');
                 return;
             }
             
@@ -412,8 +526,8 @@
                             }
                         </td>
                         <td class="fw-bold">${escapeHtml(product.name)}</td>
-                        <td><span class="badge bg-secondary">${escapeHtml(product.categoryName) || 'Без категории'}</span></td>
-                        <td class="text-success fw-bold">${product.price.toFixed(2)} BYN</td>
+                        <td><span class="badge bg-primary rounded-pill">${escapeHtml(product.categoryName) || 'Без категории'}</span></td>
+                        <td class="text-primary fw-bold">${product.price.toFixed(2)} BYN</td>
                         <td><span class="stock-badge ${stockClass}">${product.stockQuantity} шт</span></td>
                         <td>
                             <div class="btn-group btn-group-sm">
@@ -433,7 +547,6 @@
             }
             $('#tableBody').html(html);
             
-            // Привязываем события для модального окна в таблице
             $('[data-bs-toggle="modal"]').on('click', function(e) {
                 const productId = $(this).data('product-id');
                 if (productId) {
@@ -447,7 +560,7 @@
             modalBody.html(`
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2">Загрузка информации...</p>
+                    <p class="mt-2 text-muted">Загрузка информации...</p>
                 </div>
             `);
             
@@ -480,17 +593,16 @@
             if (view === 'cards') {
                 $('#cardsContainer').show();
                 $('#tableViewContainer').hide();
-                $('#cardViewBtn').removeClass('btn-outline-primary').addClass('btn-primary');
-                $('#tableViewBtn').removeClass('btn-primary').addClass('btn-outline-secondary');
+                $('#cardViewBtn').removeClass('btn-primary btn-outline-primary').addClass('btn-primary');
+                $('#tableViewBtn').removeClass('btn-primary btn-outline-secondary').addClass('btn-outline-secondary');
             } else {
                 $('#cardsContainer').hide();
                 $('#tableViewContainer').show();
-                $('#tableViewBtn').removeClass('btn-outline-secondary').addClass('btn-primary');
-                $('#cardViewBtn').removeClass('btn-primary').addClass('btn-outline-primary');
+                $('#tableViewBtn').removeClass('btn-outline-secondary btn-primary').addClass('btn-primary');
+                $('#cardViewBtn').removeClass('btn-primary btn-outline-primary').addClass('btn-outline-primary');
             }
         }
         
-        // Обработчики событий
         $('#searchInput').on('input', debounce(loadProducts, 500));
         $('#categoryFilter').on('change', loadProducts);
         $('#sortBy').on('change', loadProducts);

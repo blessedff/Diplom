@@ -6,48 +6,243 @@
     var totalPrice = ViewBag.TotalPrice as decimal? ?? 0;
 }
 
-<h2 class="mb-4">Оформление заказа</h2>
+<style>
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
+
+    .form-card, .summary-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+        .form-card .card-header, .summary-card .card-header {
+            background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
+            color: white;
+            padding: 15px 20px;
+            border: none;
+        }
+
+            .form-card .card-header h5, .summary-card .card-header h5 {
+                margin: 0;
+                font-weight: 600;
+            }
+
+        .form-card .card-body, .summary-card .card-body {
+            padding: 25px;
+        }
+
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 12px 15px;
+        transition: all 0.2s ease;
+    }
+
+        .form-control:focus {
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+            outline: none;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .payment-info {
+        background: linear-gradient(135deg, #e8f4fd, #d4eaf7);
+        border: none;
+        border-radius: 16px;
+        padding: 15px 20px;
+        margin-top: 20px;
+    }
+
+        .payment-info i {
+            color: #2c5aa0;
+            margin-right: 10px;
+        }
+
+    .btn-back {
+        background: #6c757d;
+        border: none;
+        border-radius: 30px;
+        padding: 10px 25px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            background: #5a6268;
+        }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 30px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+    .cart-item-name {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .cart-item-meta {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .cart-item-price {
+        font-weight: 700;
+        color: #2c5aa0;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .total-label {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+
+    .total-amount {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #28a745;
+    }
+
+    .empty-cart {
+        text-align: center;
+        padding: 30px 20px;
+    }
+
+        .empty-cart i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-card, .summary-card {
+        animation: fadeInUp 0.4s ease-out;
+    }
+</style>
+
+<h2 class="page-title"><i class="bi bi-clipboard-check me-2"></i> Оформление заказа</h2>
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">
-        @TempData["Error"]
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
+<div class="row g-4">
+    <!-- Левая колонка - форма доставки -->
+    <div class="col-lg-7">
+        <div class="form-card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Детали доставки</h5>
+                <h5 class="mb-0">
+                    <i class="bi bi-truck me-2"></i> Детали доставки
+                </h5>
             </div>
             <div class="card-body">
-                <form asp-action="Create" method="post">
+                <form asp-action="Create" method="post" id="orderForm">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                     <input type="hidden" asp-for="CustomerID" />
                     <input type="hidden" asp-for="TotalAmount" />
                     <input type="hidden" asp-for="Status" />
 
-                    <div class="form-group mb-3">
-                        <label asp-for="ShippingAddress" class="form-label">Адрес доставки *</label>
-                        <textarea asp-for="ShippingAddress" class="form-control" rows="3" 
-                                  placeholder="Введите полный адрес доставки" required></textarea>
+                    <div class="mb-3">
+                        <label asp-for="ShippingAddress" class="form-label">
+                            <i class="bi bi-geo-alt me-1"></i> Адрес доставки <span class="text-danger">*</span>
+                        </label>
+                        <textarea asp-for="ShippingAddress" class="form-control" rows="3"
+                                  placeholder="Введите полный адрес доставки (город, улица, дом, квартира)" required></textarea>
                         <span asp-validation-for="ShippingAddress" class="text-danger"></span>
-                        <small class="form-text text-muted">Укажите город, улицу, дом, квартиру</small>
+                        <small class="form-text text-muted">
+                            <i class="bi bi-info-circle"></i> Укажите точный адрес для доставки заказа
+                        </small>
                     </div>
 
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i>
+                    <div class="payment-info">
+                        <i class="bi bi-credit-card"></i>
                         <strong>Способ оплаты:</strong> Наличными при получении
+                        <br>
+                        <small class="text-muted">Вы оплачиваете заказ курьеру после получения товара</small>
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
-                        <a asp-controller="Cart" asp-action="Index" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Вернуться в корзину
+                        <a asp-controller="Cart" asp-action="Index" class="btn btn-back text-white">
+                            <i class="bi bi-arrow-left me-2"></i> Вернуться в корзину
                         </a>
-                        <button type="submit" class="btn btn-success btn-lg">
-                            <i class="bi bi-check-circle"></i> Подтвердить заказ
+                        <button type="submit" class="btn btn-submit text-white">
+                            <i class="bi bi-check-circle me-2"></i> Подтвердить заказ
                         </button>
                     </div>
                 </form>
@@ -55,35 +250,40 @@
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card">
+    <!-- Правая колонка - состав заказа -->
+    <div class="col-lg-5">
+        <div class="summary-card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Состав заказа</h5>
+                <h5 class="mb-0">
+                    <i class="bi bi-cart3 me-2"></i> Состав заказа
+                </h5>
             </div>
             <div class="card-body">
                 @if (cartItems != null && cartItems.Any())
                 {
-                    foreach (var item in cartItems)
-                    {
-                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-                            <div>
-                                <div class="fw-bold">@item.ProductName</div>
-                                <small class="text-muted">@item.Quantity × @item.Price.ToString("0.00") byn</small>
+                    <div class="cart-items-list">
+                        @foreach (var item in cartItems)
+                        {
+                            <div class="cart-item">
+                                <div>
+                                    <div class="cart-item-name">@item.ProductName</div>
+                                    <div class="cart-item-meta">@item.Quantity × @item.Price.ToString("0.00") BYN</div>
+                                </div>
+                                <div class="cart-item-price">@item.TotalPrice.ToString("0.00") BYN</div>
                             </div>
-                            <div class="fw-bold">@item.TotalPrice.ToString("0.00") byn</div>
-                        </div>
-                    }
-                    
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-                        <div class="fw-bold">Итого:</div>
-                        <div class="fw-bold fs-5 text-success">@totalPrice.ToString("0.00") byn</div>
+                        }
+                    </div>
+
+                    <div class="total-row">
+                        <span class="total-label">Итого к оплате:</span>
+                        <span class="total-amount">@totalPrice.ToString("0.00") BYN</span>
                     </div>
                 }
                 else
                 {
-                    <div class="text-center text-muted">
+                    <div class="empty-cart">
                         <i class="bi bi-cart-x"></i>
-                        <p>Корзина пуста</p>
+                        <p class="text-muted mb-0">Корзина пуста</p>
                     </div>
                 }
             </div>
@@ -95,7 +295,7 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    
+
     <script>
         // Автоматически устанавливаем сумму заказа при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {

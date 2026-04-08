@@ -5,57 +5,304 @@
     bool isAdmin = Context.Session.GetString("IsAdmin") == "true";
 }
 
-<h2>Информация о категории</h2>
+<style>
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
 
-<div class="card p-3">
-    <dl class="row">
-        <dt class="col-sm-3">Название:</dt>
-        <dd class="col-sm-9">@Model.Name</dd>
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
 
-        <dt class="col-sm-3">Описание:</dt>
-        <dd class="col-sm-9">@Model.Description</dd>
+    .category-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
 
-        <dt class="col-sm-3">Количество товаров:</dt>
-        <dd class="col-sm-9">@Model.Products?.Count</dd>
-    </dl>
+    .category-header {
+        background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
+        padding: 25px 30px;
+        color: white;
+    }
+
+        .category-header h3 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+    .category-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+
+        .category-icon i {
+            font-size: 1.8rem;
+            color: white;
+        }
+
+    .info-section {
+        padding: 25px 30px;
+    }
+
+    .info-row {
+        display: flex;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        width: 140px;
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .info-value {
+        flex: 1;
+        color: #2d3748;
+    }
+
+    .products-section {
+        padding: 0 30px 25px 30px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .products-table {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+        .products-table thead th {
+            background: #f8f9fa;
+            font-weight: 600;
+            padding: 12px 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .products-table tbody td {
+            padding: 10px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .products-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+    .product-name {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .product-price {
+        font-weight: 600;
+        color: #2c5aa0;
+    }
+
+    .product-stock {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .stock-high {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .stock-medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .stock-low {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .empty-alert {
+        background: #e8f4fd;
+        border: none;
+        border-radius: 16px;
+        color: #2c5aa0;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        border: none;
+        border-radius: 30px;
+        padding: 10px 25px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+        }
+
+    .btn-back {
+        background: #6c757d;
+        border: none;
+        border-radius: 30px;
+        padding: 10px 25px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            background: #5a6268;
+        }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .category-card {
+        animation: fadeInUp 0.4s ease-out;
+    }
+</style>
+
+<h2 class="page-title">
+    <i class="bi bi-tags me-2"></i> Информация о категории
+</h2>
+
+<div class="category-card">
+    <div class="category-header">
+        <div class="category-icon">
+            <i class="bi bi-tags"></i>
+        </div>
+        <h3>@Model.Name</h3>
+    </div>
+
+    <div class="info-section">
+        <div class="info-row">
+            <div class="info-label">
+                <i class="bi bi-pencil me-2"></i> Название
+            </div>
+            <div class="info-value">@Model.Name</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">
+                <i class="bi bi-file-text me-2"></i> Описание
+            </div>
+            <div class="info-value">@(string.IsNullOrEmpty(Model.Description) ? "—" : Model.Description)</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">
+                <i class="bi bi-box-seam me-2"></i> Количество товаров
+            </div>
+            <div class="info-value">
+                <span class="badge bg-primary rounded-pill">@(Model.Products?.Count ?? 0) товаров</span>
+            </div>
+        </div>
+    </div>
 
     @if (Model.Products != null && Model.Products.Any())
     {
-        <h5 class="mt-4">Товары в этой категории:</h5>
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>Название</th>
-                        <th>Цена</th>
-                        <th>Количество</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var product in Model.Products)
-                    {
+        <div class="products-section">
+            <div class="section-title">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+                Товары в этой категории
+            </div>
+            <div class="table-responsive">
+                <table class="table products-table">
+                    <thead>
                         <tr>
-                            <td>@product.Name</td>
-                            <td>@product.Price.ToString("0.00") byn</td>
-                            <td>@product.StockQuantity</td>
+                            <th>Название</th>
+                            <th class="text-end">Цена</th>
+                            <th class="text-center">Количество</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model.Products)
+                        {
+                            var stockClass = product.StockQuantity >= 20 ? "stock-high" : (product.StockQuantity >= 5 ? "stock-medium" : "stock-low");
+                            <tr>
+                                <td class="product-name">@product.Name</td>
+                                <td class="product-price text-end">@product.Price.ToString("0.00") BYN</td>
+                                <td class="text-center">
+                                    <span class="product-stock @stockClass">
+                                        @if (product.StockQuantity > 0)
+                                        {
+                                            <i class="bi bi-check-circle me-1"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-x-circle me-1"></i>
+                                        }
+                                        @product.StockQuantity шт.
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     }
     else
     {
-        <div class="alert alert-info mt-3">
-            В этой категории пока нет товаров
+        <div class="products-section">
+            <div class="empty-alert">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                В этой категории пока нет товаров
+            </div>
         </div>
     }
 </div>
 
-<p class="mt-3">
+<div class="mt-4 d-flex gap-3">
     @if (isAdmin)
     {
-        <a asp-action="Edit" asp-route-id="@Model.CategoryID" class="btn btn-warning">Редактировать</a>
+        <a asp-action="Edit" asp-route-id="@Model.CategoryID" class="btn btn-edit text-white">
+            <i class="bi bi-pencil me-2"></i> Редактировать категорию
+        </a>
     }
-    <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
-</p>
+    <a asp-action="Index" class="btn btn-back text-white">
+        <i class="bi bi-arrow-left me-2"></i> Назад к списку категорий
+    </a>
+</div>

@@ -2,62 +2,407 @@
     ViewData["Title"] = "Главная страница";
 }
 
-<!-- Герой секция -->
-<div class="hero-section text-center py-5 mb-5 rounded-3" style="
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-">
-    <div class="container">
-        <h1 class="display-4 fw-bold mb-3">Добро пожаловать в Канцелярский Магазин!</h1>
-        <p class="lead mb-4">Широкий ассортимент качественных канцтоваров для офиса, школы и творчества</p>
-        <a class="btn btn-light btn-lg px-4" asp-controller="Products" asp-action="Index">
-            <i class="bi bi-bag me-2"></i>Начать покупки
+<style>
+    /* Современные стили в стиле админ-панели */
+    .hero-section {
+        background: linear-gradient(135deg, #1a1a2e 0%, #2c5aa0 100%);
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.15;
+        }
+
+        .hero-section .container {
+            position: relative;
+            z-index: 1;
+        }
+
+    .btn-hero {
+        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        color: white;
+        padding: 14px 40px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+        .btn-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(58, 123, 213, 0.4);
+            color: white;
+        }
+
+    /* Карточки преимуществ */
+    .feature-card {
+        background: white;
+        border-radius: 24px;
+        padding: 35px 25px;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+    }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(44, 90, 160, 0.1);
+            border-color: rgba(58, 123, 213, 0.2);
+        }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #2c5aa0 0%, #3a7bd5 100%);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+    }
+
+        .feature-icon i {
+            font-size: 38px;
+            color: white;
+        }
+
+    .feature-card h5 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #1a1a2e;
+    }
+
+    .feature-card p {
+        color: #6c757d;
+        line-height: 1.6;
+    }
+
+    /* Секция категорий */
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+    }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
+
+    .category-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 1px solid #e9ecef;
+    }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(44, 90, 160, 0.12);
+            border-color: #3a7bd5;
+        }
+
+    .category-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        display: inline-block;
+    }
+
+    .category-card h6 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+        color: #2d3748;
+    }
+
+    /* CTA секция */
+    .cta-section {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(58, 123, 213, 0.1), rgba(0, 210, 255, 0.05));
+            z-index: 0;
+        }
+
+        .cta-section .container {
+            position: relative;
+            z-index: 1;
+        }
+
+    .btn-cta {
+        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        color: white;
+        padding: 12px 32px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(58, 123, 213, 0.4);
+            color: white;
+        }
+
+    .btn-outline-cta {
+        background: transparent;
+        border: 2px solid white;
+        color: white;
+        padding: 12px 32px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-outline-cta:hover {
+            background: white;
+            color: #1a1a2e;
+            transform: translateY(-3px);
+        }
+
+    /* Новинки */
+    .new-arrival-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
+
+        .new-arrival-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(44, 90, 160, 0.12);
+        }
+
+    .new-arrival-img {
+        height: 180px;
+        background: linear-gradient(135deg, #e8f4fd, #d4eaf7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .new-arrival-img i {
+            font-size: 4rem;
+            color: #2c5aa0;
+        }
+
+    .new-arrival-card .card-body {
+        padding: 20px;
+    }
+
+    .price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2c5aa0;
+    }
+
+    /* Отзывы */
+    .review-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        border: 1px solid #e9ecef;
+    }
+
+    .review-avatar {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+    }
+
+        .review-avatar i {
+            font-size: 1.8rem;
+            color: white;
+        }
+
+    .review-text {
+        font-style: italic;
+        color: #6c757d;
+        margin-bottom: 15px;
+    }
+
+    .review-name {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .stars {
+        color: #ffc107;
+        margin-bottom: 10px;
+    }
+
+    /* Анимации */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate {
+        animation: fadeInUp 0.6s ease-out;
+    }
+</style>
+
+<!-- Hero секция -->
+<div class="hero-section text-center py-5 mb-5 animate">
+    <div class="container py-5">
+        <h1 class="display-3 fw-bold mb-3 text-white">Канцелярский Магазин</h1>
+        <p class="lead mb-4 text-white-50">Качественные канцтовары для офиса, школы и творчества</p>
+        <a class="btn btn-hero btn-lg px-5" asp-controller="Products" asp-action="Index">
+            <i class="bi bi-arrow-right me-2"></i>В каталог
         </a>
     </div>
 </div>
 
 <!-- Преимущества -->
-<div class="row g-4 mb-5">
-    <div class="col-md-4">
-        <div class="card text-center h-100 border-0">
-            <div class="card-body p-4">
-                <i class="bi bi-truck display-4 text-primary mb-3"></i>
-                <h5 class="card-title">Быстрая доставка</h5>
-                <p class="card-text text-muted">Доставка по городу в течение 24 часов</p>
+<div class="container mb-5">
+    <h2 class="section-title text-center mb-5">Почему выбирают нас</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon mx-auto">
+                    <i class="bi bi-truck"></i>
+                </div>
+                <h5>Быстрая доставка</h5>
+                <p>Доставка по городу в течение 24 часов после оформления заказа</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-center h-100 border-0">
-            <div class="card-body p-4">
-                <i class="bi bi-shield-check display-4 text-success mb-3"></i>
-                <h5 class="card-title">Гарантия качества</h5>
-                <p class="card-text text-muted">Все товары проходят строгий контроль качества</p>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon mx-auto">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h5>Гарантия качества</h5>
+                <p>Все товары сертифицированы и проходят строгий контроль</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-center h-100 border-0">
-            <div class="card-body p-4">
-                <i class="bi bi-headset display-4 text-info mb-3"></i>
-                <h5 class="card-title">Поддержка 24/7</h5>
-                <p class="card-text text-muted">Всегда готовы помочь с выбором товаров</p>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon mx-auto">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <h5>Поддержка 24/7</h5>
+                <p>Всегда готовы помочь с выбором и ответить на вопросы</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Призыв к действию -->
-<div class="card bg-light border-0">
-    <div class="card-body text-center py-5">
-        <h3 class="mb-3">Готовы сделать заказ?</h3>
-        <p class="text-muted mb-4">Начните покупки прямо сейчас и получите лучшие товары по выгодным ценам</p>
+<!-- Отзывы -->
+<div class="container mb-5">
+    <h2 class="section-title text-center mb-5">💬 Что говорят наши клиенты</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="review-card">
+                <div class="review-avatar mx-auto">
+                    <i class="bi bi-person"></i>
+                </div>
+                <div class="stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <p class="review-text">"Отличный магазин! Большой выбор, быстрая доставка. Рекомендую!"</p>
+                <p class="review-name">Анна Иванова</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="review-card">
+                <div class="review-avatar mx-auto">
+                    <i class="bi bi-person"></i>
+                </div>
+                <div class="stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <p class="review-text">"Качество товаров отличное, цены приятные. Буду заказывать ещё!"</p>
+                <p class="review-name">Алексей Петров</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="review-card">
+                <div class="review-avatar mx-auto">
+                    <i class="bi bi-person"></i>
+                </div>
+                <div class="stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-half"></i>
+                </div>
+                <p class="review-text">"Удобный сайт, быстро оформил заказ. Доставили вовремя."</p>
+                <p class="review-name">Елена Сидорова</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA секция -->
+<div class="cta-section text-center py-5 mb-4">
+    <div class="container py-5">
+        <h2 class="display-5 fw-bold mb-3 text-white">Готовы к покупкам?</h2>
+        <p class="lead mb-4 text-white-50">Выберите товары в нашем каталоге и оформите заказ</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a class="btn btn-primary btn-lg" asp-controller="Products" asp-action="Index">
-                <i class="bi bi-box-seam me-2"></i>Смотреть каталог
+            <a class="btn btn-cta btn-lg px-4" asp-controller="Products" asp-action="Index">
+                <i class="bi bi-box-seam me-2"></i>Каталог товаров
             </a>
-            <a class="btn btn-outline-primary btn-lg" asp-controller="Categories" asp-action="Index">
-                <i class="bi bi-tags me-2"></i>Посмотреть категории
+            <a class="btn btn-outline-cta btn-lg px-4" asp-controller="Cart" asp-action="Index">
+                <i class="bi bi-cart3 me-2"></i>Корзина
             </a>
         </div>
     </div>

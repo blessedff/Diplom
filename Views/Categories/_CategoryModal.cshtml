@@ -4,70 +4,248 @@
     bool isAdmin = Context.Session.GetString("IsAdmin") == "true";
 }
 
+<style>
+    .modal-category-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+
+        .modal-category-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+    .modal-category-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 5px;
+    }
+
+    .modal-category-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+
+    .products-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .products-table {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+        .products-table thead th {
+            background: #f8f9fa;
+            font-weight: 600;
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .products-table tbody td {
+            padding: 8px 12px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.85rem;
+        }
+
+        .products-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+    .product-name {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .product-price {
+        font-weight: 700;
+        color: #2c5aa0;
+    }
+
+    .stock-badge {
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .stock-high {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .stock-low {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .empty-alert {
+        background: #e8f4fd;
+        border: none;
+        border-radius: 16px;
+        color: #2c5aa0;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .btn-view {
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border: none;
+        border-radius: 30px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+        }
+
+    .admin-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        border: none;
+        border-radius: 30px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+        }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+        border-radius: 30px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+</style>
+
 <div class="p-4">
     <!-- Заголовок -->
     <div class="text-center mb-4">
-        <i class="bi bi-tags display-4 text-primary mb-3"></i>
-        <h4 class="text-primary">@Model.Name</h4>
+        <div class="modal-category-icon mx-auto">
+            <i class="bi bi-tags"></i>
+        </div>
+        <h4 class="modal-category-title">@Model.Name</h4>
         @if (!string.IsNullOrEmpty(Model.Description))
         {
-            <p class="text-muted mb-0">@Model.Description</p>
+            <p class="modal-category-description">@Model.Description</p>
         }
     </div>
 
     <!-- Список товаров -->
     @if (Model.Products.Any())
     {
-        <div class="mb-4">
-            <h6 class="mb-3">Товары в категории (@Model.Products.Count):</h6>
+        <div class="products-title">
+            <i class="bi bi-box-seam"></i>
+            Товары в категории <span class="badge bg-secondary rounded-pill ms-2">@Model.Products.Count</span>
+        </div>
 
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Название</th>
-                            <th class="text-end">Цена</th>
-                            <th class="text-end">Количество</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var product in Model.Products.OrderBy(p => p.Name))
-                        {
-                            <tr>
-                                <td>@product.Name</td>
-                                <td class="text-end text-success fw-bold">@product.Price.ToString("0.00") BYN</td>
-                                <td class="text-end">
-                                    @if (product.StockQuantity > 0)
-                                    {
-                                        <span class="badge bg-success">@product.StockQuantity</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">0</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-responsive">
+            <table class="table products-table">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th class="text-end">Цена</th>
+                        <th class="text-center">Наличие</th>
+                    </tr>
+                </thead>
+<tbody>
+    @foreach (var product in Model.Products.OrderBy(p => p.Name))
+    {
+        var stockClass = product.StockQuantity > 0 ? "stock-high" : "stock-low";
+        <tr>
+            <td class="product-name">@product.Name</td>
+            <td class="product-price text-end">@product.Price.ToString("0.00") BYN</td>
+            <td class="text-center">
+                <span class="stock-badge @stockClass">
+                    @if (product.StockQuantity > 0)
+                    {
+                        <i class="bi bi-check-circle me-1"></i>
+                        @product.StockQuantity @:шт.
+                    }
+                    else
+                    {
+                        <i class="bi bi-x-circle me-1"></i>
+                        @:Нет в наличии
+                    }
+                </span>
+            </td>
+        </tr>
+    }
+</tbody>
+            </table>
         </div>
     }
     else
     {
-        <div class="alert alert-info text-center">
-            <i class="bi bi-info-circle"></i>
+        <div class="empty-alert">
+            <i class="bi bi-info-circle-fill me-2"></i>
             В этой категории пока нет товаров
         </div>
     }
 
-    <!-- Кнопки действий — ТОЛЬКО для администратора -->
-
-        <!-- Для обычных пользователей — только кнопка просмотра товаров -->
-        <div class="d-grid">
-            <a asp-action="Products" asp-route-id="@Model.CategoryID" class="btn btn-primary">
-                <i class="bi bi-eye"></i> Посмотреть товары категории
+    <!-- Кнопки действий -->
+    <div class="mt-4">
+        @if (isAdmin)
+        {
+            <div class="admin-buttons">
+                <a asp-action="Edit" asp-route-id="@Model.CategoryID" class="btn-edit text-white text-decoration-none text-center">
+                    <i class="bi bi-pencil me-2"></i> Редактировать
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.CategoryID" class="btn-delete text-white text-decoration-none text-center">
+                    <i class="bi bi-trash me-2"></i> Удалить
+                </a>
+            </div>
+            <div class="mt-2">
+                <a asp-action="Products" asp-route-id="@Model.CategoryID" class="btn-view text-white text-decoration-none w-100 d-block text-center">
+                    <i class="bi bi-eye me-2"></i> Все товары категории
+                </a>
+            </div>
+        }
+        else
+        {
+            <a asp-action="Products" asp-route-id="@Model.CategoryID" class="btn-view text-white text-decoration-none w-100 d-block text-center">
+                <i class="bi bi-eye me-2"></i> Посмотреть товары категории
             </a>
-        </div>
-    
+        }
+    </div>
 </div>

@@ -380,26 +380,113 @@ namespace StationeryShop.Controllers
             public int OrderId { get; set; }
             public string Status { get; set; }
         }
-        //// POST: Admin/UpdateStock (быстрое обновление остатка)
-        //[HttpPost]
-        //public async Task<IActionResult> UpdateStock([FromBody] UpdateStockRequest request)
-        //{
-        //    if (!IsAdmin()) return Unauthorized();
 
-        //    var product = await _context.Products.FindAsync(request.ProductId);
-        //    if (product == null) return NotFound(new { success = false, message = "Товар не найден" });
+        //Вспомогательный метод для получения числового значения из настроек
+        private decimal GetDecimalSetting(Dictionary<string, string> settings, string key, decimal defaultValue)
+        {
+            if (settings.ContainsKey(key) && decimal.TryParse(settings[key], out var value))
+                return value;
+            return defaultValue;
+        }
+        // GET: Admin/Finance
+        public async Task<IActionResult> Finance(DateTime? startDate, DateTime? endDate)
+        {
+            if (!IsAdmin()) return RedirectToHome();
 
-        //    product.StockQuantity = request.NewStock;
-        //    await _context.SaveChangesAsync();
+            // Устанавливаем период (по умолчанию текущий месяц)
+            var start = startDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var end = endDate ?? DateTime.Now;
 
-        //    return Ok(new { success = true, message = "Остаток обновлён" });
-        //}
+            // Получаем все выполненные заказы за период
+            var completedOrders = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .Where(o => o.Status == "Выполнен" && o.OrderDate >= start && o.OrderDate <= end)
+                .ToListAsync();
 
+            // Получаем разовые расходы за период
+            var expenses = await _context.Expenses
+                .Where(e => e.ExpenseDate >= start && e.ExpenseDate <= end)
+                .ToListAsync();
 
-        //public class UpdateStockRequest
-        //{
-        //    public int ProductId { get; set; }
-        //    public int NewStock { get; set; }
-        //}
+            // Получаем настройки из базы данных
+            var settingsList = await _context.FinancialSettings.ToListAsync();
+            var settings = settingsList.ToDictionary(s => s.SettingKey, s => s.SettingValue);
+
+            // Читаем настройки
+            var taxRate = GetDecimalSetting(settings, "TaxRate", 5.0m);
+            var salaryTotal = GetDecimalSetting(settings, "SalaryTotal", 0m);
+            var socialTaxRate = GetDecimalSetting(settings, "SocialTaxRate", 34m);
+            var warehouseRent = GetDecimalSetting(settings, "WarehouseRent", 0m);
+            var pickupPointRent = GetDecimalSetting(settings, "PickupPointRent", 0m);
+            var logisticsToWarehouse = GetDecimalSetting(settings, "LogisticsToWarehouse", 0m);
+            var logisticsToPickup = GetDecimalSetting(settings, "LogisticsToPickup", 0m);
+            var advertising = GetDecimalSetting(settings, "Advertising", 0m);
+            var packagingPerOrder = GetDecimalSetting(settings, "PackagingPerOrder", 1.5m);
+            var bankService = GetDecimalSetting(settings, "BankService", 0m);
+            var hosting = GetDecimalSetting(settings, "Hosting", 0m);
+            var utilities = GetDecimalSetting(settings, "Utilities", 0m);
+            var officeExpenses = GetDecimalSetting(settings, "OfficeExpenses", 0m);
+
+            // Расчёт выручки
+            var totalRevenue = completedOrders.Sum(o => o.TotalAmount);
+
+            // Расчёт себестоимости (нужно добавить поле PurchaseCost в Product)
+            // Пока используем 50% от выручки как пример
+            var costOfGoods = totalRevenue * 0.5m;
+
+            // Расчёт количества заказов и упаковки
+            var totalOrdersCount = completedOrders.Count;
+            var packagingCost = totalOrdersCount * packagingPerOrder;
+
+            // Расчёт отчислений ФСЗН (34% от зарплаты)
+            var socialTax = salaryTotal * (socialTaxRate / 100);
+
+            // Суммируем разовые расходы
+            var otherExpenses = expenses.Sum(e => e.Amount);
+
+            // Формируем отчёт
+            var report = new FinancialReport
+            {
+                StartDate = start,
+                EndDate = end,
+                TotalRevenue = totalRevenue,
+                TotalRevenueCash = 0,      // Не используем
+                TotalRevenueCard = 0,      // Не используем
+                CostOfGoods = costOfGoods,
+                LogisticsToWarehouse = logisticsToWarehouse,
+                WarehouseRent = warehouseRent,
+                PickupPointRent = pickupPointRent,
+                LogisticsToPickup = logisticsToPickup,
+                SalaryTotal = salaryTotal,
+                SocialTax = socialTax,
+                Advertising = advertising,
+                Packaging = packagingCost,
+                AcquiringFee = 0,           // Не используем
+                BankService = bankService,
+                Hosting = hosting,
+                Utilities = utilities,
+                OfficeExpenses = officeExpenses,
+                OtherExpenses = otherExpenses,
+                TaxRate = taxRate
+            };
+
+            // Итоговые расчёты
+            report.TotalExpenses = report.CostOfGoods + report.LogisticsToWarehouse + report.WarehouseRent +
+                                   report.PickupPointRent + report.LogisticsToPickup + report.SalaryTotal +
+                                   report.SocialTax + report.Advertising + report.Packaging + report.AcquiringFee +
+                                   report.BankService + report.Hosting + report.Utilities + report.OfficeExpenses +
+                                   report.OtherExpenses;
+
+            report.TaxAmount = report.TotalRevenue * (taxRate / 100);
+            report.NetProfit = report.TotalRevenue - report.TotalExpenses - report.TaxAmount;
+            report.ProfitMargin = report.TotalRevenue > 0 ? (report.NetProfit / report.TotalRevenue) * 100 : 0;
+
+            ViewBag.Report = report;
+            ViewBag.Expenses = expenses;
+
+            return View();
+        }
     }
+
 }

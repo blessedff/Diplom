@@ -389,34 +389,85 @@ namespace StationeryShop.Controllers
             return defaultValue;
         }
         // GET: Admin/Finance
-        public async Task<IActionResult> Finance(DateTime? startDate, DateTime? endDate)
+        public async Task<IActionResult> Finance(string period = "month", DateTime? startDate = null, DateTime? endDate = null)
         {
             if (!IsAdmin()) return RedirectToHome();
 
-            // Устанавливаем период (по умолчанию текущий месяц)
-            var start = startDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            var end = endDate ?? DateTime.Now.AddDays(1); // Добавляем +1 день, чтобы включить последний день
+            DateTime start;
+            DateTime end = DateTime.Now;
+            string periodTitle = "";
+            decimal monthlyFactor = 1m;
 
-            // Получаем все выполненные заказы за период
+            // Определяем период в зависимости от выбранной кнопки
+            switch (period)
+            {
+                case "month":
+                    start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                    periodTitle = "За последний месяц";
+                    monthlyFactor = 1m;
+                    break;
+                case "3months":
+                    start = DateTime.Now.AddMonths(-3);
+                    periodTitle = "За последние 3 месяца";
+                    monthlyFactor = 3m;
+                    break;
+                case "6months":
+                    start = DateTime.Now.AddMonths(-6);
+                    periodTitle = "За последние 6 месяцев";
+                    monthlyFactor = 6m;
+                    break;
+                case "12months":
+                    start = DateTime.Now.AddMonths(-12);
+                    periodTitle = "За последние 12 месяцев";
+                    monthlyFactor = 12m;
+                    break;
+                default:
+                    // Если переданы свои даты
+                    if (startDate.HasValue && endDate.HasValue)
+                    {
+                        start = startDate.Value;
+                        end = endDate.Value.AddDays(1);
+                        var daysInPeriod = (end - start).Days;
+                        var daysInCurrentMonth = DateTime.DaysInMonth(start.Year, start.Month);
+                        monthlyFactor = (decimal)daysInPeriod / daysInCurrentMonth;
+                        periodTitle = $"С {start:dd.MM.yyyy} по {endDate:dd.MM.yyyy}";
+                    }
+                    else
+                    {
+                        start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                        periodTitle = "За последний месяц";
+                        monthlyFactor = 1m;
+                    }
+                    break;
+            }
+
+            // Добавляем один день к конечной дате, чтобы включить последний день
+            end = end.AddDays(1);
+
+            ViewBag.PeriodTitle = periodTitle;
+            ViewBag.MonthlyFactor = monthlyFactor;
+            ViewBag.CurrentPeriod = period;
+
+            // 2. Получаем все выполненные заказы за период
             var completedOrders = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(oi => oi.Product)
                 .Where(o => o.Status == "Выполнен" && o.OrderDate >= start && o.OrderDate <= end)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
-            // Получаем разовые расходы за период
+            // 3. Получаем разовые расходы за период
             var expenses = await _context.Expenses
                 .Where(e => e.ExpenseDate >= start && e.ExpenseDate <= end)
                 .OrderByDescending(e => e.ExpenseDate)
                 .ToListAsync();
 
-            // Получаем настройки из базы данных
+            // 4. Получаем настройки из базы данных
             var settingsList = await _context.FinancialSettings.ToListAsync();
             var settings = settingsList.ToDictionary(s => s.SettingKey, s => s.SettingValue);
 
-            // Читаем настройки
+            // 5. Читаем настройки
             var taxRate = GetDecimalSetting(settings, "TaxRate", 5.0m);
             var salaryTotal = GetDecimalSetting(settings, "SalaryTotal", 0m);
             var socialTaxRate = GetDecimalSetting(settings, "SocialTaxRate", 34m);
@@ -431,65 +482,98 @@ namespace StationeryShop.Controllers
             var utilities = GetDecimalSetting(settings, "Utilities", 0m);
             var officeExpenses = GetDecimalSetting(settings, "OfficeExpenses", 0m);
 
-            // Расчёт выручки
+            // ==================== ПОСТОЯННЫЕ РАСХОДЫ С УЧЁТОМ ПЕРИОДА ====================
+            var salaryTotalPeriod = salaryTotal * monthlyFactor;
+            var socialTaxPeriod = salaryTotalPeriod * (socialTaxRate / 100);
+            var warehouseRentPeriod = warehouseRent * monthlyFactor;
+            var pickupPointRentPeriod = pickupPointRent * monthlyFactor;
+            var logisticsToWarehousePeriod = logisticsToWarehouse * monthlyFactor;
+            var logisticsToPickupPeriod = logisticsToPickup * monthlyFactor;
+            var advertisingPeriod = advertising * monthlyFactor;
+            var bankServicePeriod = bankService * monthlyFactor;
+            var hostingPeriod = hosting * monthlyFactor;
+            var utilitiesPeriod = utilities * monthlyFactor;
+            var officeExpensesPeriod = officeExpenses * monthlyFactor;
+
+            // ==================== ДОХОДЫ ====================
             var totalRevenue = completedOrders.Sum(o => o.TotalAmount);
-
-            // Расчёт себестоимости (нужно добавить поле PurchaseCost в Product)
-            var costOfGoods = completedOrders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity * (oi.Product?.PurchaseCost ?? 0)));
-            // Если PurchaseCost нет, используем 50% от выручки
-            if (costOfGoods == 0) costOfGoods = totalRevenue * 0.5m;
-
-            // Расчёт количества заказов и упаковки
             var totalOrdersCount = completedOrders.Count;
+            var totalItemsSold = completedOrders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity));
+            var averageCheck = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0;
+
+            // ==================== СЕБЕСТОИМОСТЬ ====================
+            var costOfGoods = completedOrders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity * (oi.Product?.PurchaseCost ?? 0)));
+            if (costOfGoods == 0 && totalRevenue > 0) costOfGoods = totalRevenue * 0.5m;
+
+            // ==================== ПЕРЕМЕННЫЕ РАСХОДЫ ====================
             var packagingCost = totalOrdersCount * packagingPerOrder;
 
-            // Расчёт отчислений ФСЗН (34% от зарплаты)
-            var socialTax = salaryTotal * (socialTaxRate / 100);
+            // ==================== СУММИРУЕМ ВСЕ РАСХОДЫ ====================
+            var totalExpenses = costOfGoods + logisticsToWarehousePeriod + warehouseRentPeriod +
+                                pickupPointRentPeriod + logisticsToPickupPeriod + salaryTotalPeriod +
+                                socialTaxPeriod + advertisingPeriod + packagingCost + bankServicePeriod +
+                                hostingPeriod + utilitiesPeriod + officeExpensesPeriod + expenses.Sum(e => e.Amount);
 
-            // Суммируем разовые расходы
-            var otherExpenses = expenses.Sum(e => e.Amount);
+            // ==================== НАЛОГИ И ПРИБЫЛЬ ====================
+            var taxAmount = totalRevenue * (taxRate / 100);
+            var netProfit = totalRevenue - totalExpenses - taxAmount;
+            var profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
 
-            // Формируем отчёт
-            var report = new FinancialReport
+            // ==================== ДЛЯ КРУГОВОЙ ДИАГРАММЫ ====================
+            
+            var chartData = new
             {
-                StartDate = start,
-                EndDate = end,
-                TotalRevenue = totalRevenue,
-                TotalRevenueCash = 0,
-                TotalRevenueCard = 0,
-                CostOfGoods = costOfGoods,
-                LogisticsToWarehouse = logisticsToWarehouse,
-                WarehouseRent = warehouseRent,
-                PickupPointRent = pickupPointRent,
-                LogisticsToPickup = logisticsToPickup,
-                SalaryTotal = salaryTotal,
-                SocialTax = socialTax,
-                Advertising = advertising,
-                Packaging = packagingCost,
-                AcquiringFee = 0,
-                BankService = bankService,
-                Hosting = hosting,
-                Utilities = utilities,
-                OfficeExpenses = officeExpenses,
-                OtherExpenses = otherExpenses,
-                TaxRate = taxRate
+                costOfGoods = costOfGoods,           // Себестоимость
+                fixedExpenses = logisticsToWarehousePeriod + warehouseRentPeriod + pickupPointRentPeriod +
+                                logisticsToPickupPeriod + salaryTotalPeriod + socialTaxPeriod +
+                                advertisingPeriod + packagingCost + bankServicePeriod + hostingPeriod +
+                                utilitiesPeriod + officeExpensesPeriod,  // Постоянные расходы
+                taxes = taxAmount,                    // Налоги
+                profit = netProfit > 0 ? netProfit : 0  // Прибыль (только положительная)
             };
 
-            // Итоговые расчёты
-            report.TotalExpenses = report.CostOfGoods + report.LogisticsToWarehouse + report.WarehouseRent +
-                                   report.PickupPointRent + report.LogisticsToPickup + report.SalaryTotal +
-                                   report.SocialTax + report.Advertising + report.Packaging + report.AcquiringFee +
-                                   report.BankService + report.Hosting + report.Utilities + report.OfficeExpenses +
-                                   report.OtherExpenses;
-
-            report.TaxAmount = report.TotalRevenue * (taxRate / 100);
-            report.NetProfit = report.TotalRevenue - report.TotalExpenses - report.TaxAmount;
-            report.ProfitMargin = report.TotalRevenue > 0 ? (report.NetProfit / report.TotalRevenue) * 100 : 0;
-
-            ViewBag.Report = report;
+            // ==================== СОХРАНЯЕМ ВСЕ ДАННЫЕ В ViewBag ====================
+            ViewBag.TotalRevenue = totalRevenue;
+            ViewBag.TotalExpenses = totalExpenses;
+            ViewBag.TaxAmount = taxAmount;
+            ViewBag.NetProfit = netProfit;
+            ViewBag.ProfitMargin = profitMargin;
+            ViewBag.TotalOrdersCount = totalOrdersCount;
+            ViewBag.TotalItemsSold = totalItemsSold;
+            ViewBag.AverageCheck = averageCheck;
+            ViewBag.CostOfGoods = costOfGoods;
+            ViewBag.PackagingCost = packagingCost;
+            ViewBag.TaxRate = taxRate;
+            ViewBag.Orders = completedOrders;
             ViewBag.Expenses = expenses;
-            ViewBag.Orders = completedOrders;  // ← Добавляем список заказов
-            ViewBag.TotalOrdersCount = totalOrdersCount;  // ← Количество заказов
+            ViewBag.ChartData = chartData;
+
+            // Постоянные расходы (для отображения)
+            ViewBag.SalaryTotal = salaryTotalPeriod;
+            ViewBag.SocialTax = socialTaxPeriod;
+            ViewBag.WarehouseRent = warehouseRentPeriod;
+            ViewBag.PickupPointRent = pickupPointRentPeriod;
+            ViewBag.LogisticsToWarehouse = logisticsToWarehousePeriod;
+            ViewBag.LogisticsToPickup = logisticsToPickupPeriod;
+            ViewBag.Advertising = advertisingPeriod;
+            ViewBag.PackagingPerOrder = packagingPerOrder;
+            ViewBag.BankService = bankServicePeriod;
+            ViewBag.Hosting = hostingPeriod;
+            ViewBag.Utilities = utilitiesPeriod;
+            ViewBag.OfficeExpenses = officeExpensesPeriod;
+
+            // Месячные значения (для редактирования)
+            ViewBag.SalaryTotalMonthly = salaryTotal;
+            ViewBag.WarehouseRentMonthly = warehouseRent;
+            ViewBag.PickupPointRentMonthly = pickupPointRent;
+            ViewBag.LogisticsToWarehouseMonthly = logisticsToWarehouse;
+            ViewBag.LogisticsToPickupMonthly = logisticsToPickup;
+            ViewBag.AdvertisingMonthly = advertising;
+            ViewBag.BankServiceMonthly = bankService;
+            ViewBag.HostingMonthly = hosting;
+            ViewBag.UtilitiesMonthly = utilities;
+            ViewBag.OfficeExpensesMonthly = officeExpenses;
+
 
             return View();
         }

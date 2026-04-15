@@ -183,6 +183,7 @@ namespace StationeryShop.Data
             };
             context.Customers.Add(admin);
 
+
             // Добавляем тестового пользователя
             var testUser = new Customer
             {

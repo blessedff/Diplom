@@ -5,119 +5,246 @@
 
 @using StationeryShop.Models
 @{
-    var report = ViewBag.Report as FinancialReport;
+    // Получаем все данные из ViewBag
+    var orders = ViewBag.Orders as List<Order>;
     var expenses = ViewBag.Expenses as List<Expense>;
+    
+    // Основные показатели
+    var totalRevenue = ViewBag.TotalRevenue ?? 0m;
+    var totalExpenses = ViewBag.TotalExpenses ?? 0m;
+    var taxAmount = ViewBag.TaxAmount ?? 0m;
+    var netProfit = ViewBag.NetProfit ?? 0m;
+    var profitMargin = ViewBag.ProfitMargin ?? 0m;
+    
+    // Дополнительная статистика
+    var totalOrdersCount = ViewBag.TotalOrdersCount ?? 0;
+    var totalItemsSold = ViewBag.TotalItemsSold ?? 0;
+    var averageCheck = ViewBag.AverageCheck ?? 0m;
+    var costOfGoods = ViewBag.CostOfGoods ?? 0m;
+    var packagingCost = ViewBag.PackagingCost ?? 0m;
+    var taxRate = ViewBag.TaxRate ?? 5m;
+    var monthlyFactor = ViewBag.MonthlyFactor ?? 1m;
+    
+    // Постоянные расходы ЗА ПЕРИОД
+    var salaryTotal = ViewBag.SalaryTotal ?? 0m;
+    var socialTax = ViewBag.SocialTax ?? 0m;
+    var warehouseRent = ViewBag.WarehouseRent ?? 0m;
+    var pickupPointRent = ViewBag.PickupPointRent ?? 0m;
+    var logisticsToWarehouse = ViewBag.LogisticsToWarehouse ?? 0m;
+    var logisticsToPickup = ViewBag.LogisticsToPickup ?? 0m;
+    var advertising = ViewBag.Advertising ?? 0m;
+    var packagingPerOrder = ViewBag.PackagingPerOrder ?? 1.5m;
+    var bankService = ViewBag.BankService ?? 0m;
+    var hosting = ViewBag.Hosting ?? 0m;
+    var utilities = ViewBag.Utilities ?? 0m;
+    var officeExpenses = ViewBag.OfficeExpenses ?? 0m;
+    
+    // Месячные значения (для редактирования)
+    var salaryTotalMonthly = ViewBag.SalaryTotalMonthly ?? 0m;
+    var warehouseRentMonthly = ViewBag.WarehouseRentMonthly ?? 0m;
+    var pickupPointRentMonthly = ViewBag.PickupPointRentMonthly ?? 0m;
+    var logisticsToWarehouseMonthly = ViewBag.LogisticsToWarehouseMonthly ?? 0m;
+    var logisticsToPickupMonthly = ViewBag.LogisticsToPickupMonthly ?? 0m;
+    var advertisingMonthly = ViewBag.AdvertisingMonthly ?? 0m;
+    var bankServiceMonthly = ViewBag.BankServiceMonthly ?? 0m;
+    var hostingMonthly = ViewBag.HostingMonthly ?? 0m;
+    var utilitiesMonthly = ViewBag.UtilitiesMonthly ?? 0m;
+    var officeExpensesMonthly = ViewBag.OfficeExpensesMonthly ?? 0m;
+    
+    // Даты
+    var startDate = ViewBag.StartDateObj as DateTime? ?? DateTime.Now.AddMonths(-1);
+    var endDate = ViewBag.EndDateObj as DateTime? ?? DateTime.Now;
 }
 
 <style>
-    /* Общие стили */
     .finance-container {
         animation: fadeInUp 0.4s ease-out;
     }
-    
+
     .page-title {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 700;
         color: #1a1a2e;
         position: relative;
         display: inline-block;
         margin-bottom: 1.5rem;
     }
-    
+
     .page-title::after {
         content: '';
         position: absolute;
-        bottom: -10px;
+        bottom: -8px;
         left: 0;
-        width: 60px;
-        height: 4px;
+        width: 50px;
+        height: 3px;
         background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
         border-radius: 2px;
     }
-    
-    /* Карточки с ключевыми показателями */
+
+    /* Карточки */
     .stat-card {
         border: none;
-        border-radius: 20px;
-        padding: 20px;
-        transition: all 0.3s ease;
+        border-radius: 16px;
+        padding: 15px 20px;
+        transition: all 0.2s ease;
         height: 100%;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .stat-card .stat-icon {
-        font-size: 2rem;
-        opacity: 0.3;
-        position: absolute;
-        bottom: 15px;
-        right: 15px;
-    }
-    
-    .stat-card .stat-value {
-        font-size: 1.8rem;
-        font-weight: 800;
-        margin-bottom: 5px;
-    }
-    
-    .stat-card .stat-label {
-        font-size: 0.8rem;
-        opacity: 0.9;
-    }
-    
-    /* Таблица расходов/доходов */
-    .finance-table {
-        border-radius: 20px;
+        position: relative;
         overflow: hidden;
     }
-    
-    .finance-table thead th {
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .stat-card .stat-icon {
+        font-size: 1.8rem;
+        opacity: 0.12;
+        position: absolute;
+        bottom: 10px;
+        right: 15px;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 3px;
+    }
+
+    .stat-card .stat-label {
+        font-size: 0.75rem;
+        opacity: 0.85;
+    }
+
+    /* Фильтр */
+    .filter-bar {
+        background: white;
+        border-radius: 16px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+    }
+
+    .filter-item {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .filter-item label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .filter-item input, .filter-item select {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.85rem;
+    }
+
+    /* Таблицы */
+    .finance-table {
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        border: 1px solid #e9ecef;
+    }
+
+    .finance-table .card-header {
+        background: #f8f9fa;
+        padding: 12px 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .finance-table table {
+        margin-bottom: 0;
+        font-size: 0.85rem;
+    }
+
+    .finance-table th {
         background: #f8f9fa;
         font-weight: 600;
-        padding: 15px;
-        border-bottom: 2px solid #e9ecef;
+        padding: 10px 15px;
+        font-size: 0.8rem;
     }
-    
-    .finance-table tbody td {
-        padding: 12px 15px;
+
+    .finance-table td {
+        padding: 8px 15px;
         vertical-align: middle;
     }
-    
-    .finance-table tbody tr:hover {
-        background: #f8f9fa;
+
+    /* Прогресс-бар */
+    .profit-bar-container {
+        background: #e9ecef;
+        border-radius: 8px;
+        height: 20px;
+        overflow: hidden;
     }
-    
-    /* Форма добавления расхода */
-    .add-expense-form {
-        background: #f8f9fa;
-        border-radius: 20px;
-        padding: 20px;
-        margin-bottom: 25px;
+
+    .profit-bar {
+        height: 100%;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 8px;
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 600;
     }
-    
-    /* Фильтр по дате */
-    .date-filter {
-        background: white;
-        border-radius: 20px;
-        padding: 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+    /* Кнопка шестерёнки */
+    .settings-icon {
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-left: 8px;
     }
-    
-    .profit-positive {
-        color: #28a745;
+
+    .settings-icon:hover {
+        color: #2c5aa0;
+        transform: rotate(15deg);
     }
-    
-    .profit-negative {
-        color: #dc3545;
+
+    .expense-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dashed #e9ecef;
     }
-    
+
+    .expense-row:last-child {
+        border-bottom: none;
+    }
+
+    .expense-label {
+        font-size: 0.85rem;
+    }
+
+    .expense-value {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* Цвета */
+    .text-profit { color: #28a745; }
+    .text-loss { color: #dc3545; }
+
     @@keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(20px);
         }
         to {
             opacity: 1;
@@ -127,218 +254,315 @@
 </style>
 
 <div class="finance-container">
-    <h2 class="page-title">
-        <i class="bi bi-currency-dollar me-2"></i> Финансовый отчёт
-    </h2>
-
-    <!-- Фильтр по дате -->
-    <div class="date-filter">
-        <form method="get" asp-action="Finance" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label fw-bold">📅 Дата с</label>
-                <input type="date" name="startDate" class="form-control" value="@(report?.StartDate.ToString("yyyy-MM-dd"))">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label fw-bold">📅 Дата по</label>
-                <input type="date" name="endDate" class="form-control" value="@(report?.EndDate.ToString("yyyy-MM-dd"))">
-            </div>
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-arrow-repeat me-2"></i> Обновить отчёт
-                </button>
-            </div>
-        </form>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="page-title">
+            <i class="bi bi-currency-dollar me-2"></i> Финансовый отчёт
+        </h2>
+        <div class="text-muted small">
+            <i class="bi bi-info-circle"></i> Все расходы пересчитаны пропорционально периоду
+        </div>
     </div>
 
-    @if (report != null)
-    {
-        <!-- Ключевые показатели -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-3 col-6">
-                <div class="card stat-card bg-primary text-white position-relative">
-                    <div class="stat-icon"><i class="bi bi-cash-stack"></i></div>
-                    <div class="stat-value">@report.TotalRevenue.ToString("0.00") BYN</div>
-                    <div class="stat-label">Выручка</div>
-                </div>
+    <!-- ФИЛЬТР ПО ДАТЕ -->
+    <div class="filter-bar">
+        <div class="filter-item">
+            <label><i class="bi bi-calendar3 me-1"></i> Начало периода</label>
+            <input type="date" id="startDate" class="form-control" value="@startDate.ToString("yyyy-MM-dd")">
+        </div>
+        <div class="filter-item">
+            <label><i class="bi bi-calendar3 me-1"></i> Конец периода</label>
+            <input type="date" id="endDate" class="form-control" value="@endDate.ToString("yyyy-MM-dd")">
+        </div>
+        <div class="filter-item">
+            <label>&nbsp;</label>
+            <button id="applyFilter" class="btn btn-primary w-100" style="background: linear-gradient(135deg, #2c5aa0, #3a7bd5); border: none;">
+                <i class="bi bi-arrow-repeat me-1"></i> Обновить
+            </button>
+        </div>
+    </div>
+
+    <!-- КЛЮЧЕВЫЕ ПОКАЗАТЕЛИ (2 строки) -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card stat-card bg-primary text-white">
+                <div class="stat-icon"><i class="bi bi-cash-stack"></i></div>
+                <div class="stat-value">@totalRevenue.ToString("0.00") BYN</div>
+                <div class="stat-label">Выручка</div>
+                <div class="small opacity-75">@totalOrdersCount заказов</div>
             </div>
-            <div class="col-md-3 col-6">
-                <div class="card stat-card bg-danger text-white position-relative">
-                    <div class="stat-icon"><i class="bi bi-receipt"></i></div>
-                    <div class="stat-value">@report.TotalExpenses.ToString("0.00") BYN</div>
-                    <div class="stat-label">Расходы</div>
-                </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card stat-card bg-danger text-white">
+                <div class="stat-icon"><i class="bi bi-receipt"></i></div>
+                <div class="stat-value">@totalExpenses.ToString("0.00") BYN</div>
+                <div class="stat-label">Расходы</div>
+                <div class="small opacity-75">всего потрачено</div>
             </div>
-            <div class="col-md-3 col-6">
-                <div class="card stat-card bg-warning text-white position-relative">
-                    <div class="stat-icon"><i class="bi bi-bank"></i></div>
-                    <div class="stat-value">@report.TaxAmount.ToString("0.00") BYN</div>
-                    <div class="stat-label">Налог (УСН @report.TaxRate%)</div>
-                </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card stat-card bg-warning text-white">
+                <div class="stat-icon"><i class="bi bi-bank"></i></div>
+                <div class="stat-value">@taxAmount.ToString("0.00") BYN</div>
+                <div class="stat-label">Налог УСН (@taxRate%)</div>
+                <div class="small opacity-75">от выручки</div>
             </div>
-            <div class="col-md-3 col-6">
-                <div class="card stat-card @(report.NetProfit >= 0 ? "bg-success" : "bg-secondary") text-white position-relative">
-                    <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
-                    <div class="stat-value">@report.NetProfit.ToString("0.00") BYN</div>
-                    <div class="stat-label">Чистая прибыль</div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card stat-card @(netProfit >= 0 ? "bg-success" : "bg-secondary") text-white">
+                <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
+                <div class="stat-value">@netProfit.ToString("0.00") BYN</div>
+                <div class="stat-label">Чистая прибыль</div>
+                <div class="small opacity-75">
+                    @if (netProfit >= 0) { <span>✅ Прибыль</span> } else { <span>⚠️ Убыток</span> }
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Рентабельность -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card stat-card bg-light text-dark">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <div class="stat-value @(report.ProfitMargin >= 0 ? "profit-positive" : "profit-negative")">
-                                @report.ProfitMargin.ToString("0.00")%
-                            </div>
-                            <div class="stat-label">Рентабельность</div>
+    <!-- ДОПОЛНИТЕЛЬНАЯ СТАТИСТИКА (3 карточки) -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-6">
+            <div class="card stat-card bg-light text-dark">
+                <div class="stat-value">@totalOrdersCount шт</div>
+                <div class="stat-label">📦 Всего заказов</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="card stat-card bg-light text-dark">
+                <div class="stat-value">@totalItemsSold шт</div>
+                <div class="stat-label">📊 Продано товаров</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="card stat-card bg-light text-dark">
+                <div class="stat-value">@averageCheck.ToString("0.00") BYN</div>
+                <div class="stat-label">💰 Средний чек</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- РЕНТАБЕЛЬНОСТЬ -->
+    <div class="card mb-4">
+        <div class="card-body p-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <span class="text-muted small">Рентабельность</span>
+                    <h3 class="mb-0 @(profitMargin >= 0 ? "text-profit" : "text-loss")">@profitMargin.ToString("0.00")%</h3>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="profit-bar-container">
+                        <div class="profit-bar @(profitMargin >= 0 ? "bg-success" : "bg-danger")"
+                             style="width: @Math.Min(Math.Abs(profitMargin), 100)%">
+                            @profitMargin.ToString("0.00")%
                         </div>
-                        <div class="col-md-6">
-                            <div class="progress" style="height: 20px; border-radius: 10px;">
-                                <div class="progress-bar @(report.ProfitMargin >= 0 ? "bg-success" : "bg-danger")" 
-                                     style="width: @Math.Min(Math.Abs(report.ProfitMargin), 100)%">
-                                    @report.ProfitMargin.ToString("0.00")%
-                                </div>
-                            </div>
-                        </div>
                     </div>
+                    <small class="text-muted">
+                        @if (profitMargin >= 0)
+                        {
+                            <span>✅ С каждых 100 BYN выручки — @profitMargin.ToString("0.00") BYN чистой прибыли</span>
+                        }
+                        else
+                        {
+                            <span>⚠️ Расходы превышают доходы на @Math.Abs(profitMargin).ToString("0.00")%</span>
+                        }
+                    </small>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Доходы и расходы -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card finance-table">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0"><i class="bi bi-arrow-up-circle text-success me-2"></i> Доходы</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <table class="table mb-0">
-                            <tbody>
-                                <tr>
-                                    <td class="fw-semibold">Выручка</td>
-                                    <td class="text-end text-success fw-bold">+ @report.TotalRevenue.ToString("0.00") BYN</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card finance-table">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0"><i class="bi bi-arrow-down-circle text-danger me-2"></i> Расходы</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <table class="table mb-0">
-                            <tbody>
-                                <tr><td class="fw-semibold">Себестоимость товаров</td><td class="text-end text-danger">- @report.CostOfGoods.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Логистика (поставщик → склад)</td><td class="text-end text-danger">- @report.LogisticsToWarehouse.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Логистика (склад → ПВЗ)</td><td class="text-end text-danger">- @report.LogisticsToPickup.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Упаковка</td><td class="text-end text-danger">- @report.Packaging.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Аренда склада</td><td class="text-end text-danger">- @report.WarehouseRent.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Аренда ПВЗ</td><td class="text-end text-danger">- @report.PickupPointRent.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Коммунальные услуги</td><td class="text-end text-danger">- @report.Utilities.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Зарплата сотрудников</td><td class="text-end text-danger">- @report.SalaryTotal.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Отчисления ФСЗН (34%)</td><td class="text-end text-danger">- @report.SocialTax.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Реклама</td><td class="text-end text-danger">- @report.Advertising.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Банковское обслуживание</td><td class="text-end text-danger">- @report.BankService.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Хостинг и домен</td><td class="text-end text-danger">- @report.Hosting.ToString("0.00") BYN</td></tr>
-                                <tr><td class="fw-semibold">Канцтовары и прочее</td><td class="text-end text-danger">- @report.OfficeExpenses.ToString("0.00") BYN</td></tr>
-                                @if (report.OtherExpenses > 0)
-                                {
-                                    <tr><td class="fw-semibold">Разовые расходы</td><td class="text-end text-danger">- @report.OtherExpenses.ToString("0.00") BYN</td></tr>
-                                }
-                                <tr class="table-active">
-                                    <td class="fw-bold">Итого расходов</td>
-                                    <td class="text-end fw-bold text-danger">- @report.TotalExpenses.ToString("0.00") BYN</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <!-- ДОХОДЫ И РАСХОДЫ (в одной таблице) -->
+    <div class="finance-table">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-pie-chart me-2"></i> Детализация доходов и расходов</span>
+            <button class="btn btn-sm btn-outline-secondary" id="editExpensesBtn">
+                <i class="bi bi-gear"></i> Редактировать расходы
+            </button>
         </div>
+        <div class="card-body p-0">
+            <table class="table">
+                <tbody>
+                    <tr><td class="fw-semibold">📈 ВЫРУЧКА</td><td class="text-end text-success fw-bold">+ @totalRevenue.ToString("0.00") BYN</td><td class="text-muted small">@totalOrdersCount заказов</td></tr>
+                    <tr><td class="fw-semibold">📦 Себестоимость товаров</td><td class="text-end text-danger">- @costOfGoods.ToString("0.00") BYN</td><td class="text-muted small">цена закупки</td></tr>
+                    <tr><td class="fw-semibold">🚚 Логистика (поставщик → склад)</td><td class="text-end text-danger">- @logisticsToWarehouse.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    <tr><td class="fw-semibold">🚛 Логистика (склад → ПВЗ)</td><td class="text-end text-danger">- @logisticsToPickup.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    <tr><td class="fw-semibold">📦 Упаковка</td><td class="text-end text-danger">- @packagingCost.ToString("0.00") BYN</td><td class="text-muted small">@totalOrdersCount заказов × @packagingPerOrder BYN</td></tr>
+                    <tr><td class="fw-semibold">🏢 Аренда склада</td><td class="text-end text-danger">- @warehouseRent.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    <tr><td class="fw-semibold">🏪 Аренда пункта выдачи</td><td class="text-end text-danger">- @pickupPointRent.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    <tr><td class="fw-semibold">💡 Коммунальные услуги</td><td class="text-end text-danger">- @utilities.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    <tr><td class="fw-semibold">👥 Зарплата сотрудников</td><td class="text-end text-danger">- @salaryTotal.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    <tr><td class="fw-semibold">🏦 Отчисления ФСЗН (34%)</td><td class="text-end text-danger">- @socialTax.ToString("0.00") BYN</td><td class="text-muted small">от зарплаты</td></tr>
+                    <tr><td class="fw-semibold">📢 Реклама</td><td class="text-end text-danger">- @advertising.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    <tr><td class="fw-semibold">💳 Банковское обслуживание</td><td class="text-end text-danger">- @bankService.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    <tr><td class="fw-semibold">🌐 Хостинг и домен</td><td class="text-end text-danger">- @hosting.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    <tr><td class="fw-semibold">📝 Канцтовары и прочее</td><td class="text-end text-danger">- @officeExpenses.ToString("0.00") BYN</td><td class="text-muted small">@(monthlyFactor.ToString("0.00")) мес.</td></tr>
+                    @if (expenses != null && expenses.Any())
+                    {
+                        <tr><td class="fw-semibold">➕ Разовые расходы</td><td class="text-end text-danger">- @expenses.Sum(e => e.Amount).ToString("0.00") BYN</td><td class="text-muted small">@expenses.Count операций</td></tr>
+                    }
+                    <tr><td class="fw-semibold">💰 НАЛОГ УСН (@taxRate%)</td><td class="text-end text-warning fw-bold">- @taxAmount.ToString("0.00") BYN</td><td class="text-muted small">от выручки</td></tr>
+                    <tr class="table-active">
+                        <td class="fw-bold">📊 ИТОГО РАСХОДОВ</td>
+                        <td class="text-end fw-bold text-danger">- @totalExpenses.ToString("0.00") BYN</td>
+                        <td class="text-muted small"></td>
+                    </tr>
+                    <tr class="bg-light">
+                        <td class="fw-bold">🏆 ЧИСТАЯ ПРИБЫЛЬ</td>
+                        <td class="text-end fw-bold @(netProfit >= 0 ? "text-success" : "text-danger")">@netProfit.ToString("0.00") BYN</td>
+                        <td class="text-muted small">@(profitMargin >= 0 ? "✅" : "⚠️") Рентабельность @profitMargin.ToString("0.00")%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-        <!-- Разовые расходы -->
-        <div class="card finance-table mb-4">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i> Разовые расходы</h5>
-                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
-                    <i class="bi bi-plus"></i> Добавить расход
-                </button>
-            </div>
+    <!-- СПИСОК ЗАКАЗОВ (сворачиваемый) -->
+    <div class="finance-table">
+        <div class="card-header d-flex justify-content-between align-items-center" style="cursor: pointer;" id="ordersHeader">
+            <span><i class="bi bi-bag-check me-2"></i> Заказы за период (@totalOrdersCount шт.)</span>
+            <i class="bi bi-chevron-down" id="ordersIcon"></i>
+        </div>
+        <div id="ordersContent" style="display: none;">
             <div class="card-body p-0">
-                @if (expenses != null && expenses.Any())
+                @if (orders != null && orders.Any())
                 {
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>Категория</th>
-                                <th>Описание</th>
-                                <th>Дата</th>
-                                <th class="text-end">Сумма</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var expense in expenses)
-                            {
-                                <tr>
-                                    <td>@expense.Category</td>
-                                    <td>@expense.Description</td>
-                                    <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
-                                    <td class="text-end text-danger">- @expense.Amount.ToString("0.00") BYN</td>
-                                    <td>
-                                        <form asp-action="DeleteExpense" method="post" onsubmit="return confirm('Удалить расход?');">
-                                            <input type="hidden" name="id" value="@expense.ExpenseId" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                     </td
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr><th>№ заказа</th><th>Клиент</th><th>Дата</th><th>Товаров</th><th class="text-end">Сумма</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in orders)
+                                {
+                                    <tr><td class="fw-bold text-primary">#@order.OrderID</td><td>@(order.Customer?.FullName ?? "Не указан")</td><td>@order.OrderDate.ToString("dd.MM.yyyy")</td><td>@order.OrderItems.Sum(oi => oi.Quantity) шт</td><td class="text-end text-success fw-bold">@order.TotalAmount.ToString("0.00") BYN</td></tr>
+                                }
+                            </tbody>
+                            <tfoot><tr class="table-active"><td colspan="4" class="fw-bold">ИТОГО</td><td class="text-end fw-bold text-success">@totalRevenue.ToString("0.00") BYN</td></tr></tfoot>
+                        </table>
+                    </div>
                 }
                 else
                 {
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-inbox fs-1"></i>
-                        <p class="mt-2">Нет разовых расходов за выбранный период</p>
-                    </div>
+                    <div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-1"></i><p class="mt-2">Нет выполненных заказов за выбранный период</p></div>
                 }
             </div>
         </div>
+    </div>
 
-        <!-- Итоговая строка -->
-        <div class="card stat-card @(report.NetProfit >= 0 ? "bg-success" : "bg-secondary") text-white">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <div class="stat-value">@report.NetProfit.ToString("0.00") BYN</div>
-                    <div class="stat-label">ЧИСТАЯ ПРИБЫЛЬ</div>
-                </div>
-                <div class="col-md-6">
-                    <div class="stat-value">@report.ProfitMargin.ToString("0.00")%</div>
-                    <div class="stat-label">РЕНТАБЕЛЬНОСТЬ</div>
-                </div>
+    <!-- РАЗОВЫЕ РАСХОДЫ (сворачиваемый) -->
+    <div class="finance-table">
+        <div class="card-header d-flex justify-content-between align-items-center" style="cursor: pointer;" id="expensesHeader">
+            <span><i class="bi bi-plus-circle me-2"></i> Разовые расходы (@(expenses?.Count ?? 0) шт.)</span>
+            <div>
+                <button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addExpenseModal" onclick="event.stopPropagation()">
+                    <i class="bi bi-plus"></i> Добавить
+                </button>
+                <i class="bi bi-chevron-down" id="expensesIcon"></i>
             </div>
         </div>
-    }
-    else
-    {
-        <div class="alert alert-info text-center py-5">
-            <i class="bi bi-info-circle fs-1"></i>
-            <p class="mt-2">Нет данных за выбранный период</p>
+        <div id="expensesContent" style="display: none;">
+            <div class="card-body p-0">
+                @if (expenses != null && expenses.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Категория</th><th>Описание</th><th>Дата</th><th class="text-end">Сумма</th><th></th></tr></thead>
+                            <tbody>
+                                @foreach (var expense in expenses)
+                                {
+                                    <tr>
+                                        <td>@expense.Category</td>
+                                        <td>@expense.Description</td>
+                                        <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
+                                        <td class="text-end text-danger">- @expense.Amount.ToString("0.00") BYN</td>
+                                        <td class="text-center">
+                                            <form asp-action="DeleteExpense" method="post" onsubmit="return confirm('Удалить расход?');">
+                                                <input type="hidden" name="id" value="@expense.ExpenseId" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot><tr class="table-active"><td colspan="3" class="fw-bold">ИТОГО</td><td class="text-end fw-bold text-danger">- @expenses.Sum(e => e.Amount).ToString("0.00") BYN</td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-1"></i><p class="mt-2">Нет разовых расходов</p></div>
+                }
+            </div>
         </div>
-    }
+    </div>
 </div>
 
-<!-- Модальное окно добавления расхода -->
+<!-- Модальное окно редактирования расходов -->
+<div class="modal fade" id="expensesModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-gear"></i> Редактирование постоянных расходов</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="expensesForm" method="post">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">👥 Зарплата сотрудников (BYN/мес)</label>
+                            <input type="number" name="SalaryTotal" class="form-control" step="100" value="@salaryTotalMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🏢 Аренда склада (BYN/мес)</label>
+                            <input type="number" name="WarehouseRent" class="form-control" step="50" value="@warehouseRentMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🏪 Аренда ПВЗ (BYN/мес)</label>
+                            <input type="number" name="PickupPointRent" class="form-control" step="50" value="@pickupPointRentMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🚚 Логистика до склада (BYN/мес)</label>
+                            <input type="number" name="LogisticsToWarehouse" class="form-control" step="50" value="@logisticsToWarehouseMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🚛 Логистика на ПВЗ (BYN/мес)</label>
+                            <input type="number" name="LogisticsToPickup" class="form-control" step="50" value="@logisticsToPickupMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">📢 Реклама (BYN/мес)</label>
+                            <input type="number" name="Advertising" class="form-control" step="50" value="@advertisingMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">💳 Банковское обслуживание (BYN/мес)</label>
+                            <input type="number" name="BankService" class="form-control" step="10" value="@bankServiceMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🌐 Хостинг и домен (BYN/мес)</label>
+                            <input type="number" name="Hosting" class="form-control" step="10" value="@hostingMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">💡 Коммунальные услуги (BYN/мес)</label>
+                            <input type="number" name="Utilities" class="form-control" step="50" value="@utilitiesMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">📝 Канцтовары и прочее (BYN/мес)</label>
+                            <input type="number" name="OfficeExpenses" class="form-control" step="20" value="@officeExpensesMonthly" />
+                        </div>
+                    </div>
+                    <div class="alert alert-info small mt-2">
+                        <i class="bi bi-info-circle"></i> Эти расходы умножаются на коэффициент периода (@monthlyFactor.ToString("0.00")) и пересчитываются в отчёте.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить расходы</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления разового расхода -->
 <div class="modal fade" id="addExpenseModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -348,45 +572,16 @@
             </div>
             <form asp-action="AddExpense" method="post">
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Категория</label>
-                        <select name="Category" class="form-select" required>
-                            <option value="">-- Выберите --</option>
-                            <option value="Ремонт">Ремонт</option>
-                            <option value="Канцтовары">Канцтовары</option>
-                            <option value="Упаковка">Упаковка</option>
-                            <option value="Реклама">Реклама</option>
-                            <option value="Прочее">Прочее</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Описание</label>
-                        <input type="text" name="Description" class="form-control" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Сумма (BYN)</label>
-                        <input type="number" name="Amount" class="form-control" step="0.01" min="0.01" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Дата</label>
-                        <input type="date" name="ExpenseDate" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Способ оплаты</label>
-                        <select name="PaymentMethod" class="form-select">
-                            <option value="Наличные">Наличные</option>
-                            <option value="Карта">Карта</option>
-                            <option value="Безналичный">Безналичный</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Заметки (необязательно)</label>
-                        <textarea name="Notes" class="form-control" rows="2"></textarea>
-                    </div>
+                    <div class="mb-3"><label class="form-label small fw-bold">Категория</label><select name="Category" class="form-select" required><option value="">-- Выберите --</option><option value="Ремонт">🔧 Ремонт</option><option value="Канцтовары">📝 Канцтовары</option><option value="Упаковка">📦 Упаковка</option><option value="Реклама">📢 Реклама</option><option value="Прочее">❓ Прочее</option></select></div>
+                    <div class="mb-3"><label class="form-label small fw-bold">Описание</label><input type="text" name="Description" class="form-control" required /></div>
+                    <div class="mb-3"><label class="form-label small fw-bold">Сумма (BYN)</label><input type="number" name="Amount" class="form-control" step="0.01" min="0.01" required /></div>
+                    <div class="mb-3"><label class="form-label small fw-bold">Дата</label><input type="date" name="ExpenseDate" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required /></div>
+                    <div class="mb-3"><label class="form-label small fw-bold">Способ оплаты</label><select name="PaymentMethod" class="form-select"><option value="Наличные">💵 Наличные</option><option value="Карта">💳 Карта</option><option value="Безналичный">🏦 Безналичный</option></select></div>
+                    <div class="mb-3"><label class="form-label small fw-bold">Заметки</label><textarea name="Notes" class="form-control" rows="2"></textarea></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <button type="submit" class="btn btn-primary">Добавить расход</button>
+                    <button type="submit" class="btn btn-primary">➕ Добавить</button>
                 </div>
             </form>
         </div>
@@ -394,5 +589,71 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Фильтр по дате
+        document.getElementById('applyFilter').addEventListener('click', function() {
+            var startDate = document.getElementById('startDate').value;
+            var endDate = document.getElementById('endDate').value;
+            window.location.href = '/Admin/Finance?startDate=' + startDate + '&endDate=' + endDate;
+        });
+
+        // Сворачивание списка заказов
+        document.getElementById('ordersHeader').addEventListener('click', function() {
+            var content = document.getElementById('ordersContent');
+            var icon = document.getElementById('ordersIcon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.remove('bi-chevron-down');
+                icon.classList.add('bi-chevron-up');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('bi-chevron-up');
+                icon.classList.add('bi-chevron-down');
+            }
+        });
+
+        // Сворачивание списка разовых расходов
+        document.getElementById('expensesHeader').addEventListener('click', function(e) {
+            if (e.target.closest('.btn')) return;
+            var content = document.getElementById('expensesContent');
+            var icon = document.getElementById('expensesIcon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.remove('bi-chevron-down');
+                icon.classList.add('bi-chevron-up');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('bi-chevron-up');
+                icon.classList.add('bi-chevron-down');
+            }
+        });
+
+        // Модальное окно редактирования расходов
+        document.getElementById('editExpensesBtn').addEventListener('click', function() {
+            var modal = new bootstrap.Modal(document.getElementById('expensesModal'));
+            modal.show();
+        });
+
+        // Отправка формы редактирования расходов
+        document.getElementById('expensesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            var data = {};
+            formData.forEach((value, key) => data[key] = value);
+            
+            fetch('/Admin/UpdateExpensesSettings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            });
+        });
+    </script>
 }

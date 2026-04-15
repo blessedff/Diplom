@@ -20,7 +20,7 @@
             padding: 0;
         }
 
-        /* Сайдбар - фиксирован слева */
+
         .admin-sidebar {
             position: fixed;
             top: 0;
@@ -33,7 +33,7 @@
             z-index: 100;
         }
 
-        /* Основной контент - сдвинут вправо на ширину сайдбара */
+
         .admin-content {
             margin-left: 260px;
             padding: 20px;
@@ -41,7 +41,7 @@
             background-color: #f0f2f5;
         }
 
-        /* Верхняя панель */
+      
         .admin-header {
             background: white;
             border-radius: 12px;
@@ -60,7 +60,7 @@
                 color: #333;
             }
 
-        /* Выпадающее меню пользователя */
+
         .user-dropdown {
             position: relative;
             display: inline-block;
@@ -234,10 +234,7 @@
             <i class="bi bi-bag-check"></i> Заказы
         </a>
 
-        <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Customers" ? "active" : "")"
-           asp-controller="Admin" asp-action="Customers">
-            <i class="bi bi-people"></i> Клиенты
-        </a>
+
 
         <div class="sidebar-divider">АНАЛИТИКА</div>
 

@@ -1,37 +1,201 @@
-﻿﻿@{
-ViewData["Title"] = "Вход";
+﻿@{
+    ViewData["Title"] = "Вход";
 }
 
-<h2 class="text-center">Вход в систему</h2>
-
-<form asp-action="Login" method="post" class="w-50 mx-auto mt-4" id="loginForm">
-    <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="email" name="email" class="form-control" required autofocus />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Пароль</label>
-        <input type="password" name="password" class="form-control" required />
-    </div>
-
-    <!-- reCAPTCHA -->
-    @* <div class="mb-3">
-        <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey"></div>
-        <input type="hidden" name="recaptchaToken" id="recaptchaToken" />
-    </div> *@
-
-    @if (ViewBag.Error != null)
-    {
-        <div class="alert alert-danger">@ViewBag.Error</div>
+<style>
+    .login-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
     }
 
-    <button type="submit" class="btn btn-primary w-100">Войти</button>
+    .login-card {
+        background: white;
+        border-radius: 32px;
+        padding: 40px;
+        max-width: 450px;
+        width: 100%;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+        animation: fadeInUp 0.4s ease-out;
+    }
 
-    <p class="text-center mt-3">
-        Нет аккаунта? <a asp-action="Register">Зарегистрироваться</a>
-    </p>
-</form>
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .login-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+
+        .login-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+    .login-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 8px;
+    }
+
+    .input-group-custom {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+        .input-group-custom .form-control {
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            padding: 12px 15px 12px 45px;
+            transition: all 0.2s ease;
+        }
+
+            .input-group-custom .form-control:focus {
+                border-color: #2c5aa0;
+                box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+                outline: none;
+            }
+
+    .input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd;
+        font-size: 1.1rem;
+        z-index: 1;
+    }
+
+    .btn-login {
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border: none;
+        border-radius: 40px;
+        padding: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+        }
+
+    .register-link {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #e9ecef;
+    }
+
+        .register-link a {
+            color: #2c5aa0;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .register-link a:hover {
+                text-decoration: underline;
+            }
+
+    .recaptcha-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .alert-custom {
+        border-radius: 16px;
+        border: none;
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px 20px;
+        margin-bottom: 20px;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="bi bi-box-arrow-in-right"></i>
+            </div>
+            <h1 class="login-title">Добро пожаловать!</h1>
+            <p class="login-subtitle">Войдите в свой аккаунт</p>
+        </div>
+
+        <form asp-action="Login" method="post" id="loginForm">
+            <div class="input-group-custom">
+                <i class="bi bi-envelope input-icon"></i>
+                <input type="email" name="email" class="form-control" placeholder="Email" required autofocus />
+            </div>
+
+            <div class="input-group-custom">
+                <i class="bi bi-lock input-icon"></i>
+                <input type="password" name="password" class="form-control" placeholder="Пароль" required />
+            </div>
+
+            <!-- reCAPTCHA -->
+            @* <div class="recaptcha-container">
+                <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey"></div>
+                <input type="hidden" name="recaptchaToken" id="recaptchaToken" />
+            </div> *@
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert-custom">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> @ViewBag.Error
+                </div>
+            }
+
+            <button type="submit" class="btn btn-login text-white">
+                <i class="bi bi-arrow-right-circle me-2"></i> Войти
+            </button>
+
+            <div class="register-link">
+                <span class="text-muted">Нет аккаунта?</span>
+                <a asp-action="Register">Зарегистрироваться</a>
+            </div>
+        </form>
+    </div>
+</div>
 
 @section Scripts {
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>

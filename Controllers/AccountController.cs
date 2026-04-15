@@ -352,7 +352,7 @@ namespace StationeryShop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateProfile(Customer updatedCustomer)
+        public async Task<IActionResult> UpdateProfile(Customer updatedCustomer, string currentPassword)
         {
             if (!IsAuthenticated())
                 return RedirectToAction("Login");
@@ -360,12 +360,19 @@ namespace StationeryShop.Controllers
             try
             {
                 var customerId = HttpContext.Session.GetInt32("CustomerID");
-                var existingCustomer = _context.Customers.Find(customerId);
+                var existingCustomer = await _context.Customers.FindAsync(customerId);
 
                 if (existingCustomer == null)
                 {
                     TempData["Error"] = "Пользователь не найден";
                     return RedirectToAction("Login");
+                }
+
+                // Проверка текущего пароля (обязательно!)
+                if (string.IsNullOrEmpty(currentPassword) || !VerifyPassword(currentPassword, existingCustomer.Password))
+                {
+                    ModelState.AddModelError("", "Неверный текущий пароль. Изменения не сохранены.");
+                    return View("Profile", existingCustomer);
                 }
 
                 // Проверяем, не используется ли email другим пользователем
@@ -375,25 +382,14 @@ namespace StationeryShop.Controllers
                     return View("Profile", existingCustomer);
                 }
 
-                // Обновляем разрешенные поля
+                // Обновляем разрешенные поля (пароль не обновляем!)
                 existingCustomer.FullName = updatedCustomer.FullName;
                 existingCustomer.Email = updatedCustomer.Email;
                 existingCustomer.Phone = updatedCustomer.Phone;
                 existingCustomer.Address = updatedCustomer.Address;
 
-                // Если указан новый пароль, хешируем
-                if (!string.IsNullOrEmpty(updatedCustomer.Password))
-                {
-                    if (!IsPasswordStrong(updatedCustomer.Password))
-                    {
-                        ModelState.AddModelError("Password", "Пароль должен содержать минимум 8 символов, включая цифры и заглавные буквы");
-                        return View("Profile", existingCustomer);
-                    }
-                    existingCustomer.Password = HashPassword(updatedCustomer.Password);
-                }
-
                 _context.Customers.Update(existingCustomer);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 // Обновляем имя в сессии
                 HttpContext.Session.SetString("CustomerName", existingCustomer.FullName);

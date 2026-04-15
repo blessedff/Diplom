@@ -223,29 +223,6 @@
         </div>
     }
 
-    <!-- Кнопки действий -->
-    <div class="mt-4">
-        @if (isAdmin)
-        {
-            <div class="admin-buttons">
-                <a asp-action="Edit" asp-route-id="@Model.CategoryID" class="btn-edit text-white text-decoration-none text-center">
-                    <i class="bi bi-pencil me-2"></i> Редактировать
-                </a>
-                <a asp-action="Delete" asp-route-id="@Model.CategoryID" class="btn-delete text-white text-decoration-none text-center">
-                    <i class="bi bi-trash me-2"></i> Удалить
-                </a>
-            </div>
-            <div class="mt-2">
-                <a asp-action="Products" asp-route-id="@Model.CategoryID" class="btn-view text-white text-decoration-none w-100 d-block text-center">
-                    <i class="bi bi-eye me-2"></i> Все товары категории
-                </a>
-            </div>
-        }
-        else
-        {
-            <a asp-action="Products" asp-route-id="@Model.CategoryID" class="btn-view text-white text-decoration-none w-100 d-block text-center">
-                <i class="bi bi-eye me-2"></i> Посмотреть товары категории
-            </a>
-        }
-    </div>
+
+
 </div>

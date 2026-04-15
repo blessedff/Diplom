@@ -7,7 +7,27 @@
 }
 
 <style>
-    /* Современные стили в стиле админ-панели */
+    
+        .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .admin-notice {
+        background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
+        border-radius: 20px;
+        padding: 15px 25px;
+        margin-bottom: 30px;
+        color: white;
+        text-align: center;
+    }
+
     .filter-section {
         background: white;
         border-radius: 24px;
@@ -207,33 +227,20 @@
     }
 </style>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-   
-    
-    @if (isAdmin)
-    {
-        <div class="view-toggle">
-            <button id="cardViewBtn" class="btn btn-outline-primary active">
-                <i class="bi bi-grid-3x3-gap-fill"></i> Карточки
-            </button>
-            <button id="tableViewBtn" class="btn btn-outline-secondary">
-                <i class="bi bi-table"></i> Таблица
-            </button>
-        </div>
-    }
-</div>
+<h2 class="page-title">
+    <i class="bi bi-tags me-2"></i> Товары
+</h2>
 
-<!-- Блок для администратора -->
 @if (isAdmin)
 {
-    <div class="admin-notice">
+      <div class="admin-notice">
         <i class="bi bi-shield-lock-fill me-2"></i>
         <strong>Режим администратора</strong>
         <br>
         <small>
-            Управление товарами, категориями и заказами доступно в 
-            <a asp-controller="Admin" asp-action="Index" class="text-white fw-bold text-decoration-underline">
-                <i class="bi bi-speedometer2"></i> Админ-панели
+            Управление товарами доступно в
+            <a asp-controller="Admin" asp-action="Categories" class="text-white fw-bold text-decoration-underline">
+                <i class="bi bi-speedometer2 me-1"></i> Панели администратора
             </a>
         </small>
     </div>

@@ -8,127 +8,246 @@
 <style>
     .delete-container {
         background: white;
-        border-radius: 16px;
+        border-radius: 24px;
         padding: 30px;
         max-width: 600px;
         margin: 0 auto;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
     }
+
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #dc3545;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border-radius: 2px;
+        }
 
     .warning-box {
-        background: #fff3cd;
+        background: linear-gradient(135deg, #fff3cd, #ffe69e);
         border-left: 4px solid #ffc107;
-        padding: 15px;
-        border-radius: 8px;
+        border-radius: 16px;
+        padding: 15px 20px;
         margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
-    .category-info {
+        .warning-box i {
+            font-size: 1.5rem;
+            color: #856404;
+        }
+
+        .warning-box span {
+            color: #856404;
+            font-weight: 500;
+        }
+
+    .category-card {
         background: #f8f9fa;
-        border-radius: 12px;
+        border-radius: 20px;
         padding: 20px;
         margin-bottom: 25px;
     }
 
-        .category-info dt {
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 5px;
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
         }
 
-        .category-info dd {
-            margin-bottom: 15px;
-            color: #4a5568;
+    .info-label {
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .info-value {
+        color: #2d3748;
+        font-weight: 500;
+    }
+
+    .product-warning {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        border: none;
+        border-radius: 16px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .product-warning i {
+            font-size: 1.5rem;
+            color: #721c24;
+        }
+
+        .product-warning span {
+            color: #721c24;
+            font-weight: 500;
+        }
+
+    .product-list {
+        background: white;
+        border-radius: 16px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid #e9ecef;
+    }
+
+    .product-list-title {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .product-badge {
+        display: inline-block;
+        background: #e9ecef;
+        color: #2d3748;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        margin: 3px;
+        transition: all 0.2s ease;
+    }
+
+        .product-badge:hover {
+            background: #dee2e6;
+            transform: translateY(-1px);
         }
 
     .btn-delete {
         background: linear-gradient(135deg, #dc3545, #c82333);
         border: none;
+        border-radius: 30px;
         padding: 10px 25px;
         font-weight: 600;
+        transition: all 0.3s ease;
     }
 
         .btn-delete:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
         }
 
     .btn-cancel {
         background: #6c757d;
         border: none;
+        border-radius: 30px;
         padding: 10px 25px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-cancel:hover {
+            transform: translateY(-2px);
+            background: #5a6268;
+        }
+
+    .products-count-badge {
+        display: inline-block;
+        background: #ffc107;
+        color: #856404;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.8rem;
         font-weight: 600;
     }
 
-    .page-header {
-        margin-bottom: 25px;
-        text-align: center;
-    }
-
-        .page-header h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #dc3545;
+        .products-count-badge.zero {
+            background: #e9ecef;
+            color: #6c757d;
         }
 
-    .product-list {
-        max-height: 200px;
-        overflow-y: auto;
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 10px;
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-        .product-list .badge {
-            margin: 3px;
-        }
+    .delete-container {
+        animation: fadeInUp 0.4s ease-out;
+    }
 </style>
 
 <div class="delete-container">
-    <div class="page-header">
-        <h2><i class="bi bi-trash"></i> Удаление категории</h2>
+    <div class="text-center">
+        <h2 class="page-title">
+            <i class="bi bi-trash3 me-2"></i> Удаление категории
+        </h2>
         <p class="text-muted">Вы уверены, что хотите удалить эту категорию?</p>
     </div>
 
     <div class="warning-box">
-        <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
-        <strong>Внимание!</strong> Это действие нельзя отменить.
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>Внимание! Это действие нельзя отменить.</span>
     </div>
 
-    <div class="category-info">
-        <dl>
-            <dt>Название категории</dt>
-            <dd>@Model.Name</dd>
-
-            <dt>Описание</dt>
-            <dd>@(string.IsNullOrEmpty(Model.Description) ? "—" : Model.Description)</dd>
-
-            <dt>Количество товаров</dt>
-            <dd>
-                <span class="badge @(Model.Products?.Count > 0 ? "bg-warning" : "bg-secondary")">
+    <div class="category-card">
+        <div class="info-row">
+            <span class="info-label"><i class="bi bi-tag me-2"></i> Название категории</span>
+            <span class="info-value">@Model.Name</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label"><i class="bi bi-file-text me-2"></i> Описание</span>
+            <span class="info-value">@(string.IsNullOrEmpty(Model.Description) ? "—" : Model.Description)</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label"><i class="bi bi-box-seam me-2"></i> Количество товаров</span>
+            <span class="info-value">
+                <span class="products-count-badge @(Model.Products?.Count > 0 ? "" : "zero")">
                     @(Model.Products?.Count ?? 0) товаров
                 </span>
-            </dd>
-        </dl>
+            </span>
+        </div>
     </div>
 
     @if (Model.Products != null && Model.Products.Any())
     {
-        <div class="alert alert-warning mb-3">
-            <i class="bi bi-info-circle"></i>
-            <strong>Предупреждение!</strong> В этой категории есть товары. При удалении категории все товары в ней также будут удалены.
+        <div class="product-warning">
+            <i class="bi bi-info-circle-fill"></i>
+            <span>В этой категории есть товары. При удалении категории все товары в ней также будут удалены.</span>
         </div>
 
-        <div class="product-list mb-3">
-            <small class="text-muted">Товары в этой категории:</small>
-            <div class="mt-2">
+        <div class="product-list">
+            <span class="product-list-title">
+                <i class="bi bi-list-ul me-1"></i> Товары в этой категории:
+            </span>
+            <div>
                 @foreach (var product in Model.Products.Take(10))
                 {
-                    <span class="badge bg-secondary">@product.Name</span>
+                    <span class="product-badge">@product.Name</span>
                 }
                 @if (Model.Products.Count > 10)
                 {
-                    <span class="badge bg-secondary">+ ещё @(Model.Products.Count - 10)</span>
+                    <span class="product-badge">+ ещё @(Model.Products.Count - 10)</span>
                 }
             </div>
         </div>
@@ -138,10 +257,10 @@
         <input type="hidden" asp-for="CategoryID" />
         <div class="d-flex justify-content-end gap-3">
             <a asp-controller="Admin" asp-action="Categories" class="btn btn-cancel text-white">
-                <i class="bi bi-arrow-left"></i> Отмена
+                <i class="bi bi-arrow-left me-2"></i> Отмена
             </a>
             <button type="submit" class="btn btn-delete text-white">
-                <i class="bi bi-trash"></i> Удалить
+                <i class="bi bi-trash3 me-2"></i> Удалить категорию
             </button>
         </div>
     </form>

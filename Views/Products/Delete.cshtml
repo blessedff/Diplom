@@ -5,29 +5,203 @@
 
 @model StationeryShop.Models.Product
 
-<h2>Удалить товар</h2>
-
-<h4>Вы уверены, что хотите удалить этот товар?</h4>
-
-<div class="card p-3">
-    <dl class="row">
-        <dt class="col-sm-4">Название:</dt>
-        <dd class="col-sm-8">@Model.Name</dd>
-
-        <dt class="col-sm-4">Цена:</dt>
-        <dd class="col-sm-8">@Model.Price.ToString("0.00") BYN</dd>
-
-        <dt class="col-sm-4">Категория:</dt>
-        <dd class="col-sm-8">@Model.Category?.Name</dd>
-    </dl>
-
-    @if (Model.PhotoBase64 != null)
-    {
-        <img src="data:image/png;base64,@Model.PhotoBase64" width="200" class="rounded" />
+<style>
+    .delete-container {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        max-width: 600px;
+        margin: 0 auto;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
     }
-</div>
 
-<form asp-action="Delete" asp-route-id="@Model.ProductID" method="post">
-    <button type="submit" class="btn btn-danger">Удалить</button>
-    <a asp-controller="Admin" asp-action="Products" class="btn btn-secondary">Назад</a>
-</form>
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #dc3545;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border-radius: 2px;
+        }
+
+    .warning-box {
+        background: linear-gradient(135deg, #fff3cd, #ffe69e);
+        border-left: 4px solid #ffc107;
+        border-radius: 16px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .warning-box i {
+            font-size: 1.8rem;
+            color: #856404;
+        }
+
+        .warning-box span {
+            color: #856404;
+            font-weight: 500;
+        }
+
+    .product-card {
+        background: #f8f9fa;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .product-image {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+        .product-image img {
+            max-width: 200px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-image .no-image {
+            width: 200px;
+            height: 150px;
+            background: #e9ecef;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+            .product-image .no-image i {
+                font-size: 3rem;
+                color: #adb5bd;
+            }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .info-value {
+        color: #2d3748;
+        font-weight: 500;
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+        border-radius: 30px;
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+    .btn-back {
+        background: #6c757d;
+        border: none;
+        border-radius: 30px;
+        padding: 10px 25px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            background: #5a6268;
+        }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .delete-container {
+        animation: fadeInUp 0.4s ease-out;
+    }
+</style>
+
+<div class="delete-container">
+    <h2 class="page-title">
+        <i class="bi bi-trash3 me-2"></i> Удаление товара
+    </h2>
+
+    <div class="warning-box">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>Вы уверены, что хотите удалить этот товар? Это действие нельзя отменить.</span>
+    </div>
+
+    <div class="product-card">
+        <div class="product-image">
+            @if (Model.PhotoBase64 != null)
+            {
+                <img src="data:image/png;base64,@Model.PhotoBase64" alt="@Model.Name" />
+            }
+            else
+            {
+                <div class="no-image">
+                    <i class="bi bi-image"></i>
+                </div>
+            }
+        </div>
+
+        <div class="info-row">
+            <span class="info-label"><i class="bi bi-tag me-2"></i> Название</span>
+            <span class="info-value">@Model.Name</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label"><i class="bi bi-currency-dollar me-2"></i> Цена</span>
+            <span class="info-value">@Model.Price.ToString("0.00") BYN</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label"><i class="bi bi-folder me-2"></i> Категория</span>
+            <span class="info-value">@(Model.Category?.Name ?? "Без категории")</span>
+        </div>
+    </div>
+
+    <form asp-action="Delete" asp-route-id="@Model.ProductID" method="post">
+        <div class="d-flex justify-content-end gap-3">
+            <a asp-controller="Admin" asp-action="Products" class="btn btn-back text-white">
+                <i class="bi bi-arrow-left me-2"></i> Отмена
+            </a>
+            <button type="submit" class="btn btn-delete text-white">
+                <i class="bi bi-check-lg me-2"></i> Подтвердить удаление
+            </button>
+        </div>
+    </form>
+</div>

@@ -6,13 +6,41 @@
 @model StationeryShop.Models.Category
 
 <style>
-    .edit-form-container {
+    .form-container {
         background: white;
-        border-radius: 16px;
+        border-radius: 24px;
         padding: 30px;
         max-width: 700px;
         margin: 0 auto;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
+
+    .page-subtitle {
+        color: #6c757d;
+        margin-bottom: 25px;
+        font-size: 0.9rem;
     }
 
     .form-label {
@@ -22,78 +50,122 @@
     }
 
     .form-control {
-        border-radius: 10px;
+        border-radius: 12px;
         border: 1px solid #e2e8f0;
-        padding: 10px 15px;
+        padding: 12px 15px;
+        transition: all 0.2s ease;
     }
 
         .form-control:focus {
-            border-color: #3a7bd5;
-            box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.1);
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+            outline: none;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .required-field::after {
+        content: '*';
+        color: #dc3545;
+        margin-left: 4px;
+    }
+
+    .info-hint {
+        background: #e8f4fd;
+        border-radius: 12px;
+        padding: 12px 15px;
+        margin-top: 10px;
+    }
+
+        .info-hint i {
+            color: #2c5aa0;
+            margin-right: 8px;
+        }
+
+        .info-hint small {
+            color: #2c5aa0;
         }
 
     .btn-save {
         background: linear-gradient(135deg, #28a745, #20c997);
         border: none;
+        border-radius: 30px;
         padding: 10px 25px;
         font-weight: 600;
+        transition: all 0.3s ease;
     }
 
         .btn-save:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
 
     .btn-cancel {
         background: #6c757d;
         border: none;
+        border-radius: 30px;
         padding: 10px 25px;
-        font-weight: 600;
+        transition: all 0.3s ease;
     }
 
-    .page-header {
-        margin-bottom: 25px;
-        text-align: center;
-    }
-
-        .page-header h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #1a1a2e 0%, #3a7bd5 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .btn-cancel:hover {
+            transform: translateY(-2px);
+            background: #5a6268;
         }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-container {
+        animation: fadeInUp 0.4s ease-out;
+    }
 </style>
 
-<div class="edit-form-container">
-    <div class="page-header">
-        <h2><i class="bi bi-pencil-square"></i> Редактирование категории</h2>
-        <p class="text-muted">Измените данные категории и нажмите "Сохранить"</p>
+<div class="form-container">
+    <div class="text-center">
+        <h2 class="page-title">
+            <i class="bi bi-pencil-square me-2"></i> Редактирование категории
+        </h2>
+        <p class="page-subtitle">Измените данные категории и нажмите "Сохранить"</p>
     </div>
 
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="CategoryID" />
 
         <div class="mb-3">
-            <label asp-for="Name" class="form-label">Название категории</label>
-            <input asp-for="Name" class="form-control" />
+            <label asp-for="Name" class="form-label required-field">Название категории</label>
+            <input asp-for="Name" class="form-control" placeholder="Введите название категории" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Description" class="form-label">Описание</label>
-            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Введите описание категории (необязательно)"></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>
-            <small class="text-muted">Краткое описание категории (необязательно)</small>
+            <div class="info-hint">
+                <i class="bi bi-info-circle"></i>
+                <small>Краткое описание категории поможет пользователям лучше ориентироваться в каталоге</small>
+            </div>
         </div>
 
         <div class="d-flex justify-content-end gap-3 mt-4">
             <a asp-controller="Admin" asp-action="Categories" class="btn btn-cancel text-white">
-                <i class="bi bi-x-circle"></i> Отмена
+                <i class="bi bi-x-circle me-2"></i> Отмена
             </a>
             <button type="submit" class="btn btn-save text-white">
-                <i class="bi bi-check-circle"></i> Сохранить
+                <i class="bi bi-check-circle me-2"></i> Сохранить изменения
             </button>
         </div>
     </form>

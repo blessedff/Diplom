@@ -4,172 +4,385 @@
     ViewData["Title"] = "Личный кабинет";
 }
 
-<h2 class="mb-4"><i class="bi bi-person-circle"></i> Личный кабинет</h2>
+<style>
+    .profile-container {
+        animation: fadeInUp 0.4s ease-out;
+    }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Информация о профиле</h5>
-            </div>
-            <div class="card-body">
-                <form asp-action="UpdateProfile" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    .profile-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+        height: 100%;
+    }
 
-                    <div class="form-group mb-3">
-                        <label asp-for="FullName" class="form-label"></label>
-                        <input asp-for="FullName" class="form-control" />
-                        <span asp-validation-for="FullName" class="text-danger"></span>
-                    </div>
+        .profile-card .card-header {
+            background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
+            color: white;
+            padding: 15px 20px;
+            border: none;
+        }
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
+            .profile-card .card-header h5 {
+                margin: 0;
+                font-weight: 600;
+            }
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Phone" class="form-label"></label>
-                        <input asp-for="Phone" class="form-control" />
-                        <span asp-validation-for="Phone" class="text-danger"></span>
-                    </div>
+        .profile-card .card-body {
+            padding: 25px;
+        }
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Address" class="form-label"></label>
-                        <input asp-for="Address" class="form-control" />
-                        <span asp-validation-for="Address" class="text-danger"></span>
-                    </div>
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 8px;
+    }
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Password" class="form-label">Новый пароль</label>
-                        <input asp-for="Password" type="password" class="form-control" 
-                               placeholder="Оставьте пустым, если не хотите менять пароль" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                        <small class="form-text text-muted">Минимум 6 символов</small>
-                    </div>
+    .form-control {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 12px 15px;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-check-circle"></i> Сохранить изменения
-                    </button>
-                </form>
+        .form-control:focus {
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+            outline: none;
+        }
+
+    .btn-save {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 30px;
+        padding: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+        color: white;
+        cursor: pointer;
+    }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+
+    .stat-box {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+        .stat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+
+    .orders-table {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+        .orders-table thead th {
+            background: #f8f9fa;
+            font-weight: 600;
+            padding: 12px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .orders-table tbody td {
+            padding: 10px 12px;
+            vertical-align: middle;
+        }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-completed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-ready {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-default {
+        background: #cfe2ff;
+        color: #084298;
+    }
+
+    .empty-orders {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+        .empty-orders i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+    .password-required {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 15px;
+        margin-top: 20px;
+        border-left: 4px solid #ffc107;
+    }
+
+        .password-required .form-label {
+            margin-bottom: 5px;
+        }
+
+    .required-field::after {
+        content: '*';
+        color: #dc3545;
+        margin-left: 4px;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <h2 class="page-title">
+        <i class="bi bi-person-circle me-2"></i> Личный кабинет
+    </h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Форма профиля -->
+        <div class="col-lg-7">
+            <div class="profile-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i> Редактирование профиля</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="UpdateProfile" method="post" id="profileForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label required-field">ФИО</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Введите ваше ФИО" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label required-field">Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="example@mail.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Phone" class="form-label">Телефон</label>
+                                <input asp-for="Phone" class="form-control" placeholder="+375 XX XXX-XX-XX" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Address" class="form-label">Адрес</label>
+                                <input asp-for="Address" class="form-control" placeholder="Город, улица, дом" />
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Поле для подтверждения пароля -->
+                        <div class="password-required">
+                            <label class="form-label required-field">Подтверждение пароля</label>
+                            <input type="password" name="currentPassword" class="form-control" placeholder="Введите текущий пароль для сохранения изменений" required />
+                            <small class="text-muted"><i class="bi bi-shield-lock me-1"></i> Для сохранения изменений необходимо ввести текущий пароль</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-save mt-3">
+                            <i class="bi bi-save me-2"></i> Сохранить изменения
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-6">
-        <!-- Статистика пользователя -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Моя статистика</h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-6">
-                        <div class="border rounded p-3">
-                            <h4 class="text-primary">@Model.Orders.Count</h4>
-                            <small class="text-muted">Всего заказов</small>
+        <!-- Статистика -->
+        <div class="col-lg-5">
+            <div class="profile-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i> Моя статистика</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <div class="stat-number text-primary">@Model.Orders.Count</div>
+                                <div class="stat-label">Всего заказов</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="border rounded p-3">
-                            <h4 class="text-success">
-                                @Model.Orders.Where(o => o.Status == "Выполнен").Count()
-                            </h4>
-                            <small class="text-muted">Выполнено</small>
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <div class="stat-number text-success">
+                                    @Model.Orders.Where(o => o.Status == "Выполнен").Count()
+                                </div>
+                                <div class="stat-label">Выполнено</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Быстрые ссылки -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Быстрые действия</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-primary">
-                        <i class="bi bi-bag"></i> Мои заказы
-                    </a>
-                    <a asp-controller="Products" asp-action="Index" class="btn btn-outline-success">
-                        <i class="bi bi-cart"></i> Продолжить покупки
-                    </a>
-                    <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-info">
-                        <i class="bi bi-cart3"></i> Корзина
-                    </a>
-                </div>
-            </div>
+    <!-- Последние заказы -->
+    <div class="profile-card mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i> Последние заказы</h5>
+            <a asp-controller="Orders" asp-action="Index" class="btn btn-sm btn-outline-primary rounded-pill">
+                Все заказы <i class="bi bi-arrow-right ms-1"></i>
+            </a>
         </div>
-    </div>
-</div>
-
-<!-- Последние заказы -->
-<div class="card mt-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0">Последние заказы</h5>
-        <a asp-controller="Orders" asp-action="Index" class="btn btn-sm btn-outline-primary">Все заказы</a>
-    </div>
-    <div class="card-body">
-        @if (Model.Orders.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Номер</th>
-                            <th>Дата</th>
-                            <th>Сумма</th>
-                            <th>Статус</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var order in Model.Orders.OrderByDescending(o => o.OrderDate).Take(5))
-                        {
+        <div class="card-body">
+            @if (Model.Orders.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table orders-table">
+                        <thead>
                             <tr>
-                                <td>#@order.OrderID</td>
-                                <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
-                                <td>@order.TotalAmount.ToString("0.00") byn</td>
-                                <td>
-                                    <span class="badge 
-                                        @(order.Status == "Выполнен" ? "bg-success" :
-                                          order.Status == "Отменен" ? "bg-danger" :
-                                          order.Status == "Готов к выдаче" ? "bg-warning" : "bg-info")">
-                                        @order.Status
-                                    </span>
-                                </td>
-                                <td>
-                                    <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderID" 
-                                       class="btn btn-sm btn-info">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                </td>
+                                <th>№ заказа</th>
+                                <th>Дата</th>
+                                <th>Сумма</th>
+                                <th>Статус</th>
+                                <th></th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <p class="text-muted text-center">У вас пока нет заказов</p>
-            <div class="text-center">
-                <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
-                    <i class="bi bi-bag"></i> Сделать первый заказ
-                </a>
-            </div>
-        }
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.Orders.OrderByDescending(o => o.OrderDate).Take(5))
+                            {
+                                <tr>
+                                    <td class="fw-bold text-primary">#@order.OrderID</td>
+                                    <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
+                                    <td class="fw-semibold">@order.TotalAmount.ToString("0.00") BYN</td>
+                                    <td>
+                                        <span class="status-badge
+                                                    @(order.Status == "Выполнен" ? "status-completed" :
+                                                                                            order.Status == "Отменен" ? "status-cancelled" :
+                                                                                            order.Status == "Готов к выдаче" ? "status-ready" : "status-default")">
+                                    @if (order.Status == "Выполнен")
+                                            {
+                                                <i class="bi bi-check-circle me-1"></i>
+                                            }
+                                            else if (order.Status == "Отменен")
+                                            {
+
+                                                <i class="bi bi-x-circle me-1"></i>
+                                            }
+                                            else if (order.Status == "Готов к выдаче")
+                                            {
+
+                                                <i class="bi bi-clock-history me-1"></i>
+                                            }
+                                            else
+                                            {
+
+                                                <i class="bi bi-hourglass-split me-1"></i>
+                                            }
+                                            @order.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderID"
+                                           class="btn btn-sm btn-outline-info rounded-pill">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-orders">
+                    <i class="bi bi-inbox"></i>
+                    <p class="text-muted mb-3">У вас пока нет заказов</p>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-primary rounded-pill">
+                        <i class="bi bi-bag me-2"></i> Сделать первый заказ
+                    </a>
+                </div>
+            }
+        </div>
     </div>
 </div>
 

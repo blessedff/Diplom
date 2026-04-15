@@ -23,18 +23,32 @@ builder.Services.AddSession(options =>
 // Add HttpContextAccessor and custom services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<EmailService>();
 
 // Add logging
 builder.Services.AddLogging();
-builder.Services.AddScoped<EmailService>();
 
 var app = builder.Build();
-// Ручное создание таблицы LoginAttempts
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthorization();
+app.UseSession();
+
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<StationeryDbContext>();
 
-    string createTableSql = @"
+    //Таблица LoginAttempts
+    string createLoginAttemptsTable = @"
         IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'LoginAttempts')
         BEGIN
             CREATE TABLE [LoginAttempts] (
@@ -51,25 +65,116 @@ using (var scope = app.Services.CreateScope())
         END
     ";
 
-    context.Database.ExecuteSqlRaw(createTableSql);
+    //Таблица Expenses
+    string createExpensesTable = @"
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Expenses')
+        BEGIN
+            CREATE TABLE [Expenses] (
+                [ExpenseId] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                [Category] NVARCHAR(100) NOT NULL,
+                [Description] NVARCHAR(200) NOT NULL,
+                [Amount] DECIMAL(18,2) NOT NULL,
+                [ExpenseDate] DATETIME2 NOT NULL,
+                [PaymentMethod] NVARCHAR(50) NULL,
+                [IsRecurring] BIT NOT NULL DEFAULT 0,
+                [Notes] NVARCHAR(500) NULL
+            );
+        END
+    ";
+
+    //Таблица FinancialSettings
+    string createSettingsTable = @"
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'FinancialSettings')
+        BEGIN
+            CREATE TABLE [FinancialSettings] (
+                [SettingId] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                [SettingKey] NVARCHAR(50) NOT NULL UNIQUE,
+                [SettingValue] NVARCHAR(200) NOT NULL,
+                [Description] NVARCHAR(200) NULL
+            );
+        END
+    ";
+
+    //Добавление начальных настроек
+    string insertSettings = @"
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'TaxRate')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('TaxRate', '5', 'Ставка налога УСН (в %)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'AcquiringRate')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('AcquiringRate', '1.5', 'Комиссия эквайринга (в %)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'SalaryTotal')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('SalaryTotal', '0', 'Общая зарплата всех сотрудников (BYN/мес)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'SocialTaxRate')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('SocialTaxRate', '34', 'Ставка отчислений ФСЗН (в %)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'WarehouseRent')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('WarehouseRent', '0', 'Аренда склада (BYN/мес)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'PickupPointRent')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('PickupPointRent', '0', 'Аренда пункта выдачи (BYN/мес)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'LogisticsToWarehouse')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('LogisticsToWarehouse', '0', 'Логистика от поставщика до склада (BYN/мес)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'LogisticsToPickup')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('LogisticsToPickup', '0', 'Логистика со склада на ПВЗ (BYN/мес)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'Advertising')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('Advertising', '0', 'Расходы на рекламу (BYN/мес)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'PackagingPerOrder')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('PackagingPerOrder', '1.5', 'Стоимость упаковки на 1 заказ (BYN)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'BankService')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('BankService', '0', 'Банковское обслуживание (BYN/мес)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'Hosting')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('Hosting', '0', 'Хостинг и домен (BYN/мес)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'Utilities')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('Utilities', '0', 'Коммунальные услуги (BYN/мес)');
+            
+        IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'OfficeExpenses')
+            INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
+            VALUES ('OfficeExpenses', '0', 'Канцтовары и прочее (BYN/мес)');
+    ";
+
+    try
+    {
+        await context.Database.ExecuteSqlRawAsync(createLoginAttemptsTable);
+        Console.WriteLine("Таблица LoginAttempts создана или уже существует");
+
+        await context.Database.ExecuteSqlRawAsync(createExpensesTable);
+        Console.WriteLine("Таблица Expenses создана или уже существует");
+
+        await context.Database.ExecuteSqlRawAsync(createSettingsTable);
+        Console.WriteLine("Таблица FinancialSettings создана или уже существует");
+
+        await context.Database.ExecuteSqlRawAsync(insertSettings);
+        Console.WriteLine("Начальные настройки добавлены");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Ошибка при создании таблиц: {ex.Message}");
+    }
 }
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-app.UseAuthorization();
-
-app.UseSession();
-
-// Инициализация базы данных
+//Инициализация БД
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

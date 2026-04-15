@@ -395,18 +395,21 @@ namespace StationeryShop.Controllers
 
             // Устанавливаем период (по умолчанию текущий месяц)
             var start = startDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            var end = endDate ?? DateTime.Now;
+            var end = endDate ?? DateTime.Now.AddDays(1); // Добавляем +1 день, чтобы включить последний день
 
             // Получаем все выполненные заказы за период
             var completedOrders = await _context.Orders
+                .Include(o => o.Customer)
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .Where(o => o.Status == "Выполнен" && o.OrderDate >= start && o.OrderDate <= end)
+                .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
             // Получаем разовые расходы за период
             var expenses = await _context.Expenses
                 .Where(e => e.ExpenseDate >= start && e.ExpenseDate <= end)
+                .OrderByDescending(e => e.ExpenseDate)
                 .ToListAsync();
 
             // Получаем настройки из базы данных
@@ -432,8 +435,9 @@ namespace StationeryShop.Controllers
             var totalRevenue = completedOrders.Sum(o => o.TotalAmount);
 
             // Расчёт себестоимости (нужно добавить поле PurchaseCost в Product)
-            // Пока используем 50% от выручки как пример
-            var costOfGoods = totalRevenue * 0.5m;
+            var costOfGoods = completedOrders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity * (oi.Product?.PurchaseCost ?? 0)));
+            // Если PurchaseCost нет, используем 50% от выручки
+            if (costOfGoods == 0) costOfGoods = totalRevenue * 0.5m;
 
             // Расчёт количества заказов и упаковки
             var totalOrdersCount = completedOrders.Count;
@@ -451,8 +455,8 @@ namespace StationeryShop.Controllers
                 StartDate = start,
                 EndDate = end,
                 TotalRevenue = totalRevenue,
-                TotalRevenueCash = 0,      // Не используем
-                TotalRevenueCard = 0,      // Не используем
+                TotalRevenueCash = 0,
+                TotalRevenueCard = 0,
                 CostOfGoods = costOfGoods,
                 LogisticsToWarehouse = logisticsToWarehouse,
                 WarehouseRent = warehouseRent,
@@ -462,7 +466,7 @@ namespace StationeryShop.Controllers
                 SocialTax = socialTax,
                 Advertising = advertising,
                 Packaging = packagingCost,
-                AcquiringFee = 0,           // Не используем
+                AcquiringFee = 0,
                 BankService = bankService,
                 Hosting = hosting,
                 Utilities = utilities,
@@ -484,6 +488,8 @@ namespace StationeryShop.Controllers
 
             ViewBag.Report = report;
             ViewBag.Expenses = expenses;
+            ViewBag.Orders = completedOrders;  // ← Добавляем список заказов
+            ViewBag.TotalOrdersCount = totalOrdersCount;  // ← Количество заказов
 
             return View();
         }

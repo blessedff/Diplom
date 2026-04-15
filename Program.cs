@@ -152,7 +152,12 @@ using (var scope = app.Services.CreateScope())
         IF NOT EXISTS (SELECT * FROM [FinancialSettings] WHERE [SettingKey] = 'OfficeExpenses')
             INSERT INTO [FinancialSettings] ([SettingKey], [SettingValue], [Description]) 
             VALUES ('OfficeExpenses', '0', 'Канцтовары и прочее (BYN/мес)');
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Products' AND COLUMN_NAME = 'PurchaseCost')
+BEGIN
+    ALTER TABLE [Products] ADD [PurchaseCost] DECIMAL(18,2) NOT NULL DEFAULT 0
+END
     ";
+
 
     try
     {

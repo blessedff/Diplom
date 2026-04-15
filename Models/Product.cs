@@ -26,6 +26,11 @@ namespace StationeryShop.Models
         [Range(0.01, 100000, ErrorMessage = "Цена должна быть в диапазоне от 0.01 до 100000")]
         public decimal Price { get; set; }
 
+        [Display(Name = "Себестоимость (цена закупки)")]
+        [Range(0.01, 100000, ErrorMessage = "Себестоимость должна быть в диапазоне от 0.01 до 100000")]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal PurchaseCost { get; set; }
+
         [Display(Name = "Количество на складе")]
         [Range(0, 10000, ErrorMessage = "Количество должно быть в диапазоне от 0 до 10000")]
         public int StockQuantity { get; set; }

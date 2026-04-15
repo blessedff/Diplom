@@ -493,6 +493,52 @@ namespace StationeryShop.Controllers
 
             return View();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> CalculateSuggestedPrices(decimal purchaseCost)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            
+            var settings = await _context.FinancialSettings.ToDictionaryAsync(s => s.SettingKey, s => s.SettingValue);
+
+            var taxRate = GetDecimalSetting(settings, "TaxRate", 5m);
+            var desiredMargin = 50m; //наценка
+            var packagingPerOrder = GetDecimalSetting(settings, "PackagingPerOrder", 1.5m);
+
+            //расходы за месяц
+            var fixedExpenses = GetDecimalSetting(settings, "WarehouseRent", 0) +
+                                GetDecimalSetting(settings, "PickupPointRent", 0) +
+                                GetDecimalSetting(settings, "SalaryTotal", 0) +
+                                GetDecimalSetting(settings, "Advertising", 0) +
+                                GetDecimalSetting(settings, "BankService", 0) +
+                                GetDecimalSetting(settings, "Hosting", 0) +
+                                GetDecimalSetting(settings, "Utilities", 0) +
+                                GetDecimalSetting(settings, "OfficeExpenses", 0);
+
+            // Количество товаров, проданных за прошлый месяц
+            var startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var soldCount = await _context.OrderItems
+                .Where(oi => oi.Order.OrderDate >= startDate && oi.Order.OrderDate < startDate.AddMonths(1))
+                .SumAsync(oi => oi.Quantity);
+
+            if (soldCount == 0) soldCount = 100; // Значение по умолчанию
+
+            // Расчёт рекомендуемой цены
+            var fixedExpensesPerItem = fixedExpenses / soldCount;
+            var recommendedPrice = purchaseCost + fixedExpensesPerItem + (purchaseCost * desiredMargin / 100);
+
+            // Расчёт минимальной цены (безубыток)
+            var packagingPerItem = packagingPerOrder / 3; // ~3 товара в заказе
+            var breakEvenPrice = (purchaseCost + fixedExpensesPerItem + packagingPerItem) / (1 - taxRate / 100);
+
+            return Json(new
+            {
+                recommended = Math.Round(recommendedPrice, 2),
+                breakEven = Math.Round(breakEvenPrice, 2),
+                profitPerUnit = Math.Round(recommendedPrice - purchaseCost, 2)
+            });
+        }
     }
 
 }

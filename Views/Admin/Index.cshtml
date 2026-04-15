@@ -89,29 +89,7 @@
     </div>
 </div>
 
-<!-- Дополнительная статистика -->
-<div class="row mb-4">
-    <div class="col-md-6 mb-3">
-        <div class="card stat-card border-0">
-            <div class="card-body">
-                <h6 class="text-muted mb-3">📊 Общая выручка</h6>
-                <h2 class="text-success mb-0">@ViewBag.TotalRevenue.ToString("0.00") BYN</h2>
-                <small>за всё время</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 mb-3">
-        <div class="card stat-card border-0">
-            <div class="card-body">
-                <h6 class="text-muted mb-3">📈 Средний чек</h6>
-                <h2 class="text-primary mb-0">
-                    @((ViewBag.TotalOrders > 0 ? ViewBag.TotalRevenue / ViewBag.TotalOrders : 0).ToString("0.00")) BYN
-                </h2>
-                <small>на один заказ</small>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Последние заказы -->
 <div class="card mb-4">

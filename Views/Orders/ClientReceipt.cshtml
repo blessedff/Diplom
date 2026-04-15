@@ -1,0 +1,257 @@
+﻿@model StationeryShop.Models.Order
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Чек для получения заказа #" + Model.OrderID;
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>Чек для получения заказа #@Model.OrderID</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', 'Segoe UI', monospace;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Стиль настоящего чека */
+        .receipt {
+            max-width: 380px;
+            width: 100%;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* Центрирование текста */
+        .text-center {
+            text-align: center;
+        }
+
+        /* Жирный текст */
+        .bold {
+            font-weight: bold;
+        }
+
+        /* Крупный текст */
+        .large {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Разделительная линия */
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 10px 0;
+        }
+
+        .divider-solid {
+            border-top: 1px solid #000;
+            margin: 10px 0;
+        }
+
+        /* Таблица товаров */
+        .items-table {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+            .items-table th {
+                text-align: left;
+                padding-bottom: 5px;
+                border-bottom: 1px dotted #000;
+            }
+
+            .items-table td {
+                padding: 3px 0;
+                vertical-align: top;
+            }
+
+                .items-table td:first-child {
+                    width: 45%;
+                }
+
+                .items-table td:nth-child(2) {
+                    text-align: center;
+                    width: 20%;
+                }
+
+                .items-table td:last-child {
+                    text-align: right;
+                    width: 35%;
+                }
+
+        /* Итоговая строка */
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding-top: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Пункт выдачи */
+        .pickup-box {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 15px 0;
+            text-align: center;
+            border: 1px dashed #999;
+        }
+
+        /* Подпись */
+        .footer-note {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 10px;
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+        }
+
+        /* Кнопка печати */
+        .btn-print {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            background: #2c5aa0;
+            color: white;
+            border: none;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+            .btn-print:hover {
+                background: #1e3a6f;
+            }
+
+        /* Скрываем кнопку при печати */
+        @@media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .btn-print {
+                display: none;
+            }
+
+            .receipt {
+                box-shadow: none;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <!-- Шапка чека -->
+        <div class="text-center">
+            <div class="large">Канцелярский Магазин</div>
+            <div class="divider-solid"></div>
+            <div>ЧЕК № @Model.OrderID</div>
+            <div>Дата: @Model.OrderDate.ToString("dd.MM.yyyy")</div>
+            <div>Время: @Model.OrderDate.ToString("HH:mm:ss")</div>
+            <div class="divider"></div>
+        </div>
+
+        <!-- Информация о покупателе -->
+        <div>
+            <div>Покупатель: @Model.Customer?.FullName</div>
+            <div>
+                Статус заказа:
+                @if (Model.Status == "Готов к выдаче")
+                {
+                    <span class="bold" style="color: #28a745;">@Model.Status</span>
+                }
+                else
+                {
+                    <span>@Model.Status</span>
+                }
+            </div>
+            <div class="divider"></div>
+        </div>
+
+        <!-- Состав заказа -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Кол-во</th>
+                    <th>Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td>@item.Product?.Name</td>
+                        <td>@item.Quantity x @item.UnitPrice.ToString("0.00")</td>
+                        <td>@((item.Quantity * item.UnitPrice).ToString("0.00")) BYN</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="divider"></div>
+
+        <!-- Итог -->
+        <div class="total-row">
+            <span>ИТОГО К ОПЛАТЕ:</span>
+            <span>@Model.TotalAmount.ToString("0.00") BYN</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Информация об оплате -->
+        <div>Оплата: Наличными при получении</div>
+        <div>НДС: включён в стоимость</div>
+
+        <div class="divider"></div>
+
+        <!-- Пункт выдачи -->
+        <div class="pickup-box">
+            <div class="bold">ПУНКТ ВЫДАЧИ ЗАКАЗОВ</div>
+            <div>@ViewBag.PickupAddress</div>
+            <div class="divider"></div>
+            <div>Режим работы:</div>
+            <div>Пн-Пт: 9:00 - 20:00</div>
+            <div>Сб-Вс: 10:00 - 18:00</div>
+        </div>
+
+        <!-- Напоминание -->
+        <div class="footer-note">
+            <div class="bold">ВНИМАНИЕ!</div>
+            <div>Для получения заказа предъявите</div>
+            <div>данный чек и документ,</div>
+            <div>удостоверяющий личность.</div>
+            <div class="divider"></div>
+            <div>Спасибо за покупку!</div>
+            <div>Ждём вас снова!</div>
+        </div>
+
+        <!-- Кнопка печати -->
+        <button class="btn-print" onclick="window.print();">🖨️ РАСПЕЧАТАТЬ ЧЕК</button>
+    </div>
+</body>
+</html>

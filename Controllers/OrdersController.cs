@@ -13,13 +13,15 @@ namespace StationeryShop.Controllers
         private readonly CartService _cartService;
         private readonly ILogger<OrdersController> _logger;
         private readonly EmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-        public OrdersController(StationeryDbContext context, CartService cartService, ILogger<OrdersController> logger, EmailService emailService)
+        public OrdersController(StationeryDbContext context, CartService cartService, ILogger<OrdersController> logger, EmailService emailService, IConfiguration configuration)
         {
             _context = context;
             _cartService = cartService;
             _logger = logger;
             _emailService = emailService;
+            _configuration = configuration;
         }
 
         private bool IsAuthenticated()
@@ -65,25 +67,25 @@ namespace StationeryShop.Controllers
 
             if (!cartItems.Any())
             {
-                TempData["Error"] = "Корзина пуста. Добавьте товары перед оформлением заказа.";
+                TempData["Error"] = "Корзина пуста";
                 return RedirectToAction("Index", "Cart");
             }
 
-            // Получаем информацию о пользователе для формы
             var customerId = HttpContext.Session.GetInt32("CustomerID");
             var customer = _context.Customers.FirstOrDefault(c => c.CustomerID == customerId);
 
             var order = new Order
             {
                 CustomerID = customerId.Value,
-                ShippingAddress = customer?.Address ?? "",
+                ShippingAddress = _configuration["PickupPoint:FullAddress"],
                 OrderDate = DateTime.Now,
                 TotalAmount = _cartService.GetTotalPrice(),
-                Status = "Принят" // Устанавливаем статус по умолчанию
+                Status = "Принят"
             };
 
             ViewBag.CartItems = cartItems;
             ViewBag.TotalPrice = _cartService.GetTotalPrice();
+            ViewBag.PickupAddress = _configuration["PickupPoint:FullAddress"];
 
             return View(order);
         }
@@ -271,6 +273,29 @@ namespace StationeryShop.Controllers
             if (!isAdmin && order.CustomerID != customerId)
                 return Forbid();
 
+            return View(order);
+        }
+        // GET: Orders/ClientReceipt/5 (для клиента)
+        public async Task<IActionResult> ClientReceipt(int id)
+        {
+            if (!IsAuthenticated())
+                return RedirectToLogin();
+
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.OrderID == id);
+
+            if (order == null)
+                return NotFound();
+
+            // Проверяем права (только владелец заказа)
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            if (order.CustomerID != customerId)
+                return Forbid();
+
+            ViewBag.PickupAddress = _configuration["PickupPoint:FullAddress"];
             return View(order);
         }
 

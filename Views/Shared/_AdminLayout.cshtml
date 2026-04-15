@@ -238,6 +238,11 @@
 
         <div class="sidebar-divider">АНАЛИТИКА</div>
 
+        <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Finance" ? "active" : "")"
+           asp-controller="Admin" asp-action="Finance">
+            <i class="bi bi-currency-dollar"></i> Финансы
+        </a>
+
         <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Analytics" ? "active" : "")"
            asp-controller="Admin" asp-action="Analytics">
             <i class="bi bi-graph-up"></i> Аналитика

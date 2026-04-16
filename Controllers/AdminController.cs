@@ -702,6 +702,82 @@ namespace StationeryShop.Controllers
 
             return RedirectToAction("Finance");
         }
+
+        // GET: Admin/GetAnalyticsData
+        [HttpGet]
+        public async Task<IActionResult> GetAnalyticsData(DateTime? startDate, DateTime? endDate)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            
+            var end = endDate ?? DateTime.Now;
+            var start = startDate ?? end.AddDays(-30);
+
+            
+            var orders = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .Where(o => o.Status == "Выполнен" && o.OrderDate >= start && o.OrderDate <= end)
+                .ToListAsync();
+
+            
+            var revenueByDay = orders
+                .GroupBy(o => o.OrderDate.Date)
+                .Select(g => new
+                {
+                    Date = g.Key.ToString("yyyy-MM-dd"),
+                    Revenue = g.Sum(o => o.TotalAmount)
+                })
+                .OrderBy(x => x.Date)
+                .ToList();
+
+            
+            var ordersCountByDay = orders
+                .GroupBy(o => o.OrderDate.Date)
+                .Select(g => new
+                {
+                    Date = g.Key.ToString("yyyy-MM-dd"),
+                    Count = g.Count()
+                })
+                .OrderBy(x => x.Date)
+                .ToList();
+
+            
+            var topProducts = orders
+                .SelectMany(o => o.OrderItems)
+                .GroupBy(oi => new { oi.ProductID, oi.Product.Name })
+                .Select(g => new
+                {
+                    ProductId = g.Key.ProductID,
+                    ProductName = g.Key.Name,
+                    TotalQuantity = g.Sum(oi => oi.Quantity),
+                    TotalRevenue = g.Sum(oi => oi.Quantity * oi.UnitPrice)
+                })
+                .OrderByDescending(x => x.TotalQuantity)
+                .Take(5)
+                .ToList();
+
+            
+            var totalRevenue = orders.Sum(o => o.TotalAmount);
+            var totalOrders = orders.Count;
+            var averageCheck = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+            // Возвращаем все данные в формате JSON
+            return Json(new
+            {
+                revenueByDay = revenueByDay,
+                ordersCountByDay = ordersCountByDay,
+                topProducts = topProducts,
+                totalRevenue = totalRevenue,
+                totalOrders = totalOrders,
+                averageCheck = averageCheck,
+                period = new
+                {
+                    startDate = start.ToString("yyyy-MM-dd"),
+                    endDate = end.ToString("yyyy-MM-dd")
+                }
+            });
+        }
     }
 
 }

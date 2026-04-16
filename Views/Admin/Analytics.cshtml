@@ -3,8 +3,570 @@
     ViewData["Title"] = "Аналитика продаж";
 }
 
-<h2 class="mb-4"><i class="bi bi-graph-up"></i> Аналитика продаж</h2>
+<style>
+    .analytics-container {
+        animation: fadeInUp 0.4s ease-out;
+    }
 
-<div class="alert alert-info">
-    <i class="bi bi-info-circle"></i> Здесь будут графики продаж (добавим позже)
+    .page-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
+
+    /* Карточки статистики */
+    .stat-card {
+        border: none;
+        border-radius: 16px;
+        padding: 15px 20px;
+        transition: all 0.2s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 1.8rem;
+            opacity: 0.12;
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 3px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            opacity: 0.85;
+        }
+
+    /* Фильтр по дате */
+    .filter-bar {
+        background: white;
+        border-radius: 16px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 15px;
+        border: 1px solid #e9ecef;
+    }
+
+    .filter-item {
+        flex: 1;
+        min-width: 150px;
+    }
+
+        .filter-item label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .filter-item input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+    /* Графики */
+    .chart-container {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+    }
+
+    .chart-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #1a1a2e;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    canvas {
+        max-height: 300px;
+        width: 100%;
+    }
+
+    /* Кнопки экспорта */
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        justify-content: flex-end;
+    }
+
+    .btn-export {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+    /* Таблица топ-товаров */
+    .top-products-table {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+        .top-products-table thead th {
+            background: #f8f9fa;
+            font-weight: 600;
+            padding: 12px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .top-products-table tbody td {
+            padding: 10px 12px;
+            vertical-align: middle;
+        }
+
+    .rank-badge {
+        display: inline-block;
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 28px;
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="analytics-container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="page-title">
+            <i class="bi bi-graph-up me-2"></i> Аналитика продаж
+        </h2>
+    </div>
+
+    <!-- ФИЛЬТР ПО ДАТЕ -->
+    <div class="filter-bar">
+        <div class="filter-item">
+            <label><i class="bi bi-calendar3 me-1"></i> Начало периода</label>
+            <input type="date" id="startDate" class="form-control">
+        </div>
+        <div class="filter-item">
+            <label><i class="bi bi-calendar3 me-1"></i> Конец периода</label>
+            <input type="date" id="endDate" class="form-control">
+        </div>
+        <div class="filter-item">
+            <label>&nbsp;</label>
+            <button id="applyFilter" class="btn btn-primary w-100" style="background: linear-gradient(135deg, #2c5aa0, #3a7bd5); border: none;">
+                <i class="bi bi-arrow-repeat me-1"></i> Обновить
+            </button>
+        </div>
+    </div>
+
+    <!-- КНОПКИ ЭКСПОРТА -->
+    <div class="export-buttons">
+        <button id="exportSalesReport" class="btn-export text-white">
+            <i class="bi bi-file-earmark-excel me-1"></i> Экспорт отчёта по продажам
+        </button>
+        <button id="exportOrdersList" class="btn-export text-white">
+            <i class="bi bi-file-earmark-excel me-1"></i> Экспорт списка заказов
+        </button>
+    </div>
+
+    <!-- КАРТОЧКИ СТАТИСТИКИ -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-6">
+            <div class="card stat-card bg-primary text-white">
+                <div class="stat-icon"><i class="bi bi-cash-stack"></i></div>
+                <div class="stat-value" id="totalRevenue">0.00 BYN</div>
+                <div class="stat-label">Общая выручка</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="card stat-card bg-info text-white">
+                <div class="stat-icon"><i class="bi bi-bag-check"></i></div>
+                <div class="stat-value" id="totalOrders">0</div>
+                <div class="stat-label">Всего заказов</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="card stat-card bg-success text-white">
+                <div class="stat-icon"><i class="bi bi-receipt"></i></div>
+                <div class="stat-value" id="averageCheck">0.00 BYN</div>
+                <div class="stat-label">Средний чек</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ГРАФИК 1: ВЫРУЧКА ПО ДНЯМ -->
+    <div class="chart-container">
+        <div class="chart-title">
+            <i class="bi bi-currency-dollar text-primary"></i> Выручка по дням
+        </div>
+        <canvas id="revenueChart" width="400" height="200"></canvas>
+    </div>
+
+    <!-- ГРАФИК 2: КОЛИЧЕСТВО ЗАКАЗОВ ПО ДНЯМ -->
+    <div class="chart-container">
+        <div class="chart-title">
+            <i class="bi bi-bag-check text-info"></i> Количество заказов по дням
+        </div>
+        <canvas id="ordersChart" width="400" height="200"></canvas>
+    </div>
+
+    <!-- ТОП-5 ТОВАРОВ + ТАБЛИЦА -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="chart-container" style="height: 100%;">
+                <div class="chart-title">
+                    <i class="bi bi-pie-chart text-warning"></i> Топ-5 товаров (по количеству продаж)
+                </div>
+                <canvas id="topProductsChart" width="400" height="250"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container" style="height: 100%;">
+                <div class="chart-title">
+                    <i class="bi bi-trophy text-success"></i> Детализация топ-5 товаров
+                </div>
+                <div class="table-responsive">
+                    <table class="table top-products-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Товар</th>
+                                <th>Продано (шт)</th>
+                                <th>Выручка</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topProductsTable">
+                        <td>
+                        <td colspan="4" class="text-center text-muted">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script>
+        let revenueChart = null;
+        let ordersChart = null;
+        let topProductsChart = null;
+        let currentData = null;
+
+        // Функция загрузки данных
+        async function loadAnalyticsData() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            let url = '/Admin/GetAnalyticsData';
+            const params = [];
+            if (startDate) params.push(`startDate=${startDate}`);
+            if (endDate) params.push(`endDate=${endDate}`);
+            if (params.length) url += '?' + params.join('&');
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                currentData = data;
+
+                // Обновляем карточки
+                document.getElementById('totalRevenue').innerText = data.totalRevenue.toFixed(2) + ' BYN';
+                document.getElementById('totalOrders').innerText = data.totalOrders;
+                document.getElementById('averageCheck').innerText = data.averageCheck.toFixed(2) + ' BYN';
+
+                // Обновляем графики
+                updateRevenueChart(data.revenueByDay);
+                updateOrdersChart(data.ordersCountByDay);
+                updateTopProductsChart(data.topProducts);
+                updateTopProductsTable(data.topProducts);
+
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                alert('Ошибка при загрузке данных аналитики');
+            }
+        }
+
+        // График выручки
+        function updateRevenueChart(data) {
+            const labels = data.map(item => item.date);
+            const values = data.map(item => item.revenue);
+
+            if (revenueChart) revenueChart.destroy();
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Выручка (BYN)',
+                        data: values,
+                        borderColor: '#2c5aa0',
+                        backgroundColor: 'rgba(44, 90, 160, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#2c5aa0',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(2)} BYN`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // График количества заказов
+        function updateOrdersChart(data) {
+            const labels = data.map(item => item.date);
+            const values = data.map(item => item.count);
+
+            if (ordersChart) ordersChart.destroy();
+
+            const ctx = document.getElementById('ordersChart').getContext('2d');
+            ordersChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Количество заказов',
+                        data: values,
+                        borderColor: '#17a2b8',
+                        backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#17a2b8',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} шт`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Круговая диаграмма топ-5 товаров
+        function updateTopProductsChart(products) {
+            if (!products || products.length === 0) {
+                if (topProductsChart) topProductsChart.destroy();
+                return;
+            }
+
+            const labels = products.map(p => p.productName.length > 20 ? p.productName.substring(0, 20) + '...' : p.productName);
+            const values = products.map(p => p.totalQuantity);
+
+            if (topProductsChart) topProductsChart.destroy();
+
+            const ctx = document.getElementById('topProductsChart').getContext('2d');
+            topProductsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#2c5aa0', '#3a7bd5', '#28a745', '#ffc107', '#fd7e14'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 10 } } },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} шт (${((ctx.raw / values.reduce((a,b)=>a+b,0))*100).toFixed(1)}%)` } }
+                    }
+                }
+            });
+        }
+
+        // Таблица топ-5 товаров
+        function updateTopProductsTable(products) {
+            const tbody = document.getElementById('topProductsTable');
+            if (!products || products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Нет данных</td></tr>';
+                return;
+            }
+
+            let html = '';
+            products.forEach((product, index) => {
+                html += `
+                    <tr>
+                        <td><span class="rank-badge">${index + 1}</span></td>
+                        <td class="fw-bold">${escapeHtml(product.productName)}</td>
+                        <td>${product.totalQuantity} шт</td>
+                        <td class="text-success fw-bold">${product.totalRevenue.toFixed(2)} BYN</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // Экранирование HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Экспорт отчёта по продажам в Excel
+        document.getElementById('exportSalesReport').addEventListener('click', function() {
+            if (!currentData) {
+                alert('Нет данных для экспорта');
+                return;
+            }
+
+            // Подготавливаем данные для Excel
+            const salesData = currentData.revenueByDay.map(day => ({
+                'Дата': day.date,
+                'Выручка (BYN)': day.revenue
+            }));
+
+            // Добавляем итоговую строку
+            salesData.push({
+                'Дата': 'ИТОГО',
+                'Выручка (BYN)': currentData.totalRevenue
+            });
+
+            const ws = XLSX.utils.json_to_sheet(salesData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Отчёт по продажам');
+            XLSX.writeFile(wb, `sales_report_${new Date().toISOString().slice(0,10)}.xlsx`);
+        });
+
+        // Экспорт списка заказов в Excel
+        document.getElementById('exportOrdersList').addEventListener('click', async function() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            let url = '/Admin/GetOrdersForExport';
+            const params = [];
+            if (startDate) params.push(`startDate=${startDate}`);
+            if (endDate) params.push(`endDate=${endDate}`);
+            if (params.length) url += '?' + params.join('&');
+
+            try {
+                const response = await fetch(url);
+                const orders = await response.json();
+
+                if (!orders || orders.length === 0) {
+                    alert('Нет заказов за выбранный период');
+                    return;
+                }
+
+                const ordersData = orders.map(order => ({
+                    '№ заказа': order.orderID,
+                    'Клиент': order.customerName,
+                    'Дата': order.orderDate,
+                    'Сумма (BYN)': order.totalAmount,
+                    'Статус': order.status,
+                    'Адрес': order.shippingAddress
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(ordersData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Список заказов');
+                XLSX.writeFile(wb, `orders_list_${new Date().toISOString().slice(0,10)}.xlsx`);
+            } catch (error) {
+                console.error('Ошибка экспорта:', error);
+                alert('Ошибка при экспорте заказов');
+            }
+        });
+
+        // Применение фильтра
+        document.getElementById('applyFilter').addEventListener('click', function() {
+            loadAnalyticsData();
+        });
+
+        // Устанавливаем даты по умолчанию (последние 30 дней)
+        function setDefaultDates() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+
+            document.getElementById('startDate').value = startDate.toISOString().slice(0,10);
+            document.getElementById('endDate').value = endDate.toISOString().slice(0,10);
+        }
+
+        // Загрузка при открытии страницы
+        setDefaultDates();
+        loadAnalyticsData();
+    </script>
+}

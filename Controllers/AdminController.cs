@@ -709,18 +709,22 @@ namespace StationeryShop.Controllers
         {
             if (!IsAdmin()) return Unauthorized();
 
-            
+            // Устанавливаем период (по умолчанию последние 30 дней)
             var end = endDate ?? DateTime.Now;
             var start = startDate ?? end.AddDays(-30);
 
-            
+            // Приводим даты к началу дня для корректного сравнения
+            var startUtc = start.Date;
+            var endUtc = end.Date.AddDays(1);
+
+            // Получаем все выполненные заказы за период
             var orders = await _context.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
-                .Where(o => o.Status == "Выполнен" && o.OrderDate >= start && o.OrderDate <= end)
+                .Where(o => o.Status == "Выполнен" && o.OrderDate >= startUtc && o.OrderDate <= endUtc)
                 .ToListAsync();
 
-            
+            // ==================== 1. ВЫРУЧКА ПО ДНЯМ ====================
             var revenueByDay = orders
                 .GroupBy(o => o.OrderDate.Date)
                 .Select(g => new
@@ -731,7 +735,7 @@ namespace StationeryShop.Controllers
                 .OrderBy(x => x.Date)
                 .ToList();
 
-            
+            // ==================== 2. КОЛИЧЕСТВО ЗАКАЗОВ ПО ДНЯМ ====================
             var ordersCountByDay = orders
                 .GroupBy(o => o.OrderDate.Date)
                 .Select(g => new
@@ -742,14 +746,14 @@ namespace StationeryShop.Controllers
                 .OrderBy(x => x.Date)
                 .ToList();
 
-            
+            // ==================== 3. ТОП-5 САМЫХ ПРОДАВАЕМЫХ ТОВАРОВ ====================
             var topProducts = orders
                 .SelectMany(o => o.OrderItems)
-                .GroupBy(oi => new { oi.ProductID, oi.Product.Name })
+                .GroupBy(oi => new { oi.ProductID, ProductName = oi.Product != null ? oi.Product.Name : "Неизвестно" })
                 .Select(g => new
                 {
                     ProductId = g.Key.ProductID,
-                    ProductName = g.Key.Name,
+                    ProductName = g.Key.ProductName,
                     TotalQuantity = g.Sum(oi => oi.Quantity),
                     TotalRevenue = g.Sum(oi => oi.Quantity * oi.UnitPrice)
                 })
@@ -757,12 +761,19 @@ namespace StationeryShop.Controllers
                 .Take(5)
                 .ToList();
 
-            
+            // ==================== 4. ОБЩАЯ СТАТИСТИКА ====================
             var totalRevenue = orders.Sum(o => o.TotalAmount);
             var totalOrders = orders.Count;
             var averageCheck = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-            // Возвращаем все данные в формате JSON
+            // Отладочная информация в консоль сервера
+            Console.WriteLine($"=== GetAnalyticsData ===");
+            Console.WriteLine($"Период: {start:yyyy-MM-dd} - {end:yyyy-MM-dd}");
+            Console.WriteLine($"Найдено заказов: {totalOrders}");
+            Console.WriteLine($"Выручка: {totalRevenue}");
+            Console.WriteLine($"Топ-5 товаров: {topProducts.Count}");
+
+            // Возвращаем данные
             return Json(new
             {
                 revenueByDay = revenueByDay,
@@ -777,6 +788,35 @@ namespace StationeryShop.Controllers
                     endDate = end.ToString("yyyy-MM-dd")
                 }
             });
+        }
+        // GET: Admin/GetOrdersForExport
+        [HttpGet]
+        public async Task<IActionResult> GetOrdersForExport(DateTime? startDate, DateTime? endDate)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var end = endDate ?? DateTime.Now;
+            var start = startDate ?? end.AddDays(-30);
+
+            var startUtc = start.Date;
+            var endUtc = end.Date.AddDays(1);
+
+            var orders = await _context.Orders
+                .Include(o => o.Customer)
+                .Where(o => o.OrderDate >= startUtc && o.OrderDate <= endUtc)
+                .OrderByDescending(o => o.OrderDate)
+                .Select(o => new
+                {
+                    OrderID = o.OrderID,
+                    CustomerName = o.Customer != null ? o.Customer.FullName : "Не указан",
+                    OrderDate = o.OrderDate.ToString("dd.MM.yyyy HH:mm"),
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    ShippingAddress = o.ShippingAddress
+                })
+                .ToListAsync();
+
+            return Json(orders);
         }
     }
 

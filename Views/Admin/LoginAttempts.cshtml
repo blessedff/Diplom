@@ -1,10 +1,533 @@
 ﻿@{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Логи попыток входа";
+    ViewData["Title"] = "Логи входов";
 }
 
-<h2 class="mb-4"><i class="bi bi-shield-lock"></i> Логи попыток входа</h2>
+<style>
+    .page-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
 
-<div class="alert alert-info">
-    <i class="bi bi-info-circle"></i> Здесь будут логи входов (добавим позже)
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
+
+    .stat-card {
+        border: none;
+        border-radius: 16px;
+        padding: 15px 20px;
+        transition: all 0.2s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 1.8rem;
+            opacity: 0.12;
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 3px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            opacity: 0.85;
+        }
+
+    .filter-bar {
+        background: white;
+        border-radius: 16px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 15px;
+        border: 1px solid #e9ecef;
+    }
+
+    .filter-item {
+        flex: 1;
+        min-width: 150px;
+    }
+
+        .filter-item label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        justify-content: flex-end;
+    }
+
+    .btn-clear {
+        background: #dc3545;
+        border: none;
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+        cursor: pointer;
+    }
+
+        .btn-clear:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+    .btn-export {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+        cursor: pointer;
+    }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+    .log-table {
+        border-radius: 16px;
+        overflow: hidden;
+        width: 100%;
+    }
+
+        .log-table thead th {
+            background: #f8f9fa;
+            font-weight: 600;
+            padding: 12px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .log-table tbody td {
+            padding: 10px 12px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .log-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-failed {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+        padding: 6px 12px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .pagination-btn:hover {
+            background: #f8f9fa;
+            border-color: #2c5aa0;
+        }
+
+        .pagination-btn.active {
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            color: white;
+            border-color: #2c5aa0;
+        }
+
+    .pagination-info {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="analytics-container">
+    <h2 class="page-title">
+        <i class="bi bi-shield-lock me-2"></i> Логи входов
+    </h2>
+
+    <!-- КАРТОЧКИ СТАТИСТИКИ -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card stat-card bg-primary text-white">
+                <div class="stat-icon"><i class="bi bi-list-check"></i></div>
+                <div class="stat-value" id="totalAttempts">0</div>
+                <div class="stat-label">Всего попыток</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card stat-card bg-success text-white">
+                <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+                <div class="stat-value" id="successfulAttempts">0</div>
+                <div class="stat-label">Успешных</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card stat-card bg-danger text-white">
+                <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
+                <div class="stat-value" id="failedAttempts">0</div>
+                <div class="stat-label">Неудачных</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card stat-card bg-info text-white">
+                <div class="stat-icon"><i class="bi bi-globe"></i></div>
+                <div class="stat-value" id="uniqueIps">0</div>
+                <div class="stat-label">Уникальных IP</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФИЛЬТРЫ -->
+    <div class="filter-bar">
+        <div class="filter-item">
+            <label><i class="bi bi-search me-1"></i> Поиск</label>
+            <input type="text" id="searchInput" class="form-control" placeholder="Email или IP...">
+        </div>
+        <div class="filter-item">
+            <label><i class="bi bi-funnel me-1"></i> Статус</label>
+            <select id="statusFilter" class="form-select">
+                <option value="">Все</option>
+                <option value="success">Успешные</option>
+                <option value="failed">Неудачные</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <label><i class="bi bi-calendar3 me-1"></i> Дата с</label>
+            <input type="date" id="startDate" class="form-control">
+        </div>
+        <div class="filter-item">
+            <label><i class="bi bi-calendar3 me-1"></i> Дата по</label>
+            <input type="date" id="endDate" class="form-control">
+        </div>
+        <div class="filter-item">
+            <label>&nbsp;</label>
+            <button id="resetFiltersBtn" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-repeat me-1"></i> Сбросить фильтры
+            </button>
+        </div>
+    </div>
+
+    <!-- КНОПКИ ДЕЙСТВИЙ -->
+    <div class="action-buttons">
+        <button id="clearLogsBtn" class="btn-clear">
+            <i class="bi bi-trash me-1"></i> Очистить логи за 30 дней
+        </button>
+        <button id="exportLogsBtn" class="btn-export">
+            <i class="bi bi-file-earmark-excel me-1"></i> Экспорт в Excel
+        </button>
+    </div>
+
+    <!-- ТАБЛИЦА ЛОГОВ -->
+    <div class="table-responsive">
+        <table class="table log-table">
+            <thead>
+                <tr>
+                    <th>Дата и время</th>
+                    <th>Email</th>
+                    <th>IP-адрес</th>
+                    <th>Статус</th>
+                    <th>User Agent</th>
+                </tr>
+            </thead>
+            <tbody id="logsTableBody">
+                <tr><td colspan="5" class="text-center text-muted">Загрузка...<\ /td><\ /tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ПАГИНАЦИЯ -->
+    <div id="paginationContainer" class="pagination-container"></div>
+    <div id="paginationInfo" class="pagination-info"></div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+
+        async function loadLogs() {
+            const search = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            let url = `/Admin/GetLoginAttempts?page=${currentPage}&pageSize=20`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+            if (status) url += `&status=${status}`;
+            if (startDate) url += `&startDate=${startDate}`;
+            if (endDate) url += `&endDate=${endDate}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.stats) {
+                    document.getElementById('totalAttempts').innerText = data.stats.total;
+                    document.getElementById('successfulAttempts').innerText = data.stats.successful;
+                    document.getElementById('failedAttempts').innerText = data.stats.failed;
+                    document.getElementById('uniqueIps').innerText = data.stats.uniqueIps;
+                }
+
+                renderTable(data.attempts);
+                totalPages = data.totalPages;
+                renderPagination(data.currentPage, data.totalPages);
+                document.getElementById('paginationInfo').innerHTML = `Показано ${data.attempts.length} из ${data.totalCount} записей, страница ${data.currentPage} из ${data.totalPages}`;
+
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                document.getElementById('logsTableBody').innerHTML = '<tr><td colspan="5" class="text-center text-danger">Ошибка загрузки данных<\/td><\/tr>';
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            document.getElementById('startDate').value = startDate.toISOString().slice(0,10);
+            document.getElementById('endDate').value = endDate.toISOString().slice(0,10);
+
+            currentPage = 1;
+            loadLogs();
+        }
+
+        function renderTable(attempts) {
+            const tbody = document.getElementById('logsTableBody');
+            if (!attempts || attempts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Нет записей<\/td><\/tr>';
+                return;
+            }
+
+            let html = '';
+            for (const log of attempts) {
+                const date = new Date(log.attemptTime).toLocaleString('ru-RU');
+                const statusClass = log.isSuccessful ? 'status-success' : 'status-failed';
+                const statusText = log.isSuccessful ? 'Успех' : 'Ошибка';
+                const userAgent = log.userAgent ? (log.userAgent.length > 50 ? log.userAgent.substring(0, 50) + '...' : log.userAgent) : '-';
+
+                html += `
+                    <tr>
+                        <td class="text-nowrap">${date}<\/td>
+                        <td>${escapeHtml(log.email)}<\/td>
+                        <td><code>${log.ipAddress}<\/code><\/td>
+                        <td><span class="status-badge ${statusClass}">${statusText}<\/span><\/td>
+                        <td class="text-muted small">${escapeHtml(userAgent)}<\/td>
+                    <\/tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        function renderPagination(current, total) {
+            const container = document.getElementById('paginationContainer');
+            if (total <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            if (current > 1) {
+                html += `<button class="pagination-btn" data-page="${current - 1}">«</button>`;
+            }
+
+            const startPage = Math.max(1, current - 2);
+            const endPage = Math.min(total, current + 2);
+
+            if (startPage > 1) {
+                html += `<button class="pagination-btn" data-page="1">1</button>`;
+                if (startPage > 2) html += `<span class="pagination-btn disabled">...</span>`;
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-btn ${i === current ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+
+            if (endPage < total) {
+                if (endPage < total - 1) html += `<span class="pagination-btn disabled">...</span>`;
+                html += `<button class="pagination-btn" data-page="${total}">${total}</button>`;
+            }
+
+            if (current < total) {
+                html += `<button class="pagination-btn" data-page="${current + 1}">»</button>`;
+            }
+
+            container.innerHTML = html;
+
+            document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+                btn.removeEventListener('click', paginationClickHandler);
+                btn.addEventListener('click', paginationClickHandler);
+            });
+        }
+
+        function paginationClickHandler(e) {
+            e.preventDefault();
+            const newPage = parseInt(this.getAttribute('data-page'));
+            if (!isNaN(newPage) && newPage !== currentPage) {
+                currentPage = newPage;
+                loadLogs();
+            }
+        }
+
+        document.getElementById('clearLogsBtn').addEventListener('click', async function() {
+            if (!confirm('Вы уверены, что хотите удалить все логи старше 30 дней?')) return;
+            try {
+                const response = await fetch('/Admin/DeleteOldLogins', { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    currentPage = 1;
+                    loadLogs();
+                } else {
+                    alert('Ошибка при очистке логов');
+                }
+            } catch (error) {
+                alert('Ошибка при очистке логов');
+            }
+        });
+
+        document.getElementById('exportLogsBtn').addEventListener('click', async function() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            let url = '/Admin/ExportLoginAttempts';
+            const params = [];
+            if (startDate) params.push(`startDate=${startDate}`);
+            if (endDate) params.push(`endDate=${endDate}`);
+            if (params.length) url += '?' + params.join('&');
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (!data || data.length === 0) {
+                    alert('Нет данных для экспорта');
+                    return;
+                }
+                const exportData = data.map(item => ({
+                    'Email': item.email,
+                    'Дата и время': new Date(item.attemptTime).toLocaleString('ru-RU'),
+                    'IP-адрес': item.ipAddress,
+                    'Статус': item.status,
+                    'User Agent': item.userAgent
+                }));
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Логи входов');
+                XLSX.writeFile(wb, `login_logs_${new Date().toISOString().slice(0,10)}.xlsx`);
+            } catch (error) {
+                alert('Ошибка при экспорте');
+            }
+        });
+
+        document.getElementById('resetFiltersBtn').addEventListener('click', function() {
+            resetFilters();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', function() { currentPage = 1; loadLogs(); });
+        document.getElementById('statusFilter').addEventListener('change', function() { currentPage = 1; loadLogs(); });
+        document.getElementById('startDate').addEventListener('change', function() { currentPage = 1; loadLogs(); });
+        document.getElementById('endDate').addEventListener('change', function() { currentPage = 1; loadLogs(); });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function setDefaultDates() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            document.getElementById('startDate').value = startDate.toISOString().slice(0,10);
+            document.getElementById('endDate').value = endDate.toISOString().slice(0,10);
+        }
+
+        setDefaultDates();
+        loadLogs();
+    </script>
+}

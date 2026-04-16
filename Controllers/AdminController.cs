@@ -825,20 +825,22 @@ namespace StationeryShop.Controllers
         {
             if (!IsAdmin()) return Unauthorized();
 
-            
             var end = endDate ?? DateTime.Now;
             var start = startDate ?? end.AddDays(-30);
 
-            var query = _context.LoginAttempts
-                .Where(a => a.AttemptTime >= start && a.AttemptTime <= end);
+            // Добавляем 1 день к конечной дате, чтобы включить весь день
+            var endDateAdjusted = end.Date.AddDays(1);
 
-            
+            var query = _context.LoginAttempts
+                .Where(a => a.AttemptTime >= start && a.AttemptTime < endDateAdjusted);  // ✅ ПРАВИЛЬНО
+
+            // Фильтр по поиску (email или IP)
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(a => a.Email.Contains(search) || a.IpAddress.Contains(search));
             }
 
-            
+            // Фильтр по статусу
             if (!string.IsNullOrEmpty(status))
             {
                 bool isSuccessful = status == "success";
@@ -848,9 +850,9 @@ namespace StationeryShop.Controllers
             // Общее количество записей
             var totalCount = await query.CountAsync();
 
-            // Пагинация
+            // Пагинация и сортировка (самые новые сначала)
             var attempts = await query
-                .OrderByDescending(a => a.AttemptTime)
+                .OrderByDescending(a => a.AttemptTime)  // Сначала самые новые
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(a => new
@@ -864,11 +866,14 @@ namespace StationeryShop.Controllers
                 })
                 .ToListAsync();
 
-            // Статистика
+            // Статистика за ВЕСЬ период (не отфильтрованная)
             var totalAttempts = await _context.LoginAttempts.CountAsync();
             var successfulAttempts = await _context.LoginAttempts.CountAsync(a => a.IsSuccessful);
             var failedAttempts = totalAttempts - successfulAttempts;
             var uniqueIps = await _context.LoginAttempts.Select(a => a.IpAddress).Distinct().CountAsync();
+
+            // Отладочная информация
+            Console.WriteLine($"GetLoginAttempts: page={page}, totalCount={totalCount}, attempts={attempts.Count}");
 
             return Json(new
             {
@@ -901,6 +906,31 @@ namespace StationeryShop.Controllers
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = $"Удалено {count} записей старше {days} дней" });
+        }
+
+        // GET: Admin/ExportLoginAttempts
+        [HttpGet]
+        public async Task<IActionResult> ExportLoginAttempts(DateTime? startDate, DateTime? endDate)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var end = endDate ?? DateTime.Now;
+            var start = startDate ?? end.AddDays(-30);
+
+            var attempts = await _context.LoginAttempts
+                .Where(a => a.AttemptTime >= start && a.AttemptTime <= end)
+                .OrderByDescending(a => a.AttemptTime)
+                .Select(a => new
+                {
+                    a.Email,
+                    AttemptTime = a.AttemptTime,
+                    a.IpAddress,
+                    Status = a.IsSuccessful ? "Успех" : "Ошибка",
+                    a.UserAgent
+                })
+                .ToListAsync();
+
+            return Json(attempts);
         }
     }
 

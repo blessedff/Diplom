@@ -478,24 +478,20 @@
                                         <small class="text-muted">Осталось: ${product.stockQuantity}</small>
                                     </div>
                                     ${isAuthenticated && !isAdminUser ? 
-                                        (inStock ? 
-                                            `<form action="/Cart/AddToCart" method="post" class="d-grid">
-                                                <input type="hidden" name="productId" value="${product.productID}" />
-                                                <input type="hidden" name="quantity" value="1" />
-                                                <button type="submit" class="btn-cart">
-                                                    <i class="bi bi-cart-plus"></i> В корзину
-                                                </button>
-                                            </form>` :
-                                            `<button class="btn-cart" disabled>
-                                                <i class="bi bi-cart-x"></i> Нет в наличии
-                                            </button>`
-                                        ) : 
-                                        (!isAuthenticated ?
-                                            `<button class="btn-cart" disabled title="Для добавления в корзину необходимо авторизоваться">
-                                                <i class="bi bi-cart-plus"></i> В корзину
-                                            </button>` : ''
-                                        )
-                                    }
+    (inStock ? 
+        `<button class="btn-cart add-to-cart-btn" data-product-id="${product.productID}">
+            <i class="bi bi-cart-plus"></i> В корзину
+        </button>` :
+        `<button class="btn-cart" disabled>
+            <i class="bi bi-cart-x"></i> Нет в наличии
+        </button>`
+    ) : 
+    (!isAuthenticated ?
+        `<button class="btn-cart" disabled title="Для добавления в корзину необходимо авторизоваться">
+            <i class="bi bi-cart-plus"></i> В корзину
+        </button>` : ''
+    )
+}
                                 </div>
                             </div>
                         </div>

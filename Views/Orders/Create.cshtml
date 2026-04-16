@@ -243,7 +243,7 @@
                         <a asp-controller="Cart" asp-action="Index" class="btn btn-back text-white">
                             <i class="bi bi-arrow-left me-2"></i> Вернуться в корзину
                         </a>
-                        <button type="submit" class="btn btn-submit text-white">
+                        <button type="submit" class="btn btn-submit text-white" id="submitOrderBtn" onclick="this.disabled=true; this.form.submit();">
                             <i class="bi bi-check-circle me-2"></i> Подтвердить заказ
                         </button>
                     </div>

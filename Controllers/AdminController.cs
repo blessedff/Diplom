@@ -818,6 +818,90 @@ namespace StationeryShop.Controllers
 
             return Json(orders);
         }
+
+        // GET: Admin/GetLoginAttempts
+        [HttpGet]
+        public async Task<IActionResult> GetLoginAttempts(string search = "", string status = "", DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = 20)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            
+            var end = endDate ?? DateTime.Now;
+            var start = startDate ?? end.AddDays(-30);
+
+            var query = _context.LoginAttempts
+                .Where(a => a.AttemptTime >= start && a.AttemptTime <= end);
+
+            
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(a => a.Email.Contains(search) || a.IpAddress.Contains(search));
+            }
+
+            
+            if (!string.IsNullOrEmpty(status))
+            {
+                bool isSuccessful = status == "success";
+                query = query.Where(a => a.IsSuccessful == isSuccessful);
+            }
+
+            // Общее количество записей
+            var totalCount = await query.CountAsync();
+
+            // Пагинация
+            var attempts = await query
+                .OrderByDescending(a => a.AttemptTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Email,
+                    a.AttemptTime,
+                    a.IpAddress,
+                    a.IsSuccessful,
+                    a.UserAgent
+                })
+                .ToListAsync();
+
+            // Статистика
+            var totalAttempts = await _context.LoginAttempts.CountAsync();
+            var successfulAttempts = await _context.LoginAttempts.CountAsync(a => a.IsSuccessful);
+            var failedAttempts = totalAttempts - successfulAttempts;
+            var uniqueIps = await _context.LoginAttempts.Select(a => a.IpAddress).Distinct().CountAsync();
+
+            return Json(new
+            {
+                attempts = attempts,
+                totalCount = totalCount,
+                currentPage = page,
+                pageSize = pageSize,
+                totalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                stats = new
+                {
+                    total = totalAttempts,
+                    successful = successfulAttempts,
+                    failed = failedAttempts,
+                    uniqueIps = uniqueIps
+                }
+            });
+        }
+
+        // POST: Admin/DeleteOldLogins
+        [HttpPost]
+        public async Task<IActionResult> DeleteOldLogins(int days = 30)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var cutoffDate = DateTime.Now.AddDays(-days);
+            var oldLogins = _context.LoginAttempts.Where(a => a.AttemptTime < cutoffDate);
+            var count = oldLogins.Count();
+
+            _context.LoginAttempts.RemoveRange(oldLogins);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = $"Удалено {count} записей старше {days} дней" });
+        }
     }
 
 }

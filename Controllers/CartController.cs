@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StationeryShop.Data;
 using StationeryShop.Models;
 using StationeryShop.Services;
@@ -62,6 +63,25 @@ namespace StationeryShop.Controllers
             TempData["Success"] = "Товар добавлен в корзину!";
 
             return RedirectToAction("Index", "Products");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddToCartAjax(int productId, int quantity = 1)
+        {
+            if (!IsAuthenticated())
+                return Json(new { success = false, message = "Для добавления в корзину необходимо авторизоваться" });
+
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductID == productId);
+
+            if (product == null)
+                return Json(new { success = false, message = "Товар не найден" });
+
+            if (product.StockQuantity < quantity)
+                return Json(new { success = false, message = $"Недостаточно товара на складе. Доступно: {product.StockQuantity}" });
+
+            _cartService.AddToCart(product, quantity);
+
+            return Json(new { success = true, message = "Товар добавлен в корзину" });
         }
 
         // POST: Cart/UpdateQuantity

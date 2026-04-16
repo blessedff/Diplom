@@ -8,7 +8,7 @@
 
 <style>
     
-        .page-title {
+    .page-title {
         font-size: 1.8rem;
         font-weight: 700;
         color: #1a1a2e;
@@ -165,14 +165,6 @@
         border-radius: 12px;
     }
     
-    .admin-notice {
-        background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
-        border-radius: 20px;
-        padding: 15px 25px;
-        margin-bottom: 25px;
-        color: white;
-    }
-    
     .auth-notice {
         background: linear-gradient(135deg, #6c757d, #5a6268);
         border-radius: 20px;
@@ -225,6 +217,27 @@
         border-bottom: 1px solid #e9ecef;
         padding: 20px 25px;
     }
+    
+    /* Уведомление */
+    .ajax-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 250px;
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    @@keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
 </style>
 
 <h2 class="page-title">
@@ -233,7 +246,7 @@
 
 @if (isAdmin)
 {
-      <div class="admin-notice">
+    <div class="admin-notice">
         <i class="bi bi-shield-lock-fill me-2"></i>
         <strong>Режим администратора</strong>
         <br>
@@ -257,9 +270,9 @@
             <a asp-controller="Account" asp-action="Login" class="text-white fw-bold text-decoration-underline">
                 <i class="bi bi-box-arrow-in-right"></i> Войти
             </a>
-            или 
+            eller 
             <a asp-controller="Account" asp-action="Register" class="text-white fw-bold text-decoration-underline">
-                <i class="bi bi-person-plus"></i> Зарегистрироваться
+                <i class="bi bi-person-plus"></i> Registrera dig
             </a>
         </small>
     </div>
@@ -357,11 +370,88 @@
         let currentProducts = [];
         let currentView = 'cards';
         let isAdmin = @(isAdmin ? "true" : "false");
+        let isAuthenticated = @(isAuthenticated ? "true" : "false");
         
         function getStockClass(quantity) {
             if (quantity >= 20) return 'stock-high';
             if (quantity >= 5) return 'stock-medium';
             return 'stock-low';
+        }
+        
+        // Функция показа уведомления
+        function showNotification(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const $notification = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show ajax-notification">
+                    <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+            $('body').append($notification);
+            setTimeout(() => {
+                $notification.fadeOut(() => $notification.remove());
+            }, 3000);
+        }
+        
+        // Функция обновления счётчика корзины
+        function updateCartCounter() {
+            fetch('/Cart/GetCartSummary')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCounter = $('#cartItemsCount');
+                    if (cartCounter.length) {
+                        cartCounter.text(data.totalItems);
+                        if (data.totalItems > 0) {
+                            cartCounter.show();
+                        } else {
+                            cartCounter.hide();
+                        }
+                    }
+                })
+                .catch(error => console.error('Error updating cart counter:', error));
+        }
+        
+        // Добавление в корзину через AJAX
+        function bindAddToCartEvents() {
+            $('.add-to-cart-btn').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const $btn = $(this);
+                const productId = $btn.data('product-id');
+                
+                // Блокируем кнопку и меняем текст
+                const originalHtml = $btn.html();
+                $btn.html('<i class="bi bi-hourglass-split"></i> Добавление...').prop('disabled', true);
+                
+                $.ajax({
+                    url: '/Cart/AddToCartAjax',
+                    type: 'POST',
+                    data: { productId: productId, quantity: 1 },
+                    success: function(response) {
+                        if (response.success) {
+                            showNotification('Товар добавлен в корзину!', 'success');
+                            updateCartCounter();
+                            $btn.html('<i class="bi bi-cart-check-fill"></i> В корзине').prop('disabled', true);
+                            setTimeout(() => {
+                                $btn.html(originalHtml).prop('disabled', false);
+                            }, 2000);
+                        } else {
+                            showNotification(response.message || 'Ошибка при добавлении', 'error');
+                            $btn.html(originalHtml).prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Ошибка при добавлении в корзину';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        showNotification(errorMsg, 'error');
+                        $btn.html(originalHtml).prop('disabled', false);
+                    }
+                });
+            });
         }
         
         async function loadProducts() {
@@ -444,8 +534,6 @@
             let html = '';
             for (const product of products) {
                 const stockClass = getStockClass(product.stockQuantity);
-                const isAuthenticated = @(isAuthenticated ? "true" : "false");
-                const isAdminUser = @(isAdmin ? "true" : "false");
                 const inStock = product.stockQuantity > 0;
                 
                 html += `
@@ -477,21 +565,21 @@
                                         <span class="price">${product.price.toFixed(2)} BYN</span>
                                         <small class="text-muted">Осталось: ${product.stockQuantity}</small>
                                     </div>
-                                    ${isAuthenticated && !isAdminUser ? 
-    (inStock ? 
-        `<button class="btn-cart add-to-cart-btn" data-product-id="${product.productID}">
-            <i class="bi bi-cart-plus"></i> В корзину
-        </button>` :
-        `<button class="btn-cart" disabled>
-            <i class="bi bi-cart-x"></i> Нет в наличии
-        </button>`
-    ) : 
-    (!isAuthenticated ?
-        `<button class="btn-cart" disabled title="Для добавления в корзину необходимо авторизоваться">
-            <i class="bi bi-cart-plus"></i> В корзину
-        </button>` : ''
-    )
-}
+                                    ${isAuthenticated && !isAdmin ? 
+                                        (inStock ? 
+                                            `<button class="btn-cart add-to-cart-btn" data-product-id="${product.productID}">
+                                                <i class="bi bi-cart-plus"></i> В корзину
+                                            </button>` :
+                                            `<button class="btn-cart" disabled>
+                                                <i class="bi bi-cart-x"></i> Нет в наличии
+                                            </button>`
+                                        ) : 
+                                        (!isAuthenticated ?
+                                            `<button class="btn-cart" disabled title="Для добавления в корзину необходимо авторизоваться">
+                                                <i class="bi bi-cart-plus"></i> В корзину
+                                            </button>` : ''
+                                        )
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -500,18 +588,22 @@
             }
             $('#cardsContainer').html(html);
             
+            // Привязываем обработчики для модального окна
             $('[data-bs-toggle="modal"]').on('click', function(e) {
-                if ($(this).hasClass('btn-cart') || $(this).closest('form').length) return;
+                if ($(this).hasClass('add-to-cart-btn') || $(this).hasClass('btn-cart')) return;
                 const productId = $(this).data('product-id');
                 if (productId) {
                     loadProductModal(productId);
                 }
             });
+            
+            // Привязываем обработчики для кнопок добавления в корзину
+            bindAddToCartEvents();
         }
         
         function renderTable(products) {
             if (!products.length) {
-                $('#tableBody').html('<tr><td colspan="6" class="text-center text-muted py-5">Товары не найдены</td><tr');
+                $('#tableBody').html('<tr><td colspan="6" class="text-center text-muted py-5">Товары не найдены<\/td><\/tr>');
                 return;
             }
             
@@ -596,13 +688,9 @@
             if (view === 'cards') {
                 $('#cardsContainer').show();
                 $('#tableViewContainer').hide();
-                $('#cardViewBtn').removeClass('btn-primary btn-outline-primary').addClass('btn-primary');
-                $('#tableViewBtn').removeClass('btn-primary btn-outline-secondary').addClass('btn-outline-secondary');
             } else {
                 $('#cardsContainer').hide();
                 $('#tableViewContainer').show();
-                $('#tableViewBtn').removeClass('btn-outline-secondary btn-primary').addClass('btn-primary');
-                $('#cardViewBtn').removeClass('btn-primary btn-outline-primary').addClass('btn-outline-primary');
             }
         }
         
@@ -615,11 +703,6 @@
             $('#sortBy').val('Name');
             loadProducts();
         });
-        
-        if (isAdmin) {
-            $('#cardViewBtn').on('click', () => setView('cards'));
-            $('#tableViewBtn').on('click', () => setView('table'));
-        }
         
         function debounce(func, wait) {
             let timeout;

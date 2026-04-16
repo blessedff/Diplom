@@ -389,86 +389,61 @@ namespace StationeryShop.Controllers
             return defaultValue;
         }
         // GET: Admin/Finance
-        public async Task<IActionResult> Finance(string period = "month", DateTime? startDate = null, DateTime? endDate = null)
+        public async Task<IActionResult> Finance(DateTime? startDate, DateTime? endDate)
         {
             if (!IsAdmin()) return RedirectToHome();
 
+           
             DateTime start;
-            DateTime end = DateTime.Now;
-            string periodTitle = "";
-            decimal monthlyFactor = 1m;
+            DateTime end;
 
-            // Определяем период в зависимости от выбранной кнопки
-            switch (period)
+            if (startDate.HasValue && endDate.HasValue)
             {
-                case "month":
-                    start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                    periodTitle = "За последний месяц";
-                    monthlyFactor = 1m;
-                    break;
-                case "3months":
-                    start = DateTime.Now.AddMonths(-3);
-                    periodTitle = "За последние 3 месяца";
-                    monthlyFactor = 3m;
-                    break;
-                case "6months":
-                    start = DateTime.Now.AddMonths(-6);
-                    periodTitle = "За последние 6 месяцев";
-                    monthlyFactor = 6m;
-                    break;
-                case "12months":
-                    start = DateTime.Now.AddMonths(-12);
-                    periodTitle = "За последние 12 месяцев";
-                    monthlyFactor = 12m;
-                    break;
-                default:
-                    // Если переданы свои даты
-                    if (startDate.HasValue && endDate.HasValue)
-                    {
-                        start = startDate.Value;
-                        end = endDate.Value.AddDays(1);
-                        var daysInPeriod = (end - start).Days;
-                        var daysInCurrentMonth = DateTime.DaysInMonth(start.Year, start.Month);
-                        monthlyFactor = (decimal)daysInPeriod / daysInCurrentMonth;
-                        periodTitle = $"С {start:dd.MM.yyyy} по {endDate:dd.MM.yyyy}";
-                    }
-                    else
-                    {
-                        start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                        periodTitle = "За последний месяц";
-                        monthlyFactor = 1m;
-                    }
-                    break;
+                start = startDate.Value;
+                end = endDate.Value.AddDays(1);
+            }
+            else
+            {
+                start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                end = DateTime.Now.AddDays(1);
             }
 
-            // Добавляем один день к конечной дате, чтобы включить последний день
-            end = end.AddDays(1);
+            //количество дней в периоде
+            var daysInPeriod = (end - start).Days;
+            if (daysInPeriod == 0) daysInPeriod = 1;
+
+            // Коэффициент пропорциональности (сколько месяцев в периоде)
+            var daysInCurrentMonth = DateTime.DaysInMonth(start.Year, start.Month);
+            var monthlyFactor = (decimal)daysInPeriod / daysInCurrentMonth;
+
+            
+            var periodTitle = $"С {start:dd.MM.yyyy} по {end.AddDays(-1):dd.MM.yyyy}";
 
             ViewBag.PeriodTitle = periodTitle;
             ViewBag.MonthlyFactor = monthlyFactor;
-            ViewBag.CurrentPeriod = period;
+            ViewBag.StartDate = start.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = end.AddDays(-1).ToString("yyyy-MM-dd");
 
-            // 2. Получаем все выполненные заказы за период
+            
             var completedOrders = await _context.Orders
                 .Include(o => o.Customer)
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
                 .Where(o => o.Status == "Выполнен" && o.OrderDate >= start && o.OrderDate <= end)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
-            // 3. Получаем разовые расходы за период
+           
             var expenses = await _context.Expenses
                 .Where(e => e.ExpenseDate >= start && e.ExpenseDate <= end)
                 .OrderByDescending(e => e.ExpenseDate)
                 .ToListAsync();
 
-            // 4. Получаем настройки из базы данных
+            
             var settingsList = await _context.FinancialSettings.ToListAsync();
             var settings = settingsList.ToDictionary(s => s.SettingKey, s => s.SettingValue);
 
-            // 5. Читаем настройки
-            var taxRate = GetDecimalSetting(settings, "TaxRate", 5.0m);
+           
+            var taxRate = GetDecimalSetting(settings, "TaxRate", 5m);
             var salaryTotal = GetDecimalSetting(settings, "SalaryTotal", 0m);
             var socialTaxRate = GetDecimalSetting(settings, "SocialTaxRate", 34m);
             var warehouseRent = GetDecimalSetting(settings, "WarehouseRent", 0m);
@@ -482,7 +457,7 @@ namespace StationeryShop.Controllers
             var utilities = GetDecimalSetting(settings, "Utilities", 0m);
             var officeExpenses = GetDecimalSetting(settings, "OfficeExpenses", 0m);
 
-            // ==================== ПОСТОЯННЫЕ РАСХОДЫ С УЧЁТОМ ПЕРИОДА ====================
+            
             var salaryTotalPeriod = salaryTotal * monthlyFactor;
             var socialTaxPeriod = salaryTotalPeriod * (socialTaxRate / 100);
             var warehouseRentPeriod = warehouseRent * monthlyFactor;
@@ -495,44 +470,31 @@ namespace StationeryShop.Controllers
             var utilitiesPeriod = utilities * monthlyFactor;
             var officeExpensesPeriod = officeExpenses * monthlyFactor;
 
-            // ==================== ДОХОДЫ ====================
+            
             var totalRevenue = completedOrders.Sum(o => o.TotalAmount);
             var totalOrdersCount = completedOrders.Count;
             var totalItemsSold = completedOrders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity));
             var averageCheck = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0;
 
-            // ==================== СЕБЕСТОИМОСТЬ ====================
+            
             var costOfGoods = completedOrders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity * (oi.Product?.PurchaseCost ?? 0)));
             if (costOfGoods == 0 && totalRevenue > 0) costOfGoods = totalRevenue * 0.5m;
 
-            // ==================== ПЕРЕМЕННЫЕ РАСХОДЫ ====================
+            
             var packagingCost = totalOrdersCount * packagingPerOrder;
 
-            // ==================== СУММИРУЕМ ВСЕ РАСХОДЫ ====================
-            var totalExpenses = costOfGoods + logisticsToWarehousePeriod + warehouseRentPeriod +
-                                pickupPointRentPeriod + logisticsToPickupPeriod + salaryTotalPeriod +
-                                socialTaxPeriod + advertisingPeriod + packagingCost + bankServicePeriod +
-                                hostingPeriod + utilitiesPeriod + officeExpensesPeriod + expenses.Sum(e => e.Amount);
+            
+            var totalExpenses = costOfGoods + logisticsToWarehousePeriod + warehouseRentPeriod + pickupPointRentPeriod +
+                                logisticsToPickupPeriod + salaryTotalPeriod + socialTaxPeriod + advertisingPeriod +
+                                packagingCost + bankServicePeriod + hostingPeriod + utilitiesPeriod + officeExpensesPeriod +
+                                expenses.Sum(e => e.Amount);
 
-            // ==================== НАЛОГИ И ПРИБЫЛЬ ====================
+            
             var taxAmount = totalRevenue * (taxRate / 100);
             var netProfit = totalRevenue - totalExpenses - taxAmount;
             var profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
 
-            // ==================== ДЛЯ КРУГОВОЙ ДИАГРАММЫ ====================
             
-            var chartData = new
-            {
-                costOfGoods = costOfGoods,           // Себестоимость
-                fixedExpenses = logisticsToWarehousePeriod + warehouseRentPeriod + pickupPointRentPeriod +
-                                logisticsToPickupPeriod + salaryTotalPeriod + socialTaxPeriod +
-                                advertisingPeriod + packagingCost + bankServicePeriod + hostingPeriod +
-                                utilitiesPeriod + officeExpensesPeriod,  // Постоянные расходы
-                taxes = taxAmount,                    // Налоги
-                profit = netProfit > 0 ? netProfit : 0  // Прибыль (только положительная)
-            };
-
-            // ==================== СОХРАНЯЕМ ВСЕ ДАННЫЕ В ViewBag ====================
             ViewBag.TotalRevenue = totalRevenue;
             ViewBag.TotalExpenses = totalExpenses;
             ViewBag.TaxAmount = taxAmount;
@@ -546,9 +508,9 @@ namespace StationeryShop.Controllers
             ViewBag.TaxRate = taxRate;
             ViewBag.Orders = completedOrders;
             ViewBag.Expenses = expenses;
-            ViewBag.ChartData = chartData;
+            ViewBag.MonthlyFactor = monthlyFactor;
 
-            // Постоянные расходы (для отображения)
+            
             ViewBag.SalaryTotal = salaryTotalPeriod;
             ViewBag.SocialTax = socialTaxPeriod;
             ViewBag.WarehouseRent = warehouseRentPeriod;
@@ -556,13 +518,13 @@ namespace StationeryShop.Controllers
             ViewBag.LogisticsToWarehouse = logisticsToWarehousePeriod;
             ViewBag.LogisticsToPickup = logisticsToPickupPeriod;
             ViewBag.Advertising = advertisingPeriod;
-            ViewBag.PackagingPerOrder = packagingPerOrder;
             ViewBag.BankService = bankServicePeriod;
             ViewBag.Hosting = hostingPeriod;
             ViewBag.Utilities = utilitiesPeriod;
             ViewBag.OfficeExpenses = officeExpensesPeriod;
+            ViewBag.PackagingPerOrder = packagingPerOrder;
 
-            // Месячные значения (для редактирования)
+            
             ViewBag.SalaryTotalMonthly = salaryTotal;
             ViewBag.WarehouseRentMonthly = warehouseRent;
             ViewBag.PickupPointRentMonthly = pickupPointRent;
@@ -574,8 +536,79 @@ namespace StationeryShop.Controllers
             ViewBag.UtilitiesMonthly = utilities;
             ViewBag.OfficeExpensesMonthly = officeExpenses;
 
-
             return View();
+        }
+
+        // POST: Admin/UpdateExpensesSettings
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateExpensesSettings([FromForm] Dictionary<string, string> formData)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            try
+            {
+                var settingsKeys = new[]
+                {
+            "SalaryTotal", "WarehouseRent", "PickupPointRent",
+            "LogisticsToWarehouse", "LogisticsToPickup", "Advertising",
+            "BankService", "Hosting", "Utilities", "OfficeExpenses"
+        };
+
+                foreach (var key in settingsKeys)
+                {
+                    if (formData.ContainsKey(key))
+                    {
+                        var value = formData[key];
+                        var existing = await _context.FinancialSettings.FirstOrDefaultAsync(s => s.SettingKey == key);
+
+                        if (existing != null)
+                        {
+                            existing.SettingValue = value;
+                            _context.FinancialSettings.Update(existing);
+                        }
+                        else
+                        {
+                            _context.FinancialSettings.Add(new FinancialSetting
+                            {
+                                SettingKey = key,
+                                SettingValue = value,
+                                Description = GetDescriptionForSetting(key)
+                            });
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Настройки сохранены" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // Вспомогательный метод для получения описания настройки
+        private string GetDescriptionForSetting(string key)
+        {
+            return key switch
+            {
+                "TaxRate" => "Ставка налога УСН (в %)",
+                "AcquiringRate" => "Комиссия эквайринга (в %)",
+                "SalaryTotal" => "Общая зарплата всех сотрудников (BYN/мес)",
+                "SocialTaxRate" => "Ставка отчислений ФСЗН (в %)",
+                "WarehouseRent" => "Аренда склада (BYN/мес)",
+                "PickupPointRent" => "Аренда пункта выдачи (BYN/мес)",
+                "LogisticsToWarehouse" => "Логистика от поставщика до склада (BYN/мес)",
+                "LogisticsToPickup" => "Логистика со склада на ПВЗ (BYN/мес)",
+                "Advertising" => "Расходы на рекламу (BYN/мес)",
+                "PackagingPerOrder" => "Стоимость упаковки на 1 заказ (BYN)",
+                "BankService" => "Банковское обслуживание (BYN/мес)",
+                "Hosting" => "Хостинг и домен (BYN/мес)",
+                "Utilities" => "Коммунальные услуги (BYN/мес)",
+                "OfficeExpenses" => "Канцтовары и прочее (BYN/мес)",
+                _ => ""
+            };
         }
 
         [HttpGet]
@@ -622,6 +655,52 @@ namespace StationeryShop.Controllers
                 breakEven = Math.Round(breakEvenPrice, 2),
                 profitPerUnit = Math.Round(recommendedPrice - purchaseCost, 2)
             });
+        }
+
+        // POST: Admin/AddExpense
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddExpense(Expense expense)
+        {
+            if (!IsAdmin()) return RedirectToHome();
+
+            // Валидация
+            if (expense.Amount <= 0)
+            {
+                TempData["Error"] = "Сумма расхода должна быть больше 0";
+                return RedirectToAction("Finance");
+            }
+
+            if (string.IsNullOrEmpty(expense.Category))
+            {
+                TempData["Error"] = "Укажите категорию расхода";
+                return RedirectToAction("Finance");
+            }
+
+            if (string.IsNullOrEmpty(expense.Description))
+            {
+                TempData["Error"] = "Укажите описание расхода";
+                return RedirectToAction("Finance");
+            }
+
+            // Устанавливаем дату, если не указана
+            if (expense.ExpenseDate == default)
+            {
+                expense.ExpenseDate = DateTime.Now;
+            }
+
+            try
+            {
+                _context.Expenses.Add(expense);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Расход успешно добавлен!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при добавлении расхода: {ex.Message}";
+            }
+
+            return RedirectToAction("Finance");
         }
     }
 

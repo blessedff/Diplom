@@ -113,8 +113,6 @@ namespace StationeryShop.Services
             SaveCartToSession(new List<CartItem>());
         }
 
-        // Новый метод для переноса корзины при авторизации
-        // Новый метод для переноса корзины при авторизации
         public void TransferCart(string fromSessionId, int toCustomerId)
         {
             try

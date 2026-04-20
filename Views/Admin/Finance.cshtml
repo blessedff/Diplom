@@ -313,7 +313,7 @@
                 </div>
                 <div class="col-md-9">
                     <div class="profit-bar-container">
-                        <div class="profit-bar @(profitMargin >= 0 ? "bg-success" : "bg-danger")" style="width: @Math.Min(Math.Abs(profitMargin), 100)%">
+                        <div class="profit-bar @(profitMargin >= 0 ? "bg-success" : "bg-danger")" style="width: @Math.Round(Math.Min(Math.Abs(profitMargin), 100),0)%">
                             @profitMargin.ToString("0.00")%
                         </div>
                     </div>

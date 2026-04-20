@@ -233,7 +233,10 @@
            asp-controller="Admin" asp-action="Orders">
             <i class="bi bi-bag-check"></i> Заказы
         </a>
-
+        <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Reviews" ? "active" : "")"
+           asp-controller="Admin" asp-action="Reviews">
+            <i class="bi bi-chat-dots"></i> <span>Отзывы</span>
+        </a>
 
 
         <div class="sidebar-divider">АНАЛИТИКА</div>
@@ -252,6 +255,8 @@
            asp-controller="Admin" asp-action="LoginAttempts">
             <i class="bi bi-shield-lock"></i> Логи входов
         </a>
+
+
 
       
     </div>

@@ -181,5 +181,19 @@ namespace StationeryShop.Controllers
 
             return RedirectToAction("Products", "Admin");
         }
+
+        // GET: Products/GetProductRating
+        [HttpGet]
+        public IActionResult GetProductRating(int productId)
+        {
+            var reviews = _context.Reviews
+                .Where(r => r.ProductId == productId && r.IsApproved == true)
+                .ToList();
+
+            var averageRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+            var totalReviews = reviews.Count;
+
+            return Json(new { averageRating = Math.Round(averageRating, 1), totalReviews = totalReviews });
+        }
     }
 }

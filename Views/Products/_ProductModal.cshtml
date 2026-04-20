@@ -169,6 +169,17 @@
     <div class="col-md-6">
         <h4 class="product-modal-title">@Model.Name</h4>
 
+        <div class="mb-3 d-flex align-items-center" id="modal-rating-container">
+            <div class="rating-stars-modal me-2">
+                <i class="bi bi-star-fill text-warning"></i>
+                <i class="bi bi-star-fill text-warning"></i>
+                <i class="bi bi-star-fill text-warning"></i>
+                <i class="bi bi-star-fill text-warning"></i>
+                <i class="bi bi-star text-warning"></i>
+            </div>
+            <span id="modal-rating-text" class="text-muted small">Загрузка...</span>
+        </div>
+
         <div class="mb-3 d-flex flex-wrap gap-2">
             <span class="category-badge text-white">
                 <i class="bi bi-tag me-1"></i> @Model.Category?.Name
@@ -283,3 +294,42 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+        const productId = @Model.ProductID;
+
+        $.ajax({
+            url: '/Products/GetProductRating',
+            type: 'GET',
+            data: { productId: productId },
+            success: function(data) {
+                if (data.averageRating > 0) {
+                    updateModalStars(data.averageRating);
+                    $('#modal-rating-text').text(`${data.averageRating} (${data.totalReviews} отзывов)`);
+                } else {
+                    $('#modal-rating-text').text('(нет отзывов)');
+                }
+            },
+            error: function() {
+                $('#modal-rating-text').text('(нет отзывов)');
+            }
+        });
+
+        function updateModalStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = (rating - fullStars) >= 0.5;
+            const $container = $('.rating-stars-modal');
+            $container.empty();
+
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    $container.append('<i class="bi bi-star-fill text-warning"></i>');
+                } else if (i === fullStars + 1 && hasHalfStar) {
+                    $container.append('<i class="bi bi-star-half text-warning"></i>');
+                } else {
+                    $container.append('<i class="bi bi-star text-warning"></i>');
+                }
+            }
+        }
+    });
+</script>

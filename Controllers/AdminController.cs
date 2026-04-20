@@ -138,16 +138,136 @@ namespace StationeryShop.Controllers
         }
 
         // Управление клиентами
-        public IActionResult Customers()
+        //public IActionResult Customers()
+        //{
+        //    if (!IsAdmin())
+        //        return RedirectToHome();
+
+        //    var customers = _context.Customers
+        //        .Include(c => c.Orders)
+        //        .ToList();
+
+        //    return View(customers);
+        //}
+
+        // GET: Admin/Reviews
+        public async Task<IActionResult> Reviews(string status = "all", string type = "all", string search = "")
         {
-            if (!IsAdmin())
-                return RedirectToHome();
+            if (!IsAdmin()) return RedirectToHome();
 
-            var customers = _context.Customers
-                .Include(c => c.Orders)
-                .ToList();
+            var query = _context.Reviews
+                .Include(r => r.Customer)
+                .Include(r => r.Product)
+                .AsQueryable();
 
-            return View(customers);
+            // Фильтр по статусу
+            switch (status)
+            {
+                case "pending":
+                    query = query.Where(r => r.IsApproved == false && r.IsRejected == false);
+                    break;
+                case "approved":
+                    query = query.Where(r => r.IsApproved == true);
+                    break;
+                case "rejected":
+                    query = query.Where(r => r.IsRejected == true);
+                    break;
+            }
+
+            // Фильтр по типу
+            if (type == "product")
+                query = query.Where(r => r.ProductId != null);
+            else if (type == "shop")
+                query = query.Where(r => r.ProductId == null);
+
+            // Поиск по email
+            if (!string.IsNullOrEmpty(search))
+                query = query.Where(r => r.Customer != null && r.Customer.Email.Contains(search));
+
+            var reviews = await query
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+
+            // Статистика для карточек
+            ViewBag.PendingCount = await _context.Reviews.CountAsync(r => r.IsApproved == false && r.IsRejected == false);
+            ViewBag.ApprovedCount = await _context.Reviews.CountAsync(r => r.IsApproved == true);
+            ViewBag.RejectedCount = await _context.Reviews.CountAsync(r => r.IsRejected == true);
+            ViewBag.CurrentStatus = status;
+            ViewBag.CurrentType = type;
+            ViewBag.Search = search;
+
+            return View(reviews);
+        }
+
+        // POST: Admin/ApproveReview
+        [HttpPost]
+        public async Task<IActionResult> ApproveReview(int id)
+        {
+            if (!IsAdmin()) return RedirectToHome();
+
+            var review = await _context.Reviews.FindAsync(id);
+            if (review != null)
+            {
+                review.IsApproved = true;
+                review.IsRejected = false;
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Отзыв одобрен!";
+            }
+
+            return RedirectToAction("Reviews");
+        }
+
+        // POST: Admin/RejectReview
+        [HttpPost]
+        public async Task<IActionResult> RejectReview(int id)
+        {
+            if (!IsAdmin()) return RedirectToHome();
+
+            var review = await _context.Reviews.FindAsync(id);
+            if (review != null)
+            {
+                review.IsApproved = false;
+                review.IsRejected = true;
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Отзыв отклонён!";
+            }
+
+            return RedirectToAction("Reviews");
+        }
+
+        // POST: Admin/DeleteReview
+        [HttpPost]
+        public async Task<IActionResult> DeleteReview(int id)
+        {
+            if (!IsAdmin()) return RedirectToHome();
+
+            var review = await _context.Reviews.FindAsync(id);
+            if (review != null)
+            {
+                _context.Reviews.Remove(review);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Отзыв удалён!";
+            }
+
+            return RedirectToAction("Reviews");
+        }
+
+        // POST: Admin/ReplyToReview
+        [HttpPost]
+        public async Task<IActionResult> ReplyToReview(int id, string reply)
+        {
+            if (!IsAdmin()) return RedirectToHome();
+
+            var review = await _context.Reviews.FindAsync(id);
+            if (review != null)
+            {
+                review.AdminResponse = reply;
+                review.AdminResponseDate = DateTime.Now;
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Ответ сохранён!";
+            }
+
+            return RedirectToAction("Reviews");
         }
 
         // Быстрое обновление количества товара

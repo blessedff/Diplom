@@ -111,22 +111,20 @@ using (var scope = app.Services.CreateScope())
 ";
     //Таблица Reviews
     string createReviewsTable = @"
-    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Reviews')
-    BEGIN
-        CREATE TABLE [Reviews] (
-            [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-            [ProductId] INT NULL,
-            [CustomerId] INT NOT NULL,
-            [Rating] INT NOT NULL,
-            [Comment] NVARCHAR(1000) NOT NULL,
-            [IsApproved] BIT NOT NULL DEFAULT 0,
-            [CreatedAt] DATETIME2 NOT NULL,
-            [AdminResponse] NVARCHAR(1000) NULL,
-            [AdminResponseDate] DATETIME2 NULL,
-            CONSTRAINT FK_Reviews_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductID),
-            CONSTRAINT FK_Reviews_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerID)
-        );
-    END
+    CREATE TABLE [Reviews] (
+        [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+        [ProductId] INT NULL,
+        [CustomerId] INT NOT NULL,
+        [Rating] INT NOT NULL,
+        [Comment] NVARCHAR(1000) NOT NULL,
+        [IsApproved] BIT NOT NULL DEFAULT 0,
+        [IsRejected] BIT NOT NULL DEFAULT 0,
+        [CreatedAt] DATETIME2 NOT NULL,
+        [AdminResponse] NVARCHAR(1000) NULL,
+        [AdminResponseDate] DATETIME2 NULL,
+        CONSTRAINT FK_Reviews_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductID),
+        CONSTRAINT FK_Reviews_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerID)
+    );
 ";
 
 

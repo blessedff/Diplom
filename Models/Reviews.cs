@@ -12,7 +12,7 @@ namespace StationeryShop.Models
         public int Id { get; set; }
 
         [ForeignKey("Product")]
-        public int? ProductId { get; set; }  
+        public int? ProductId { get; set; }
         public virtual Product? Product { get; set; }
 
         [ForeignKey("Customer")]
@@ -28,6 +28,7 @@ namespace StationeryShop.Models
         public string Comment { get; set; } = string.Empty;
 
         public bool IsApproved { get; set; } = false;
+        public bool IsRejected { get; set; } = false;  
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

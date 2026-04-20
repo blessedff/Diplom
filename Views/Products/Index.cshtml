@@ -270,9 +270,9 @@
             <a asp-controller="Account" asp-action="Login" class="text-white fw-bold text-decoration-underline">
                 <i class="bi bi-box-arrow-in-right"></i> Войти
             </a>
-            eller 
+            или 
             <a asp-controller="Account" asp-action="Register" class="text-white fw-bold text-decoration-underline">
-                <i class="bi bi-person-plus"></i> Registrera dig
+                <i class="bi bi-person-plus"></i> Зарегистрироваться
             </a>
         </small>
     </div>
@@ -421,7 +421,6 @@
                 const $btn = $(this);
                 const productId = $btn.data('product-id');
                 
-                // Блокируем кнопку и меняем текст
                 const originalHtml = $btn.html();
                 $btn.html('<i class="bi bi-hourglass-split"></i> Добавление...').prop('disabled', true);
                 
@@ -514,6 +513,8 @@
                 currentProducts = products;
                 renderCards(products);
                 if (isAdmin) renderTable(products);
+                // Загружаем рейтинги после отрисовки карточек
+                loadProductRatings();
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
                 $('#cardsContainer').html('<div class="col-12 text-center py-5 text-danger">Ошибка загрузки товаров</div>');
@@ -557,6 +558,19 @@
                                 <h5 class="card-title" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productModal" data-product-id="${product.productID}">
                                     ${escapeHtml(product.name)}
                                 </h5>
+                                
+                                <!-- РЕЙТИНГ ПОД НАЗВАНИЕМ ТОВАРА -->
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="rating-stars" data-product-id="${product.productID}" style="cursor: pointer;">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star text-warning"></i>
+                                    </div>
+                                    <span class="rating-value ms-1 small text-muted" id="rating-${product.productID}">(нет отзывов)</span>
+                                </div>
+                                
                                 <p class="card-text text-muted small flex-grow-1" style="font-size: 0.8rem;">
                                     ${escapeHtml(product.description?.substring(0, 80) || 'Без описания')}${product.description?.length > 80 ? '...' : ''}
                                 </p>
@@ -601,6 +615,49 @@
             bindAddToCartEvents();
         }
         
+        // Загрузка рейтингов для всех товаров
+        function loadProductRatings() {
+            $('.rating-stars').each(function() {
+                const $container = $(this);
+                const productId = $container.data('product-id');
+                
+                $.ajax({
+                    url: '/Products/GetProductRating',
+                    type: 'GET',
+                    data: { productId: productId },
+                    success: function(data) {
+                        if (data && data.averageRating > 0) {
+                            updateStarsDisplay($container, data.averageRating);
+                            $(`#rating-${productId}`).text(`(${data.totalReviews})`);
+                        } else {
+                            $(`#rating-${productId}`).text('(0)');
+                        }
+                    },
+                    error: function() {
+                        $(`#rating-${productId}`).text('(0)');
+                    }
+                });
+            });
+        }
+        
+        // Обновление отображения звёзд
+        function updateStarsDisplay($container, rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = (rating - fullStars) >= 0.5;
+            
+            $container.empty();
+            
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    $container.append('<i class="bi bi-star-fill text-warning"></i>');
+                } else if (i === fullStars + 1 && hasHalfStar) {
+                    $container.append('<i class="bi bi-star-half text-warning"></i>');
+                } else {
+                    $container.append('<i class="bi bi-star text-warning"></i>');
+                }
+            }
+        }
+        
         function renderTable(products) {
             if (!products.length) {
                 $('#tableBody').html('<tr><td colspan="6" class="text-center text-muted py-5">Товары не найдены<\/td><\/tr>');
@@ -620,10 +677,10 @@
                                  </div>`
                             }
                         </td>
-                        <td class="fw-bold">${escapeHtml(product.name)}</td>
-                        <td><span class="badge bg-primary rounded-pill">${escapeHtml(product.categoryName) || 'Без категории'}</span></td>
-                        <td class="text-primary fw-bold">${product.price.toFixed(2)} BYN</td>
-                        <td><span class="stock-badge ${stockClass}">${product.stockQuantity} шт</span></td>
+                        <td class="fw-bold">${escapeHtml(product.name)}</td
+                        <td><span class="badge bg-primary rounded-pill">${escapeHtml(product.categoryName) || 'Без категории'}</span></td
+                        <td class="text-primary fw-bold">${product.price.toFixed(2)} BYN</td
+                        <td><span class="stock-badge ${stockClass}">${product.stockQuantity} шт</span></td
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#productModal" data-product-id="${product.productID}" title="Детали">
@@ -636,8 +693,8 @@
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
-                        </td>
-                    </tr>
+                         </td
+                     </tr>
                 `;
             }
             $('#tableBody').html(html);

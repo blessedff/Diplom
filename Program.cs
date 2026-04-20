@@ -109,6 +109,25 @@ using (var scope = app.Services.CreateScope())
         );
     END
 ";
+    //Таблица Reviews
+    string createReviewsTable = @"
+    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Reviews')
+    BEGIN
+        CREATE TABLE [Reviews] (
+            [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+            [ProductId] INT NULL,
+            [CustomerId] INT NOT NULL,
+            [Rating] INT NOT NULL,
+            [Comment] NVARCHAR(1000) NOT NULL,
+            [IsApproved] BIT NOT NULL DEFAULT 0,
+            [CreatedAt] DATETIME2 NOT NULL,
+            [AdminResponse] NVARCHAR(1000) NULL,
+            [AdminResponseDate] DATETIME2 NULL,
+            CONSTRAINT FK_Reviews_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductID),
+            CONSTRAINT FK_Reviews_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerID)
+        );
+    END
+";
 
 
     //Добавление начальных настроек
@@ -189,8 +208,12 @@ using (var scope = app.Services.CreateScope())
         await context.Database.ExecuteSqlRawAsync(createCartTable);
         Console.WriteLine("Таблица CartTable создана или уже существует");
 
+        await context.Database.ExecuteSqlRawAsync(createReviewsTable);
+        Console.WriteLine("Таблица Reviews создана или уже существует");
+
         await context.Database.ExecuteSqlRawAsync(insertSettings);
         Console.WriteLine("Начальные настройки добавлены");
+
     }
     catch (Exception ex)
     {

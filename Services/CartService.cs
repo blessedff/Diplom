@@ -1,149 +1,179 @@
-﻿using System.Text.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using StationeryShop.Data;
 using StationeryShop.Models;
+using System.Text.Json;
 
 namespace StationeryShop.Services
 {
     public class CartService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly StationeryDbContext _context;
 
-        public CartService(IHttpContextAccessor httpContextAccessor)
+        public CartService(IHttpContextAccessor httpContextAccessor, StationeryDbContext context)
         {
             _httpContextAccessor = httpContextAccessor;
+            _context = context;
         }
 
-        private string GetUserId()
+        private bool IsAuthenticated()
         {
-            var customerId = _httpContextAccessor.HttpContext.Session.GetInt32("CustomerID");
-            return customerId?.ToString() ?? _httpContextAccessor.HttpContext.Session.Id;
+            return _httpContextAccessor.HttpContext?.Session.GetInt32("CustomerID") != null;
         }
 
-        private List<CartItem> GetCartFromSession()
+        private int GetCustomerId()
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            var cartJson = session.GetString($"Cart_{GetUserId()}");
+            return _httpContextAccessor.HttpContext?.Session.GetInt32("CustomerID") ?? 0;
+        }
 
-            if (string.IsNullOrEmpty(cartJson))
+        // ==================== ОСНОВНЫЕ МЕТОДЫ ====================
+
+        // Получить все товары в корзине
+        public List<CartItem> GetCartItems()
+        {
+            if (!IsAuthenticated())
                 return new List<CartItem>();
 
-            return JsonSerializer.Deserialize<List<CartItem>>(cartJson) ?? new List<CartItem>();
+            var customerId = GetCustomerId();
+
+            var cartItems = _context.CartItems
+                .Include(c => c.Product)
+                .Where(c => c.CustomerID == customerId)
+                .ToList();
+
+            return cartItems.Select(c => new CartItem
+            {
+                CartItemId = c.Id,
+                ProductId = c.ProductID,
+                ProductName = c.Product?.Name ?? "Товар",
+                Price = c.Product?.Price ?? 0,
+                Quantity = c.Quantity,
+                SessionId = customerId.ToString()
+            }).ToList();
         }
 
-        private void SaveCartToSession(List<CartItem> cart)
-        {
-            var session = _httpContextAccessor.HttpContext.Session;
-            var cartJson = JsonSerializer.Serialize(cart);
-            session.SetString($"Cart_{GetUserId()}", cartJson);
-        }
-
+        // Добавить товар в корзину
         public void AddToCart(Product product, int quantity = 1)
         {
-            var cart = GetCartFromSession();
-            var existingItem = cart.FirstOrDefault(item => item.ProductId == product.ProductID);
+            if (!IsAuthenticated())
+                return;
+
+            var customerId = GetCustomerId();
+
+            var existingItem = _context.CartItems
+                .FirstOrDefault(c => c.CustomerID == customerId && c.ProductID == product.ProductID);
 
             if (existingItem != null)
             {
                 existingItem.Quantity += quantity;
+                _context.CartItems.Update(existingItem);
             }
             else
             {
-                cart.Add(new CartItem
+                _context.CartItems.Add(new CartTable
                 {
-                    ProductId = product.ProductID,
-                    ProductName = product.Name,
-                    Price = product.Price,
+                    CustomerID = customerId,
+                    ProductID = product.ProductID,
                     Quantity = quantity,
-                    SessionId = GetUserId()
+                    AddedDate = DateTime.Now
                 });
             }
 
-            SaveCartToSession(cart);
+            _context.SaveChanges();
         }
 
-        public void RemoveFromCart(int productId)
-        {
-            var cart = GetCartFromSession();
-            var itemToRemove = cart.FirstOrDefault(item => item.ProductId == productId);
-
-            if (itemToRemove != null)
-            {
-                cart.Remove(itemToRemove);
-                SaveCartToSession(cart);
-            }
-        }
-
+        // Обновить количество товара
         public void UpdateQuantity(int productId, int quantity)
         {
-            var cart = GetCartFromSession();
-            var item = cart.FirstOrDefault(item => item.ProductId == productId);
+            if (!IsAuthenticated())
+                return;
+
+            var customerId = GetCustomerId();
+
+            var item = _context.CartItems
+                .FirstOrDefault(c => c.CustomerID == customerId && c.ProductID == productId);
 
             if (item != null)
             {
                 if (quantity <= 0)
                 {
-                    cart.Remove(item);
+                    _context.CartItems.Remove(item);
                 }
                 else
                 {
                     item.Quantity = quantity;
+                    _context.CartItems.Update(item);
                 }
-                SaveCartToSession(cart);
+                _context.SaveChanges();
             }
         }
 
-        public List<CartItem> GetCartItems()
+        // Удалить товар из корзины
+        public void RemoveFromCart(int productId)
         {
-            return GetCartFromSession();
+            if (!IsAuthenticated())
+                return;
+
+            var customerId = GetCustomerId();
+
+            var item = _context.CartItems
+                .FirstOrDefault(c => c.CustomerID == customerId && c.ProductID == productId);
+
+            if (item != null)
+            {
+                _context.CartItems.Remove(item);
+                _context.SaveChanges();
+            }
         }
 
-        public decimal GetTotalPrice()
-        {
-            var cart = GetCartFromSession();
-            return cart.Sum(item => item.TotalPrice);
-        }
-
-        public int GetTotalItemsCount()
-        {
-            var cart = GetCartFromSession();
-            return cart.Sum(item => item.Quantity);
-        }
-
+        // Очистить всю корзину
         public void ClearCart()
         {
-            SaveCartToSession(new List<CartItem>());
+            if (!IsAuthenticated())
+                return;
+
+            var customerId = GetCustomerId();
+
+            var items = _context.CartItems
+                .Where(c => c.CustomerID == customerId)
+                .ToList();
+
+            if (items.Any())
+            {
+                _context.CartItems.RemoveRange(items);
+                _context.SaveChanges();
+            }
         }
 
-        public void TransferCart(string fromSessionId, int toCustomerId)
+        // Получить общую сумму корзины
+        public decimal GetTotalPrice()
         {
-            try
-            {
-                var session = _httpContextAccessor.HttpContext.Session;
-                var oldCartJson = session.GetString($"Cart_{fromSessionId}");
+            if (!IsAuthenticated())
+                return 0;
 
-                if (!string.IsNullOrEmpty(oldCartJson))
-                {
-                    var oldCart = JsonSerializer.Deserialize<List<CartItem>>(oldCartJson) ?? new List<CartItem>();
-                    if (oldCart.Any())
-                    {
-                        // Обновляем SessionId для всех элементов
-                        foreach (var item in oldCart)
-                        {
-                            item.SessionId = toCustomerId.ToString();
-                        }
+            var customerId = GetCustomerId();
 
-                        var newCartJson = JsonSerializer.Serialize(oldCart);
-                        session.SetString($"Cart_{toCustomerId}", newCartJson);
+            var total = _context.CartItems
+                .Where(c => c.CustomerID == customerId)
+                .Include(c => c.Product)
+                .Sum(c => c.Quantity * (c.Product != null ? c.Product.Price : 0));
 
-                        // Очищаем старую корзину
-                        session.Remove($"Cart_{fromSessionId}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Логируем ошибку, но не прерываем выполнение
-                Console.WriteLine($"Ошибка при переносе корзины: {ex.Message}");
-            }
+            return total;
+        }
+
+        // Получить общее количество товаров в корзине
+        public int GetTotalItemsCount()
+        {
+            if (!IsAuthenticated())
+                return 0;
+
+            var customerId = GetCustomerId();
+
+            var count = _context.CartItems
+                .Where(c => c.CustomerID == customerId)
+                .Sum(c => c.Quantity);
+
+            return count;
         }
     }
 }

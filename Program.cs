@@ -94,6 +94,22 @@ using (var scope = app.Services.CreateScope())
             );
         END
     ";
+    //Таблица CartTable
+    string createCartTable = @"
+    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'CartItems')
+    BEGIN
+        CREATE TABLE [CartItems] (
+            [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+            [CustomerID] INT NOT NULL,
+            [ProductID] INT NOT NULL,
+            [Quantity] INT NOT NULL,
+            [AddedDate] DATETIME2 NOT NULL,
+            CONSTRAINT FK_CartItems_Customers FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE,
+            CONSTRAINT FK_CartItems_Products FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+        );
+    END
+";
+
 
     //Добавление начальных настроек
     string insertSettings = @"
@@ -169,6 +185,9 @@ using (var scope = app.Services.CreateScope())
 
         await context.Database.ExecuteSqlRawAsync(createSettingsTable);
         Console.WriteLine("Таблица FinancialSettings создана или уже существует");
+
+        await context.Database.ExecuteSqlRawAsync(createCartTable);
+        Console.WriteLine("Таблица CartTable создана или уже существует");
 
         await context.Database.ExecuteSqlRawAsync(insertSettings);
         Console.WriteLine("Начальные настройки добавлены");

@@ -17,6 +17,7 @@ namespace StationeryShop.Data
         public DbSet<LoginAttempt> LoginAttempts { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<FinancialSetting> FinancialSettings { get; set; }
+        public DbSet<CartTable> CartItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

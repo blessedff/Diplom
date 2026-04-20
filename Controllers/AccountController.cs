@@ -194,40 +194,25 @@ namespace StationeryShop.Controllers
 
             if (isValid)
             {
-                Console.WriteLine("УСПЕШНЫЙ ВХОД!");
-
-                // Успешный вход — очищаем старые попытки
+                // Успешный вход — очищаем старые попытки для этого email
                 var oldAttempts = _context.LoginAttempts
                     .Where(a => a.Email == email && !a.IsSuccessful);
                 _context.LoginAttempts.RemoveRange(oldAttempts);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
 
+                // Сохраняем старую сессию для переноса корзины
                 var oldSessionId = HttpContext.Session.Id;
-                Console.WriteLine($"Старая сессия: {oldSessionId}");
 
                 // Устанавливаем новую сессию
                 HttpContext.Session.SetInt32("CustomerID", customer.CustomerID);
                 HttpContext.Session.SetString("CustomerName", customer.FullName ?? "");
                 HttpContext.Session.SetString("IsAdmin", customer.IsAdmin ? "true" : "false");
 
-                Console.WriteLine($"Установлена сессия: CustomerID={customer.CustomerID}, Name={customer.FullName}");
-
-                // Переносим корзину
-                try
-                {
-                    _cartService.TransferCart(oldSessionId, customer.CustomerID);
-                    Console.WriteLine("Корзина перенесена");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Ошибка при переносе корзины");
-                    Console.WriteLine($"Ошибка переноса корзины: {ex.Message}");
-                }
+                // Корзина теперь в БД, привязана к CustomerID
+                // Ничего переносить не нужно — данные уже в таблице CartItems
 
                 _logger.LogInformation($"Успешный вход: {email}, IP: {GetClientIpAddress()}");
                 TempData["Success"] = $"Добро пожаловать, {customer.FullName}!";
-
-                Console.WriteLine("РЕДИРЕКТ на Home/Index");
                 return RedirectToAction("Index", "Home");
             }
             else

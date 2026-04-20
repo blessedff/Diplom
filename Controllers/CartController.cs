@@ -65,13 +65,14 @@ namespace StationeryShop.Controllers
             return RedirectToAction("Index", "Products");
         }
 
+        // POST: Cart/AddToCartAjax (без перезагрузки страницы)
         [HttpPost]
-        public async Task<IActionResult> AddToCartAjax(int productId, int quantity = 1)
+        public IActionResult AddToCartAjax(int productId, int quantity = 1)
         {
             if (!IsAuthenticated())
                 return Json(new { success = false, message = "Для добавления в корзину необходимо авторизоваться" });
 
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductID == productId);
+            var product = _context.Products.FirstOrDefault(p => p.ProductID == productId);
 
             if (product == null)
                 return Json(new { success = false, message = "Товар не найден" });
@@ -91,17 +92,8 @@ namespace StationeryShop.Controllers
             if (!IsAuthenticated())
                 return RedirectToLogin();
 
-            var product = _context.Products.FirstOrDefault(p => p.ProductID == productId);
-
-            if (product != null && quantity > 0 && quantity <= product.StockQuantity)
-            {
-                _cartService.UpdateQuantity(productId, quantity);
-                TempData["Success"] = "Количество обновлено!";
-            }
-            else
-            {
-                TempData["Error"] = "Некорректное количество товара";
-            }
+            _cartService.UpdateQuantity(productId, quantity);
+            TempData["Success"] = "Количество обновлено!";
 
             return RedirectToAction(nameof(Index));
         }
@@ -132,7 +124,7 @@ namespace StationeryShop.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Cart/GetCartSummary (для частичного представления)
+        // GET: Cart/GetCartSummary (для счётчика в шапке)
         public IActionResult GetCartSummary()
         {
             if (!IsAuthenticated())

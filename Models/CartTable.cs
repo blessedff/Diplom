@@ -20,7 +20,6 @@ namespace StationeryShop.Models
         public virtual Product? Product { get; set; }
 
         [Required]
-        [Range(1, 100)]
         public int Quantity { get; set; }
 
         public DateTime AddedDate { get; set; } = DateTime.Now;

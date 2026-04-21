@@ -298,12 +298,12 @@
         <div class="col-md-3">
             <label class="form-label fw-bold">📊 Сортировка</label>
             <select id="sortBy" class="form-select">
-                <option value="Name">Названию (А-Я)</option>
-                <option value="NameDesc">Названию (Я-А)</option>
-                <option value="Price">Цене (возр.)</option>
-                <option value="PriceDesc">Цене (убыв.)</option>
-                <option value="Stock">Остатку (возр.)</option>
-                <option value="StockDesc">Остатку (убыв.)</option>
+                <option value="Name">Название (А-Я)</option>
+                @* <option value="NameDesc">Названию (Я-А)</option> *@
+                <option value="Price">Сначала дешевле</option>
+                <option value="PriceDesc">Сначала дороже</option>
+                @* <option value="Stock">Остаток (сначала меньше)</option>
+                <option value="StockDesc">Остаток (убыв.)</option> *@
             </select>
         </div>
     </div>

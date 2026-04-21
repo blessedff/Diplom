@@ -1,6 +1,11 @@
 ﻿@{
     ViewData["Title"] = "Главная страница";
 }
+@model List<StationeryShop.Models.Review>
+
+<!-- Подключаем Swiper CSS и JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <style>
     /* Современные стили в стиле админ-панели */
@@ -43,6 +48,40 @@
             box-shadow: 0 10px 30px rgba(58, 123, 213, 0.4);
             color: white;
         }
+
+    /* Единый стиль заголовков секций */
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0;
+    }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 2px;
+        }
+
+    .section-subtitle {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+        margin-bottom: 0;
+    }
 
     /* Карточки преимуществ */
     .feature-card {
@@ -90,201 +129,236 @@
         line-height: 1.6;
     }
 
-    /* Секция категорий */
-    .section-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 2rem;
-        color: #1a1a2e;
-        position: relative;
-        display: inline-block;
-    }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
-            border-radius: 2px;
-        }
-
-    .category-card {
-        background: white;
-        border-radius: 20px;
-        padding: 30px 20px;
-        text-align: center;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 1px solid #e9ecef;
-    }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(44, 90, 160, 0.12);
-            border-color: #3a7bd5;
-        }
-
-    .category-icon {
-        font-size: 3rem;
-        margin-bottom: 15px;
-        display: inline-block;
-    }
-
-    .category-card h6 {
-        font-size: 1rem;
-        font-weight: 600;
-        margin: 0;
-        color: #2d3748;
-    }
-
-    /* CTA секция */
-    .cta-section {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border-radius: 30px;
-        position: relative;
-        overflow: hidden;
-    }
-
-        .cta-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(58, 123, 213, 0.1), rgba(0, 210, 255, 0.05));
-            z-index: 0;
-        }
-
-        .cta-section .container {
-            position: relative;
-            z-index: 1;
-        }
-
-    .btn-cta {
-        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
-        color: white;
-        padding: 12px 32px;
-        border-radius: 50px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-        .btn-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(58, 123, 213, 0.4);
-            color: white;
-        }
-
-    .btn-outline-cta {
-        background: transparent;
-        border: 2px solid white;
-        color: white;
-        padding: 12px 32px;
-        border-radius: 50px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-        .btn-outline-cta:hover {
-            background: white;
-            color: #1a1a2e;
-            transform: translateY(-3px);
-        }
-
-    /* Новинки */
-    .new-arrival-card {
-        background: white;
-        border-radius: 20px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        border: 1px solid #e9ecef;
-    }
-
-        .new-arrival-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(44, 90, 160, 0.12);
-        }
-
-    .new-arrival-img {
-        height: 180px;
-        background: linear-gradient(135deg, #e8f4fd, #d4eaf7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-        .new-arrival-img i {
-            font-size: 4rem;
-            color: #2c5aa0;
-        }
-
-    .new-arrival-card .card-body {
-        padding: 20px;
-    }
-
-    .price {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #2c5aa0;
-    }
-
-    /* Отзывы */
+    /* Отзывы - карусель */
     .review-card {
         background: white;
-        border-radius: 20px;
-        padding: 25px;
-        text-align: center;
-        border: 1px solid #e9ecef;
+        border-radius: 24px;
+        padding: 24px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid #f0f0f0;
     }
 
     .review-avatar {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 15px;
     }
 
         .review-avatar i {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: white;
         }
 
     .review-text {
         font-style: italic;
-        color: #6c757d;
-        margin-bottom: 15px;
+        color: #4a5568;
+        line-height: 1.5;
+        margin: 15px 0;
     }
 
-    .review-name {
-        font-weight: 600;
-        color: #1a1a2e;
+    .review-date {
+        font-size: 0.7rem;
+        color: #6c757d;
     }
 
     .stars {
-        color: #ffc107;
-        margin-bottom: 10px;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+    }
+
+    .admin-response {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 12px;
+        margin-top: 12px;
+        border-left: 3px solid #2c5aa0;
+    }
+
+        .admin-response small {
+            font-size: 0.75rem;
+        }
+
+    /* Карусель */
+    .reviews-carousel-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .reviews-carousel {
+        overflow: hidden;
+        flex: 1;
+        border-radius: 20px;
+    }
+
+    .carousel-track {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+        gap: 25px;
+    }
+
+    .carousel-slide {
+        flex: 0 0 calc(33.333% - 17px);
+        min-width: calc(33.333% - 17px);
+    }
+
+    .carousel-btn {
+        width: 45px;
+        height: 45px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+        .carousel-btn:hover {
+            background: #2c5aa0;
+            color: white;
+            border-color: #2c5aa0;
+            transform: scale(1.05);
+        }
+
+        .carousel-btn i {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+    /* Пункт выдачи */
+    .pickup-address, .pickup-hours {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 16px;
+    }
+
+        .pickup-address i, .pickup-hours i {
+            font-size: 1.5rem;
+            min-width: 35px;
+            margin-top: 3px;
+        }
+
+        .pickup-address strong, .pickup-hours strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+    .pickup-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+        .pickup-features span {
+            font-size: 0.8rem;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .pickup-features span i {
+                font-size: 0.75rem;
+                color: #28a745;
+            }
+
+    .pickup-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+        .pickup-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+    .pickup-map {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+    }
+
+    /* Адаптивность */
+    @@media (max-width: 1024px) {
+        .carousel-slide
+
+    {
+        flex: 0 0 calc(50% - 13px);
+        min-width: calc(50% - 13px);
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .carousel-slide
+
+    {
+        flex: 0 0 100%;
+        min-width: 100%;
+    }
+
+    .carousel-btn {
+        width: 35px;
+        height: 35px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .pickup-address, .pickup-hours {
+        padding: 10px;
+    }
+
+    .pickup-map iframe {
+        height: 220px;
+    }
+
     }
 
     /* Анимации */
     @@keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
+        from
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     }
 
     .animate {
@@ -305,7 +379,9 @@
 
 <!-- Преимущества -->
 <div class="container mb-5">
-    <h2 class="section-title text-center mb-5">Почему выбирают нас</h2>
+    <div class="section-header">
+        <h2 class="section-title">Почему выбирают нас</h2>
+    </div>
     <div class="row g-4">
         <div class="col-md-4">
             <div class="feature-card">
@@ -339,71 +415,201 @@
 
 <!-- Отзывы -->
 <div class="container mb-5">
-    <h2 class="section-title text-center mb-5">💬 Что говорят наши клиенты</h2>
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="review-card">
-                <div class="review-avatar mx-auto">
-                    <i class="bi bi-person"></i>
+    <div class="section-header">
+        <h2 class="section-title">Отзывы о нашем магазине</h2>
+        <p class="section-subtitle">Что говорят наши покупатели</p>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="reviews-carousel-container">
+            <button class="carousel-btn prev-btn" id="prevReviewBtn">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <div class="reviews-carousel" id="reviewsCarousel">
+                <div class="carousel-track" id="carouselTrack">
+                    @foreach (var review in Model)
+                    {
+                        <div class="carousel-slide">
+                            <div class="review-card">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="review-avatar">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">@(review.Customer?.FullName ?? "Покупатель")</h6>
+                                        <div class="stars">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= review.Rating)
+                                                {
+                                                    <i class="bi bi-star-fill text-warning"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-star text-muted"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="review-text">“@(review.Comment.Length > 200 ? review.Comment.Substring(0, 200) + "..." : review.Comment)”</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="review-date"><i class="bi bi-calendar3 me-1"></i> @review.CreatedAt.ToString("dd.MM.yyyy")</span>
+                                    @if (!string.IsNullOrEmpty(review.AdminResponse))
+                                    {
+                                        <span class="badge bg-info" title="Ответ администратора">
+                                            <i class="bi bi-chat-dots"></i> Ответ
+                                        </span>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(review.AdminResponse))
+                                {
+                                    <div class="admin-response">
+                                        <small class="text-primary fw-bold"><i class="bi bi-reply-fill me-1"></i> Администратор:</small>
+                                        <small class="text-muted d-block mt-1">@review.AdminResponse</small>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
                 </div>
-                <div class="stars">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
+            </div>
+
+            <button class="carousel-btn next-btn" id="nextReviewBtn">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="text-center mt-5">
+            <a asp-controller="Reviews" asp-action="Index" class="btn btn-outline-primary rounded-pill px-4">
+                Все отзывы <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+            <a asp-controller="Reviews" asp-action="Create" class="btn btn-primary rounded-pill px-4 ms-2">
+                <i class="bi bi-pencil-square me-1"></i> Оставить отзыв
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-chat-dots fs-1 text-muted"></i>
+            <h5 class="mt-3 text-muted">Пока нет отзывов</h5>
+            <p class="text-muted">Будьте первым, кто поделится впечатлениями о нашем магазине!</p>
+            <a asp-controller="Reviews" asp-action="Create" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-pencil-square me-1"></i> Оставить отзыв
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Пункт выдачи заказов -->
+<div class="container mb-5">
+    <div class="section-header">
+        <h2 class="section-title">Пункт выдачи заказов</h2>
+    </div>
+
+    <div class="row align-items-center g-4">
+        <div class="col-lg-5">
+            <div class="pickup-info">
+                <div class="pickup-address">
+                    <i class="bi bi-geo-alt-fill text-primary"></i>
+                    <div>
+                        <strong>Адрес:</strong><br>
+                        г. Гомель, ул. М.Г. Ефремова, 63А
+                    </div>
                 </div>
-                <p class="review-text">"Отличный магазин! Большой выбор, быстрая доставка. Рекомендую!"</p>
-                <p class="review-name">Анна Иванова</p>
+
+                <div class="pickup-hours">
+                    <i class="bi bi-clock-fill text-primary"></i>
+                    <div>
+                        <strong>Режим работы:</strong><br>
+                        Пн-Пт: 9:00 - 20:00<br>
+                        Сб-Вс: 10:00 - 18:00
+                    </div>
+                </div>
+
+                <div class="pickup-features">
+                    <span><i class="bi bi-check-circle-fill"></i> Осмотр товара</span>
+                    <span><i class="bi bi-check-circle-fill"></i> Оплата при получении</span>
+                    <span><i class="bi bi-check-circle-fill"></i> Хранение 7 дней</span>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="review-card">
-                <div class="review-avatar mx-auto">
-                    <i class="bi bi-person"></i>
-                </div>
-                <div class="stars">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                </div>
-                <p class="review-text">"Качество товаров отличное, цены приятные. Буду заказывать ещё!"</p>
-                <p class="review-name">Алексей Петров</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="review-card">
-                <div class="review-avatar mx-auto">
-                    <i class="bi bi-person"></i>
-                </div>
-                <div class="stars">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-half"></i>
-                </div>
-                <p class="review-text">"Удобный сайт, быстро оформил заказ. Доставили вовремя."</p>
-                <p class="review-name">Елена Сидорова</p>
+        <div class="col-lg-7">
+            <div class="pickup-map">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d751.7670135307951!2d30.96730473188399!3d52.461441773883855!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46d46962f846fbaf%3A0xfd18d621a8e621ce!2zRWZyZW1vdmEgNjMsINCT0L7QvNC10LvRjCwg0JPQvtC80LXQu9GM0YHQutCw0Y8g0L7QsdC70LDRgdGC0YwgMjQ2MDM1!5e1!3m2!1sru!2sby!4v1776771407458!5m2!1sru!2sby"
+                        width="100%"
+                        height="320"
+                        frameborder="0"
+                        style="border:0; border-radius: 20px;"
+                        allowfullscreen=""
+                        loading="lazy">
+                </iframe>
             </div>
         </div>
     </div>
 </div>
 
-<!-- CTA секция -->
-<div class="cta-section text-center py-5 mb-4">
-    <div class="container py-5">
-        <h2 class="display-5 fw-bold mb-3 text-white">Готовы к покупкам?</h2>
-        <p class="lead mb-4 text-white-50">Выберите товары в нашем каталоге и оформите заказ</p>
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a class="btn btn-cta btn-lg px-4" asp-controller="Products" asp-action="Index">
-                <i class="bi bi-box-seam me-2"></i>Каталог товаров
-            </a>
-            <a class="btn btn-outline-cta btn-lg px-4" asp-controller="Cart" asp-action="Index">
-                <i class="bi bi-cart3 me-2"></i>Корзина
-            </a>
-        </div>
-    </div>
-</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const track = document.getElementById('carouselTrack');
+        const prevBtn = document.getElementById('prevReviewBtn');
+        const nextBtn = document.getElementById('nextReviewBtn');
+
+        if (!track || !prevBtn || !nextBtn) return;
+
+        const slides = track.querySelectorAll('.carousel-slide');
+        const totalSlides = slides.length;
+        let currentIndex = 0;
+
+        function getSlidesPerView() {
+            if (window.innerWidth >= 1024) return 3;
+            if (window.innerWidth >= 768) return 2;
+            return 1;
+        }
+
+        function updateCarousel() {
+            const slideWidth = slides[0]?.offsetWidth + 25;
+            if (slideWidth) {
+                track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+            }
+
+            const slidesPerView = getSlidesPerView();
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex >= totalSlides - slidesPerView;
+
+            prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+            nextBtn.style.opacity = currentIndex >= totalSlides - slidesPerView ? '0.5' : '1';
+            prevBtn.style.cursor = currentIndex === 0 ? 'not-allowed' : 'pointer';
+            nextBtn.style.cursor = currentIndex >= totalSlides - slidesPerView ? 'not-allowed' : 'pointer';
+        }
+
+        prevBtn.addEventListener('click', function() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarousel();
+            }
+        });
+
+        nextBtn.addEventListener('click', function() {
+            const slidesPerView = getSlidesPerView();
+            if (currentIndex < totalSlides - slidesPerView) {
+                currentIndex++;
+                updateCarousel();
+            }
+        });
+
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                currentIndex = 0;
+                updateCarousel();
+            }, 200);
+        });
+
+        setTimeout(updateCarousel, 100);
+    });
+</script>

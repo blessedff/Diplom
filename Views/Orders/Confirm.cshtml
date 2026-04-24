@@ -7,179 +7,279 @@
 
 <style>
     .confirm-container {
+        max-width: 900px;
+        margin: 0 auto;
+        animation: fadeInUp 0.4s ease-out;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border-radius: 2px;
+    }
+
+    /* Единая карточка */
+    .order-card {
         background: white;
         border-radius: 24px;
-        padding: 40px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        overflow: hidden;
         border: 1px solid rgba(0,0,0,0.05);
     }
 
-    .success-icon {
-        width: 80px;
-        height: 80px;
+    /* Успешная иконка */
+    .success-header {
         background: linear-gradient(135deg, #28a745, #20c997);
+        padding: 25px;
+        text-align: center;
+    }
+
+    .success-icon {
+        width: 70px;
+        height: 70px;
+        background: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 20px;
+        margin: 0 auto 15px;
+        animation: bounceIn 0.6s ease-out;
     }
 
-        .success-icon i {
-            font-size: 3rem;
-            color: white;
-        }
+    .success-icon i {
+        font-size: 2.5rem;
+        color: #28a745;
+    }
 
     .order-title {
-        font-size: 1.8rem;
+        font-size: 1.3rem;
         font-weight: 700;
-        color: #28a745;
-        margin-bottom: 15px;
+        color: white;
+        margin-bottom: 5px;
     }
 
     .order-number {
-        font-size: 1.2rem;
-        color: #4a5568;
-        margin-bottom: 30px;
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.9);
     }
 
-        .order-number strong {
-            font-size: 1.4rem;
-            color: #2c5aa0;
-        }
-
-    .info-card {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        overflow: hidden;
-        margin-top: 20px;
+    .order-number strong {
+        font-size: 1rem;
+        color: white;
     }
 
-        .info-card .card-header {
-            background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
-            color: white;
-            padding: 15px 25px;
-            border: none;
-        }
-
-            .info-card .card-header h5 {
-                margin: 0;
-                font-weight: 600;
-            }
-
-        .info-card .card-body {
-            padding: 25px;
-        }
-
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
+    /* Информационная секция */
+    .info-section {
+        padding: 25px;
         border-bottom: 1px solid #e9ecef;
     }
 
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-    .info-label {
-        font-weight: 600;
-        color: #4a5568;
+    .info-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
     }
 
-    .info-value {
+    .info-item {
+        flex: 1;
+        min-width: 180px;
+    }
+
+    .info-item i {
+        font-size: 1.2rem;
+        color: #2c5aa0;
+        margin-right: 8px;
+    }
+
+    .info-item .label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .info-item .value {
+        font-size: 0.95rem;
+        font-weight: 500;
         color: #2d3748;
     }
 
     .status-badge {
-        background: linear-gradient(135deg, #17a2b8, #0dcaf0);
-        padding: 5px 15px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #cfe2ff;
+        padding: 4px 12px;
         border-radius: 30px;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: white;
+        color: #084298;
     }
 
     .total-amount {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
         font-weight: 700;
         color: #28a745;
     }
 
-    .items-table {
-        border-radius: 16px;
-        overflow: hidden;
-        margin-top: 15px;
+    /* Таблица товаров */
+    .items-section {
+        padding: 0 25px 25px 25px;
     }
 
-        .items-table thead th {
-            background: #f8f9fa;
-            font-weight: 600;
-            padding: 12px;
-            border-bottom: 2px solid #e9ecef;
-        }
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-        .items-table tbody td {
-            padding: 10px 12px;
-            vertical-align: middle;
-            border-bottom: 1px solid #e9ecef;
-        }
+    .items-table th {
+        text-align: left;
+        padding: 12px 8px;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #6c757d;
+    }
 
-        .items-table tfoot td {
-            background: #f8f9fa;
-            font-weight: 600;
-            padding: 12px;
-        }
+    .items-table th.text-end {
+        text-align: right;
+    }
+
+    .items-table th.text-center {
+        text-align: center;
+    }
+
+    .items-table td {
+        padding: 12px 8px;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+    }
+
+    .items-table td.text-end {
+        text-align: right;
+    }
+
+    .items-table td.text-center {
+        text-align: center;
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .product-quantity .badge {
+        background: #f0f2f5;
+        color: #4a5568;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .product-price {
+        color: #4a5568;
+    }
+
+    .product-total {
+        font-weight: 700;
+        color: #2c5aa0;
+    }
+
+    .total-row td {
+        border-top: 1px solid #e9ecef;
+        border-bottom: none;
+        padding-top: 15px;
+    }
+
+    .total-label {
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .total-value {
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: #28a745;
+    }
+
+    /* Кнопки */
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 20px 25px 25px 25px;
+        border-top: 1px solid #e9ecef;
+        flex-wrap: wrap;
+    }
 
     .btn-continue {
         background: #6c757d;
         border: none;
-        border-radius: 30px;
+        border-radius: 40px;
         padding: 10px 25px;
+        font-weight: 600;
         transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
     }
 
-        .btn-continue:hover {
-            transform: translateY(-2px);
-            background: #5a6268;
-        }
+    .btn-continue:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        color: white;
+    }
 
     .btn-orders {
         background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
         border: none;
-        border-radius: 30px;
+        border-radius: 40px;
         padding: 10px 25px;
+        font-weight: 600;
         transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
     }
 
-        .btn-orders:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
-        }
+    .btn-orders:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+        color: white;
+    }
 
+    /* Анимации */
     @@keyframes bounceIn {
         0% {
             opacity: 0;
             transform: scale(0.3);
         }
-
         50% {
             opacity: 1;
             transform: scale(1.05);
         }
-
-        70% {
-            transform: scale(0.9);
-        }
-
         100% {
             transform: scale(1);
         }
-    }
-
-    .success-icon {
-        animation: bounceIn 0.6s ease-out;
     }
 
     @@keyframes fadeInUp {
@@ -187,80 +287,98 @@
             opacity: 0;
             transform: translateY(30px);
         }
-
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
 
-    .confirm-container {
-        animation: fadeInUp 0.5s ease-out;
+    /* Адаптивность */
+    @@media (max-width: 768px) {
+        .info-grid {
+            flex-direction: column;
+            gap: 12px;
+        }
+        .info-item {
+            width: 100%;
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+        .action-buttons a {
+            width: 100%;
+            justify-content: center;
+        }
+        .items-table th, 
+        .items-table td {
+            padding: 8px 5px;
+            font-size: 0.8rem;
+        }
     }
 </style>
 
 <div class="confirm-container">
-    <!-- Иконка успеха -->
-    <div class="text-center">
-        <div class="success-icon">
-            <i class="bi bi-check-lg"></i>
+    <h2 class="page-title"><i class="bi bi-check2-circle me-2"></i> Подтверждение заказа</h2>
+
+    <!-- Единая карточка -->
+    <div class="order-card">
+        <!-- Шапка с успехом -->
+        <div class="success-header">
+            <div class="success-icon">
+                <i class="bi bi-check-lg"></i>
+            </div>
+            <div class="order-title">Заказ успешно оформлен!</div>
+            <div class="order-number">Номер заказа: <strong>#@Model.OrderID</strong></div>
         </div>
 
-        <h1 class="order-title">Заказ успешно оформлен!</h1>
-        <p class="order-number">
-            Номер вашего заказа: <strong>#@Model.OrderID</strong>
-        </p>
-    </div>
-
-    <!-- Информация о заказе -->
-    <div class="info-card">
-        <div class="card-header">
-            <h5 class="mb-0">
-                <i class="bi bi-info-circle me-2"></i> Информация о заказе
-            </h5>
-        </div>
-        <div class="card-body">
-            <div class="info-row">
-                <span class="info-label"><i class="bi bi-calendar3 me-2"></i> Дата заказа</span>
-                <span class="info-value">@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label"><i class="bi bi-geo-alt me-2"></i> Адрес доставки</span>
-                <span class="info-value">@Model.ShippingAddress</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label"><i class="bi bi-tag me-2"></i> Статус</span>
-                <span class="info-value">
-                    <span class="status-badge">
-                        <i class="bi bi-clock-history me-1"></i> @Model.Status
-                    </span>
-                </span>
-            </div>
-            <div class="info-row">
-                <span class="info-label"><i class="bi bi-currency-dollar me-2"></i> Общая сумма</span>
-                <span class="total-amount">@Model.TotalAmount.ToString("0.00") BYN</span>
-            </div>
-
-            @if (isAdmin && Model.Customer != null)
-            {
-                <div class="info-row">
-                    <span class="info-label"><i class="bi bi-person me-2"></i> Клиент</span>
-                    <span class="info-value">@Model.Customer.FullName</span>
+        <!-- Информация о заказе -->
+        <div class="info-section">
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="bi bi-calendar3"></i>
+                    <span class="label">Дата заказа</span>
+                    <div class="value">@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</div>
                 </div>
-            }
+                <div class="info-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span class="label">Пункт выдачи</span>
+                    <div class="value">@Model.ShippingAddress</div>
+                </div>
+                <div class="info-item">
+                    <i class="bi bi-tag"></i>
+                    <span class="label">Статус</span>
+                    <div class="value">
+                        <span class="status-badge">
+                            <i class="bi bi-clock-history"></i> @Model.Status
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="bi bi-currency-dollar"></i>
+                    <span class="label">Общая сумма</span>
+                    <div class="value total-amount">@Model.TotalAmount.ToString("0.00") BYN</div>
+                </div>
+                @if (isAdmin && Model.Customer != null)
+                {
+                    <div class="info-item">
+                        <i class="bi bi-person"></i>
+                        <span class="label">Клиент</span>
+                        <div class="value">@Model.Customer.FullName</div>
+                    </div>
+                    <div class="info-item">
+                        <i class="bi bi-envelope"></i>
+                        <span class="label">Email</span>
+                        <div class="value">@Model.Customer.Email</div>
+                    </div>
+                }
+            </div>
         </div>
-    </div>
 
-    <!-- Состав заказа -->
-    <div class="info-card">
-        <div class="card-header">
-            <h5 class="mb-0">
-                <i class="bi bi-box-seam me-2"></i> Состав заказа
-            </h5>
-        </div>
-        <div class="card-body">
+        <!-- Состав заказа -->
+        <!-- Состав заказа -->
+        <div class="items-section">
             <div class="table-responsive">
-                <table class="table items-table">
+                <table class="items-table">
                     <thead>
                         <tr>
                             <th>Товар</th>
@@ -273,36 +391,35 @@
                         @foreach (var item in Model.OrderItems)
                         {
                             <tr>
-                                <td>
-                                    >
-                                    <i class="bi bi-box me-2 text-muted"></i> @item.Product?.Name
+                                <td class="product-name">
+                                    <i class="bi bi-box-seam me-2 text-muted"></i> @item.Product?.Name
                                 </td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary rounded-pill">@item.Quantity шт.</span>
+                                <td class="text-center product-quantity">
+                                    <span class="badge">@item.Quantity шт.</span>
                                 </td>
-                                <td class="text-end">@item.UnitPrice.ToString("0.00") BYN</td>
-                                <td class="text-end fw-bold text-primary">@((item.Quantity * item.UnitPrice).ToString("0.00")) BYN</td>
+                                <td class="text-end product-price">@item.UnitPrice.ToString("0.00") BYN</td>
+                                <td class="text-end product-total">@((item.Quantity * item.UnitPrice).ToString("0.00")) BYN</td>
                             </tr>
                         }
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3" class="text-end"><strong>Итого:</strong></td>
-                            <td class="text-end"><strong class="total-amount">@Model.TotalAmount.ToString("0.00") BYN</strong></td>
+                            <td colspan="3" class="text-end total-label">ИТОГО:</td>
+                            <td class="text-end total-value">@Model.TotalAmount.ToString("0.00") BYN</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
-    </div>
 
-    <!-- Кнопки действий -->
-    <div class="d-flex justify-content-between mt-4 flex-wrap gap-3">
-        <a asp-controller="Products" asp-action="Index" class="btn btn-continue text-white">
-            <i class="bi bi-bag me-2"></i> Продолжить покупки
-        </a>
-        <a asp-action="Index" class="btn btn-orders text-white">
-            <i class="bi bi-list-ul me-2"></i> Перейти к списку заказов
-        </a>
+        <!-- Кнопки действий -->
+        <div class="action-buttons">
+            <a asp-controller="Products" asp-action="Index" class="btn-continue">
+                <i class="bi bi-bag"></i> Продолжить покупки
+            </a>
+            <a asp-action="Index" class="btn-orders">
+                <i class="bi bi-list-ul"></i> Перейти к списку заказов
+            </a>
+        </div>
     </div>
 </div>

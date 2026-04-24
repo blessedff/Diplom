@@ -6,11 +6,9 @@
 
 <style>
     .cart-container {
-        background: white;
-        border-radius: 24px;
-        padding: 30px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
-        border: 1px solid rgba(0,0,0,0.05);
+        max-width: 1200px;
+        margin: 0 auto;
+        animation: fadeIn 0.4s ease-out;
     }
 
     .cart-title {
@@ -19,7 +17,7 @@
         color: #1a1a2e;
         position: relative;
         display: inline-block;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
         .cart-title::after {
@@ -33,81 +31,233 @@
             border-radius: 2px;
         }
 
-    .cart-table {
-        border-radius: 20px;
-        overflow: hidden;
+    /* КАРТОЧКИ ТОВАРОВ */
+    .cart-items {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 30px;
     }
 
-        .cart-table thead th {
-            background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
-            color: white;
-            font-weight: 600;
-            padding: 15px;
-            border: none;
+    .cart-item-card {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+        .cart-item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
         }
 
-        .cart-table tbody td {
-            padding: 15px;
-            vertical-align: middle;
-            border-bottom: 1px solid #e9ecef;
+    /* Иконка товара */
+    .cart-item-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #e8f4fd, #d4eaf7);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .cart-item-icon i {
+            font-size: 2rem;
+            color: #2c5aa0;
         }
 
-    .product-name {
+    /* Информация о товаре */
+    .cart-item-info {
+        flex: 2;
+    }
+
+    .cart-item-name {
+        font-size: 1.1rem;
         font-weight: 700;
         color: #1a1a2e;
+        margin-bottom: 5px;
     }
 
-    .price {
-        font-weight: 600;
+    .cart-item-price {
+        font-size: 0.9rem;
         color: #2c5aa0;
+        font-weight: 600;
     }
 
-    .total-price {
-        font-weight: 700;
-        color: #28a745;
+    /* Управление количеством */
+    .cart-item-quantity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #f8f9fa;
+        padding: 6px 12px;
+        border-radius: 40px;
     }
 
-    .quantity-input {
-        width: 80px;
-        padding: 8px 10px;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        text-align: center;
-        font-weight: 500;
+    .quantity-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        background: white;
+        color: #2c5aa0;
+        font-weight: bold;
+        font-size: 1.2rem;
+        cursor: pointer;
         transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-        .quantity-input:focus {
-            border-color: #2c5aa0;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+        .quantity-btn:hover {
+            background: #2c5aa0;
+            color: white;
+            transform: scale(1.05);
         }
 
-        .quantity-input.loading {
-            background: #f0f2f5;
-            opacity: 0.7;
+    .quantity-value {
+        font-weight: 600;
+        font-size: 1rem;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    /* Итоговая сумма за товар */
+    .cart-item-total {
+        min-width: 100px;
+        text-align: right;
+    }
+
+        .cart-item-total .total-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #28a745;
         }
 
-    .btn-remove {
+        .cart-item-total .unit-price {
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+
+    /* Кнопка удаления */
+    .cart-item-remove {
         background: none;
         border: none;
         color: #dc3545;
+        font-size: 1.2rem;
+        cursor: pointer;
         transition: all 0.2s ease;
-        padding: 5px 10px;
-        border-radius: 10px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-        .btn-remove:hover {
+        .cart-item-remove:hover {
             background: #fee2e2;
             transform: scale(1.05);
+        }
+
+    /* ИТОГОВАЯ ПАНЕЛЬ */
+    .cart-summary {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid #e9ecef;
+        margin-top: 20px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+    .summary-label {
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .summary-value {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .summary-total {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-radius: 16px;
+        padding: 15px 20px;
+        margin-top: 15px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .summary-total .label {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .summary-total .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+    /* КНОПКИ ДЕЙСТВИЙ */
+    .cart-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .btn-continue {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 40px;
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-continue:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            color: white;
         }
 
     .btn-clear {
         background: none;
         border: 1px solid #dc3545;
         color: #dc3545;
-        border-radius: 30px;
-        padding: 8px 20px;
+        border-radius: 40px;
+        padding: 10px 25px;
+        font-weight: 600;
         transition: all 0.3s ease;
     }
 
@@ -119,34 +269,32 @@
 
     .btn-checkout {
         background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
         border: none;
-        border-radius: 30px;
-        padding: 10px 30px;
+        border-radius: 40px;
+        padding: 12px 35px;
         font-weight: 600;
+        font-size: 1rem;
         transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
         .btn-checkout:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            color: white;
         }
 
-    .btn-continue {
-        background: #6c757d;
-        border: none;
-        border-radius: 30px;
-        padding: 10px 25px;
-        transition: all 0.3s ease;
-    }
-
-        .btn-continue:hover {
-            transform: translateY(-2px);
-            background: #5a6268;
-        }
-
+    /* Пустая корзина */
     .empty-cart {
         text-align: center;
         padding: 60px 20px;
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #e9ecef;
     }
 
         .empty-cart i {
@@ -162,14 +310,53 @@
             margin-bottom: 10px;
         }
 
-    .total-row {
-        background: #f8f9fa;
-    }
-
-        .total-row td {
-            padding: 15px;
-            font-weight: 600;
+    /* Адаптивность */
+    @@media (max-width: 768px) {
+        .cart-item-card {
+            flex-wrap: wrap;
         }
+
+        .cart-item-icon {
+            width: 50px;
+            height: 50px;
+        }
+
+            .cart-item-icon i {
+                font-size: 1.5rem;
+            }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-total {
+            text-align: left;
+            margin-left: 90px;
+        }
+
+        .cart-item-remove {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .summary-total {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .cart-actions {
+            flex-direction: column;
+        }
+
+            .cart-actions .btn-continue,
+            .cart-actions .btn-clear,
+            .cart-actions .btn-checkout {
+                width: 100%;
+                justify-content: center;
+            }
+    }
 
     @@keyframes fadeIn {
         from {
@@ -182,10 +369,6 @@
             transform: translateY(0);
         }
     }
-
-    .cart-container {
-        animation: fadeIn 0.4s ease-out;
-    }
 </style>
 
 <div class="cart-container">
@@ -193,7 +376,7 @@
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
@@ -201,7 +384,7 @@
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
@@ -209,66 +392,64 @@
 
     @if (Model != null && Model.Any())
     {
-        <div class="table-responsive">
-            <table class="table cart-table">
-                <thead>
-                    <tr>
-                        <th>Товар</th>
-                        <th>Цена</th>
-                        <th>Количество</th>
-                        <th>Итого</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr data-product-id="@item.ProductId">
-                            <td class="product-name">@item.ProductName</td>
-                            <td class="price">@item.Price.ToString("0.00") BYN</td>
-                            <td>
-                                <input type="number"
-                                       class="quantity-input"
-                                       value="@item.Quantity"
-                                       min="1"
-                                       max="100"
-                                       data-product-id="@item.ProductId"
-                                       data-original-value="@item.Quantity">
-                            </td>
-                            <td class="total-price" data-total="@item.TotalPrice">
-                                @item.TotalPrice.ToString("0.00") BYN
-                            </td>
-                            <td>
-                                <button class="btn-remove" data-product-id="@item.ProductId" title="Удалить">
-                                    <i class="bi bi-trash3 fs-5"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-                <tfoot>
-                    <tr class="total-row">
-                        <td colspan="3" class="text-end"><strong>Общая сумма:</strong></td>
-                        <td colspan="2"><strong id="cartTotal">@ViewBag.TotalPrice.ToString("0.00") BYN</strong></td>
-                    </tr>
-                </tfoot>
-            </table>
+        <!-- КАРТОЧКИ ТОВАРОВ -->
+        <div class="cart-items" id="cartItemsContainer">
+            @foreach (var item in Model)
+            {
+                <div class="cart-item-card" data-product-id="@item.ProductId" id="cart-item-@item.ProductId">
+                    <!-- Иконка -->
+                    <div class="cart-item-icon">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+
+                    <!-- Информация -->
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">@item.ProductName</div>
+                        <div class="cart-item-price" data-price="@item.Price">@item.Price.ToString("0.00") BYN / шт</div>
+                    </div>
+
+                    <!-- Управление количеством -->
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn quantity-minus" data-id="@item.ProductId">−</button>
+                        <span class="quantity-value" id="qty-@item.ProductId">@item.Quantity</span>
+                        <button class="quantity-btn quantity-plus" data-id="@item.ProductId">+</button>
+                    </div>
+
+                    <!-- Итог за товар -->
+                    <div class="cart-item-total">
+                        <div class="total-price" id="total-@item.ProductId">@item.TotalPrice.ToString("0.00") BYN</div>
+                        <div class="unit-price">(~@item.Price.ToString("0.00") BYN/шт)</div>
+                    </div>
+
+                    <!-- Кнопка удаления -->
+                    <button class="cart-item-remove" data-id="@item.ProductId" title="Удалить">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </div>
+            }
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
-            <a asp-controller="Products" asp-action="Index" class="btn btn-continue text-white">
-                <i class="bi bi-arrow-left me-2"></i> Продолжить покупки
-            </a>
+        <!-- ИТОГОВАЯ ПАНЕЛЬ -->
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span class="summary-label">Товары (@Model.Sum(x => x.Quantity) шт)</span>
+                <span class="summary-value" id="subtotal">@ViewBag.TotalPrice.ToString("0.00") BYN</span>
+            </div>
+        </div>
 
-            <div class="d-flex gap-3">
-                <form asp-action="ClearCart" method="post" class="d-inline" id="clearCartForm">
+        <!-- КНОПКИ ДЕЙСТВИЙ -->
+        <div class="cart-actions">
+            <a asp-controller="Products" asp-action="Index" class="btn-continue">
+                <i class="bi bi-arrow-left"></i> Продолжить покупки
+            </a>
+            <div style="display: flex; gap: 15px;">
+                <form asp-action="ClearCart" method="post" id="clearCartForm">
                     <button type="submit" class="btn-clear">
-                        <i class="bi bi-cart-x me-2"></i> Очистить корзину
+                        <i class="bi bi-cart-x"></i> Очистить корзину
                     </button>
                 </form>
-
-                <a asp-controller="Orders" asp-action="Create" class="btn btn-checkout text-white">
-                    <i class="bi bi-bag-check me-2"></i> Оформить заказ
+                <a asp-controller="Orders" asp-action="Create" class="btn-checkout">
+                    Оформить заказ <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
@@ -290,74 +471,52 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Функция обновления количества (автоматически при потере фокуса или Enter)
-            function updateQuantity(productId, quantity, $input) {
-                if (quantity < 1) {
-                    showNotification('Количество не может быть меньше 1', 'error');
-                    $input.val($input.data('original-value'));
-                    return;
-                }
+            // Обновление общей суммы корзины
+            function updateCartTotal() {
+                let total = 0;
+                $('.total-price').each(function() {
+                    let price = parseFloat($(this).text().replace(' BYN', ''));
+                    if (!isNaN(price)) total += price;
+                });
+                $('#subtotal').text(total.toFixed(2) + ' BYN');
+                $('#totalAmount').text(total.toFixed(2) + ' BYN');
+            }
 
-                $input.addClass('loading');
-
+            // Обновление количества товара
+            function updateQuantity(productId, newQuantity) {
                 $.ajax({
                     url: '/Cart/UpdateQuantity',
                     type: 'POST',
-                    data: {
-                        productId: productId,
-                        quantity: quantity
-                    },
+                    data: { productId: productId, quantity: newQuantity },
                     success: function(response) {
-                        // Обновляем общую сумму корзины через перезагрузку страницы
-                        location.reload();
+                        // Обновляем отображение
+                        const price = parseFloat($(`.cart-item-price[data-price]`).filter(function() {
+                            return $(this).closest('.cart-item-card').data('product-id') == productId;
+                        }).data('price'));
+
+                        if (!isNaN(price)) {
+                            const newTotal = price * newQuantity;
+                            $(`#total-${productId}`).text(newTotal.toFixed(2) + ' BYN');
+                            $(`#qty-${productId}`).text(newQuantity);
+                            updateCartTotal();
+                        } else {
+                            location.reload();
+                        }
                     },
-                    error: function(xhr) {
+                    error: function() {
                         showNotification('Ошибка при обновлении количества', 'error');
-                        $input.val($input.data('original-value'));
-                        $input.removeClass('loading');
+                        location.reload();
                     }
                 });
             }
 
-            // Событие: при потере фокуса с поля количества
-            $(document).on('blur', '.quantity-input', function() {
-                const $input = $(this);
-                const productId = $input.data('product-id');
-                const newQuantity = parseInt($input.val());
-                const oldQuantity = parseInt($input.data('original-value'));
-
-                if (newQuantity !== oldQuantity && !isNaN(newQuantity)) {
-                    updateQuantity(productId, newQuantity, $input);
-                }
-            });
-
-            // Событие: при нажатии Enter в поле количества
-            $(document).on('keypress', '.quantity-input', function(e) {
-                if (e.which === 13) { // Enter key
-                    e.preventDefault();
-                    const $input = $(this);
-                    const productId = $input.data('product-id');
-                    const newQuantity = parseInt($input.val());
-                    const oldQuantity = parseInt($input.data('original-value'));
-
-                    if (newQuantity !== oldQuantity && !isNaN(newQuantity)) {
-                        updateQuantity(productId, newQuantity, $input);
-                    }
-                    $input.blur();
-                }
-            });
-
-            // Удаление товара из корзины
-            $(document).on('click', '.btn-remove', function() {
-                const productId = $(this).data('product-id');
-
+            // Удаление товара
+            function removeItem(productId) {
                 if (confirm('Удалить этот товар из корзины?')) {
                     $.ajax({
                         url: '/Cart/RemoveFromCart',
                         type: 'POST',
-                        data: {
-                            productId: productId
-                        },
+                        data: { productId: productId },
                         success: function(response) {
                             location.reload();
                         },
@@ -366,9 +525,40 @@
                         }
                     });
                 }
+            }
+
+            // Обработчики кнопок +/-
+            $(document).on('click', '.quantity-plus', function() {
+                const productId = $(this).data('id');
+                const currentSpan = $(`#qty-${productId}`);
+                let newQty = parseInt(currentSpan.text()) + 1;
+                if (newQty > 100) {
+                    showNotification('Максимальное количество - 100 штук', 'error');
+                    return;
+                }
+                currentSpan.text(newQty);
+                updateQuantity(productId, newQty);
             });
 
-            // Подтверждение очистки корзины
+            $(document).on('click', '.quantity-minus', function() {
+                const productId = $(this).data('id');
+                const currentSpan = $(`#qty-${productId}`);
+                let newQty = parseInt(currentSpan.text()) - 1;
+                if (newQty < 1) {
+                    showNotification('Количество не может быть меньше 1', 'error');
+                    return;
+                }
+                currentSpan.text(newQty);
+                updateQuantity(productId, newQty);
+            });
+
+            // Кнопка удаления
+            $(document).on('click', '.cart-item-remove', function() {
+                const productId = $(this).data('id');
+                removeItem(productId);
+            });
+
+            // Очистка корзины с подтверждением
             $('#clearCartForm').on('submit', function(e) {
                 if (!confirm('Вы уверены, что хотите полностью очистить корзину?')) {
                     e.preventDefault();

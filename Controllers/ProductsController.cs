@@ -195,5 +195,66 @@ namespace StationeryShop.Controllers
 
             return Json(new { averageRating = Math.Round(averageRating, 1), totalReviews = totalReviews });
         }
+
+        // GET: Products/GetProductQuestions
+        [HttpGet]
+        public async Task<IActionResult> GetProductQuestions(int productId)
+        {
+            var questions = await _context.ProductQuestions
+                .Include(q => q.Customer)
+                .Where(q => q.ProductId == productId && q.IsPublished == true)
+                .OrderByDescending(q => q.QuestionDate)
+                .Select(q => new
+                {
+                    q.Id,
+                    q.Question,
+                    q.QuestionDate,
+                    q.Answer,
+                    q.AnswerDate,
+                    CustomerName = q.Customer != null ? q.Customer.FullName : "Пользователь"
+                })
+                .ToListAsync();
+
+            return Json(questions);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddQuestion([FromBody] AddQuestionRequest request)
+        {
+            // Проверяем, авторизован ли пользователь
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            if (customerId == null)
+                return Json(new { success = false, message = "Необходимо авторизоваться" });
+
+            // Проверяем, существует ли товар
+            var product = await _context.Products.FindAsync(request.ProductId);
+            if (product == null)
+                return Json(new { success = false, message = "Товар не найден" });
+
+            // Проверяем длину вопроса
+            if (string.IsNullOrWhiteSpace(request.Question) || request.Question.Length > 1000)
+                return Json(new { success = false, message = "Вопрос должен быть от 1 до 1000 символов" });
+
+            // Создаём новый вопрос
+            var question = new ProductQuestion
+            {
+                ProductId = request.ProductId,
+                CustomerId = customerId.Value,
+                Question = request.Question.Trim(),
+                QuestionDate = DateTime.Now,
+                IsPublished = false
+            };
+
+            _context.ProductQuestions.Add(question);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Вопрос отправлен на модерацию" });
+        }
+
+        public class AddQuestionRequest
+        {
+            public int ProductId { get; set; }
+            public string Question { get; set; } = string.Empty;
+        }
     }
 }

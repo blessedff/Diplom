@@ -19,6 +19,7 @@ namespace StationeryShop.Data
         public DbSet<FinancialSetting> FinancialSettings { get; set; }
         public DbSet<CartTable> CartItems { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<ProductQuestion> ProductQuestions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

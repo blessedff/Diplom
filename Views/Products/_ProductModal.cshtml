@@ -6,6 +6,12 @@
 }
 
 <style>
+
+    #tab-info,
+    #tab-questions {
+        min-height: 800px;
+    }
+
     .product-modal-image {
         border-radius: 20px;
         width: 100%;
@@ -146,158 +152,526 @@
             color: #2c5aa0;
             font-weight: 600;
         }
+
+    /* ========== СТИЛИ ДЛЯ ВКЛАДОК ========== */
+    .modal-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid #e9ecef;
+        margin-bottom: 20px;
+    }
+
+    .tab-btn {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+        .tab-btn:hover {
+            color: #2c5aa0;
+        }
+
+        .tab-btn.active {
+            color: #2c5aa0;
+        }
+
+            .tab-btn.active::after {
+                content: '';
+                position: absolute;
+                bottom: -1px;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            }
+
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+        .tab-content.active {
+            display: block;
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Стили для вопросов */
+    .questions-list {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+
+    .question-item {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .question-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .question-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .question-avatar i {
+            font-size: 1.2rem;
+            color: white;
+        }
+
+    .question-user-info {
+        flex: 1;
+    }
+
+    .question-user-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #1a1a2e;
+    }
+
+    .question-date {
+        font-size: 0.7rem;
+        color: #6c757d;
+    }
+
+    .question-text {
+        color: #4a5568;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 12px;
+    }
+
+        .question-text i {
+            color: #2c5aa0;
+            margin-right: 6px;
+        }
+
+    .answer-block {
+        background: white;
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 10px;
+        border-left: 3px solid #28a745;
+    }
+
+    .answer-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #28a745;
+    }
+
+    .answer-text {
+        font-size: 0.85rem;
+        color: #4a5568;
+    }
+
+    .waiting-badge {
+        display: inline-block;
+        background: #fff3cd;
+        color: #856404;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .ask-question-form {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+        .ask-question-form h6 {
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .ask-question-form textarea {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.85rem;
+            resize: vertical;
+        }
+
+            .ask-question-form textarea:focus {
+                border-color: #2c5aa0;
+                outline: none;
+            }
+
+    .btn-ask {
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 8px 24px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-ask:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+        }
+
+    .auth-message {
+        background: #e8f4fd;
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+        .auth-message a {
+            color: #2c5aa0;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+    .empty-questions {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
+
+    /* Стили для уведомлений */
+    .ajax-toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        z-index: 9999;
+        animation: slideInRight 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+        .ajax-toast.error {
+            background: #dc3545;
+        }
+
+    @@keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
 </style>
 
-<div class="row g-4">
-    <!-- Левая колонка - фото -->
-    <div class="col-md-6">
-        @if (Model.PhotoBase64 != null)
-        {
-            <img src="data:image/png;base64,@Model.PhotoBase64"
-                 class="product-modal-image"
-                 alt="@Model.Name">
-        }
-        else
-        {
-            <div class="product-modal-placeholder">
-                <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
-            </div>
-        }
-    </div>
+<!-- Вкладки -->
+<div class="modal-tabs">
+    <button class="tab-btn active" data-tab="info">📦 Информация о товаре</button>
+    <button class="tab-btn" data-tab="questions">💬 Вопросы <span id="questionsCount">(0)</span></button>
+</div>
 
-    <!-- Правая колонка - информация -->
-    <div class="col-md-6">
-        <h4 class="product-modal-title">@Model.Name</h4>
 
-        <div class="mb-3 d-flex align-items-center" id="modal-rating-container">
-            <div class="rating-stars-modal me-2">
-                <i class="bi bi-star-fill text-warning"></i>
-                <i class="bi bi-star-fill text-warning"></i>
-                <i class="bi bi-star-fill text-warning"></i>
-                <i class="bi bi-star-fill text-warning"></i>
-                <i class="bi bi-star text-warning"></i>
-            </div>
-            <span id="modal-rating-text" class="text-muted small">Загрузка...</span>
-        </div>
-
-        <div class="mb-3 d-flex flex-wrap gap-2">
-            <span class="category-badge text-white">
-                <i class="bi bi-tag me-1"></i> @Model.Category?.Name
-            </span>
-            @if (Model.StockQuantity > 10)
+<div id="tab-info" class="tab-content active">
+    <div class="row g-4">
+        <!-- Левая колонка - фото -->
+        <div class="col-md-6">
+            @if (Model.PhotoBase64 != null)
             {
-                <span class="stock-badge stock-high">
-                    <i class="bi bi-check-circle-fill me-1"></i> В наличии
-                </span>
-            }
-            else if (Model.StockQuantity > 0)
-            {
-                <span class="stock-badge stock-medium">
-                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Мало осталось
-                </span>
+                <img src="data:image/png;base64,@Model.PhotoBase64"
+                     class="product-modal-image"
+                     alt="@Model.Name">
             }
             else
             {
-                <span class="stock-badge stock-low">
-                    <i class="bi bi-x-circle-fill me-1"></i> Нет в наличии
-                </span>
-            }
-        </div>
-
-        <div class="mb-4">
-            <div class="product-price">
-                @Model.Price.ToString("0.00") BYN
-                <small>за штуку</small>
-            </div>
-            <div class="text-muted mt-1">
-                <i class="bi bi-box-seam me-1"></i> Количество на складе: <strong>@Model.StockQuantity</strong> шт.
-            </div>
-        </div>
-
-        @if (!string.IsNullOrEmpty(Model.Description))
-        {
-            <div class="mb-4">
-                <h6 class="fw-bold mb-2"><i class="bi bi-file-text me-1"></i> Описание</h6>
-                <p class="text-muted" style="line-height: 1.6;">@Model.Description</p>
-            </div>
-        }
-
-        <!-- Кнопки действий -->
-        <div class="d-grid gap-2">
-            @if (isAuthenticated && !isAdmin)
-            {
-                if (Model.StockQuantity > 0)
-                {
-                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
-                        <input type="hidden" name="productId" value="@Model.ProductID" />
-                        <input type="hidden" name="quantity" value="1" />
-                        <button type="submit" class="btn btn-add-to-cart w-100 text-white">
-                            <i class="bi bi-cart-plus me-2"></i> Добавить в корзину
-                        </button>
-                    </form>
-                }
-                else
-                {
-                    <button class="btn btn-add-to-cart w-100" disabled>
-                        <i class="bi bi-cart-x me-2"></i> Товара нет в наличии
-                    </button>
-                }
-            }
-            else if (!isAuthenticated)
-            {
-                <div class="alert alert-auth text-center">
-                    <i class="bi bi-info-circle-fill me-2"></i>
-                    Для добавления товара в корзину необходимо
-                    <a asp-controller="Account" asp-action="Login">войти в систему</a>
+                <div class="product-modal-placeholder">
+                    <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
                 </div>
             }
         </div>
-    </div>
-</div>
 
-<!-- Характеристики товара -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card info-card">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i> Подробная информация</h6>
+        <!-- Правая колонка - информация -->
+        <div class="col-md-6">
+            <h4 class="product-modal-title">@Model.Name</h4>
+
+            <div class="mb-3 d-flex align-items-center" id="modal-rating-container">
+                <div class="rating-stars-modal me-2">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star text-warning"></i>
+                </div>
+                <span id="modal-rating-text" class="text-muted small">Загрузка...</span>
             </div>
-            <div class="card-body p-0">
-                <table class="info-table">
-                    <tr>
-                        <td><i class="bi bi-tag me-2"></i> Категория</td>
-                        <td>@Model.Category?.Name</td>
-                    </tr>
-                    <tr>
-                        <td><i class="bi bi-currency-dollar me-2"></i> Цена</td>
-                        <td class="text-primary fw-bold">@Model.Price.ToString("0.00") BYN</td>
-                    </tr>
-                    <tr>
-                        <td><i class="bi bi-box-seam me-2"></i> Наличие</td>
-                        <td>
-                            @if (Model.StockQuantity > 0)
-                            {
-                                <span class="text-success">✅ В наличии (@Model.StockQuantity шт.)</span>
-                            }
-                            else
-                            {
-                                <span class="text-danger">❌ Нет в наличии</span>
-                            }
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><i class="bi bi-upc-scan me-2"></i> Артикул</td>
-                        <td>#@Model.ProductID</td>
-                    </tr>
-                </table>
+
+            <div class="mb-3 d-flex flex-wrap gap-2">
+                <span class="category-badge text-white">
+                    <i class="bi bi-tag me-1"></i> @Model.Category?.Name
+                </span>
+                @if (Model.StockQuantity > 10)
+                {
+                    <span class="stock-badge stock-high">
+                        <i class="bi bi-check-circle-fill me-1"></i> В наличии
+                    </span>
+                }
+                else if (Model.StockQuantity > 0)
+                {
+                    <span class="stock-badge stock-medium">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Мало осталось
+                    </span>
+                }
+                else
+                {
+                    <span class="stock-badge stock-low">
+                        <i class="bi bi-x-circle-fill me-1"></i> Нет в наличии
+                    </span>
+                }
+            </div>
+
+            <div class="mb-4">
+                <div class="product-price">
+                    @Model.Price.ToString("0.00") BYN
+                    <small>за штуку</small>
+                </div>
+                <div class="text-muted mt-1">
+                    <i class="bi bi-box-seam me-1"></i> Количество на складе: <strong>@Model.StockQuantity</strong> шт.
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2"><i class="bi bi-file-text me-1"></i> Описание</h6>
+                    <p class="text-muted" style="line-height: 1.6;">@Model.Description</p>
+                </div>
+            }
+
+            <!-- Кнопки действий -->
+            <div class="d-grid gap-2">
+                @if (isAuthenticated && !isAdmin)
+                {
+                    if (Model.StockQuantity > 0)
+                    {
+                        <form id="addToCartForm">
+                            <input type="hidden" name="productId" value="@Model.ProductID" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" class="btn btn-add-to-cart w-100 text-white">
+                                <i class="bi bi-cart-plus me-2"></i> Добавить в корзину
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button class="btn btn-add-to-cart w-100" disabled>
+                            <i class="bi bi-cart-x me-2"></i> Товара нет в наличии
+                        </button>
+                    }
+                }
+                else if (!isAuthenticated)
+                {
+                    <div class="alert alert-auth text-center">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Для добавления товара в корзину необходимо
+                        <a asp-controller="Account" asp-action="Login">войти в систему</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Характеристики товара -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card info-card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i> Подробная информация</h6>
+                </div>
+                <div class="card-body p-0">
+                    <table class="info-table">
+                        <tbody>
+                            <tr>
+                                <td><i class="bi bi-tag me-2"></i> Категория</td>
+                                <td>@Model.Category?.Name</td>
+                            </tr>
+                            <tr>
+                                <td><i class="bi bi-currency-dollar me-2"></i> Цена</td>
+                                <td class="text-primary fw-bold">@Model.Price.ToString("0.00") BYN</td>
+                            </tr>
+                            <tr>
+                                <td><i class="bi bi-box-seam me-2"></i> Наличие</td>
+                                <td>
+                                    @if (Model.StockQuantity > 0)
+                                    {
+                                        <span class="text-success">✅ В наличии (@Model.StockQuantity шт.)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">❌ Нет в наличии</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><i class="bi bi-upc-scan me-2"></i> Артикул</td>
+                                <td>#@Model.ProductID</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Вкладка 2: Вопросы о товаре -->
+<div id="tab-questions" class="tab-content">
+    <div id="questionsContainer">
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Загрузка вопросов...</p>
+        </div>
+    </div>
+
+    <!-- Форма для авторизованных -->
+    @if (isAuthenticated && !isAdmin)
+    {
+        <div class="ask-question-form">
+            <h6><i class="bi bi-question-circle"></i> Задать вопрос о товаре</h6>
+            <textarea id="questionText" class="form-control" rows="3" placeholder="Напишите ваш вопрос..." maxlength="1000"></textarea>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <small class="text-muted">Максимум 1000 символов</small>
+                <button id="submitQuestionBtn" class="btn-ask" data-product-id="@Model.ProductID">
+                    <i class="bi bi-send"></i> Отправить вопрос
+                </button>
+            </div>
+        </div>
+    }
+    else if (!isAuthenticated)
+    {
+        <div class="auth-message">
+            <i class="bi bi-lock-fill fs-4"></i>
+            <p class="mt-2 mb-0">
+                Чтобы задать вопрос, необходимо
+                <a asp-controller="Account" asp-action="Login">войти в систему</a> или
+                <a asp-controller="Account" asp-action="Register">зарегистрироваться</a>
+            </p>
+        </div>
+    }
+</div>
+
 <script>
     $(document).ready(function() {
+            // Функция обновления счётчика корзины
+    function updateCartCounter() {
+        $.ajax({
+            url: '/Cart/GetCartSummary',
+            type: 'GET',
+            success: function(data) {
+                const cartCount = $('#cartItemsCount');
+                if (cartCount.length) {
+                    if (data.totalItems > 0) {
+                        cartCount.text(data.totalItems).show();
+                    } else {
+                        cartCount.hide();
+                    }
+                }
+            },
+            error: function() {
+                console.log('Ошибка обновления счётчика корзины');
+            }
+        });
+    }
         const productId = @Model.ProductID;
 
+        // ========== AJAX ДОБАВЛЕНИЕ В КОРЗИНУ ==========
+        $('#addToCartForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const $form = $(this);
+            const $button = $form.find('button[type="submit"]');
+            const originalText = $button.html();
+
+            // Блокируем кнопку
+            $button.prop('disabled', true).html('<i class="bi bi-hourglass-split me-2"></i> Добавление...');
+
+            $.ajax({
+                url: '/Cart/AddToCart',
+                type: 'POST',
+                data: $form.serialize(),
+                    success: function(response) {
+        // Показываем уведомление
+        showToast('Товар успешно добавлен в корзину!', 'success');
+
+        // Обновляем счётчик корзины
+        updateCartCounter();
+    },
+                error: function(xhr) {
+                    let errorMsg = 'Ошибка при добавлении в корзину';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    showToast(errorMsg, 'error');
+                },
+                complete: function() {
+                    // Разблокируем кнопку и возвращаем текст
+                    $button.prop('disabled', false).html(originalText);
+                }
+            });
+        });
+
+        // Функция показа уведомлений
+        function showToast(message, type) {
+            const toast = $(`<div class="ajax-toast ${type === 'error' ? 'error' : ''}">${message}</div>`);
+            $('body').append(toast);
+
+            setTimeout(function() {
+                toast.fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+
+        // ========== РЕЙТИНГ (ОРИГИНАЛЬНЫЙ КОД) ==========
         $.ajax({
             url: '/Products/GetProductRating',
             type: 'GET',
@@ -330,6 +704,157 @@
                     $container.append('<i class="bi bi-star text-warning"></i>');
                 }
             }
+        }
+
+        // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
+        $('.tab-btn').on('click', function() {
+            const tabId = $(this).data('tab');
+
+            $('.tab-btn').removeClass('active');
+            $('.tab-content').removeClass('active');
+
+            $(this).addClass('active');
+            $(`#tab-${tabId}`).addClass('active');
+
+            // Если переключились на вкладку вопросов и вопросы ещё не загружены
+            if (tabId === 'questions' && !window.questionsLoaded) {
+                loadQuestions();
+                window.questionsLoaded = true;
+            }
+        });
+
+        // ========== ЗАГРУЗКА ВОПРОСОВ ==========
+        function loadQuestions() {
+            const $container = $('#questionsContainer');
+
+            $container.html(`
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Загрузка вопросов...</p>
+                </div>
+            `);
+
+            $.ajax({
+                url: '/Products/GetProductQuestions',
+                type: 'GET',
+                data: { productId: productId },
+                success: function(questions) {
+                    // Обновляем счётчик на вкладке
+                    $('#questionsCount').text(`(${questions.length})`);
+
+                    if (questions.length === 0) {
+                        $container.html(`
+                            <div class="empty-questions">
+                                <i class="bi bi-chat-dots fs-1"></i>
+                                <p class="mt-2">Пока нет вопросов. Будьте первым, кто спросит!</p>
+                            </div>
+                        `);
+                        return;
+                    }
+
+                    let html = '<div class="questions-list">';
+                    for (const q of questions) {
+                        const date = new Date(q.questionDate).toLocaleDateString('ru-RU');
+                        html += `
+                            <div class="question-item">
+                                <div class="question-header">
+                                    <div class="question-avatar">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div class="question-user-info">
+                                        <div class="question-user-name">${escapeHtml(q.customerName)}</div>
+                                        <div class="question-date">${date}</div>
+                                    </div>
+                                </div>
+                                <div class="question-text">
+                                    <i class="bi bi-question-circle"></i> ${escapeHtml(q.question)}
+                                </div>
+                        `;
+
+                        if (q.answer) {
+                            const answerDate = new Date(q.answerDate).toLocaleDateString('ru-RU');
+                            html += `
+                                <div class="answer-block">
+                                    <div class="answer-header">
+                                        <i class="bi bi-reply-fill"></i> Ответ администратора
+                                    </div>
+                                    <div class="answer-text">${escapeHtml(q.answer)}</div>
+                                    <div class="question-date mt-1">${answerDate}</div>
+                                </div>
+                            `;
+                        } else {
+                            html += `<div class="waiting-badge">⏳ Ожидает ответа</div>`;
+                        }
+
+                        html += `</div>`;
+                    }
+                    html += `</div>`;
+                    $container.html(html);
+                },
+                error: function() {
+                    $container.html(`
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i> Ошибка при загрузке вопросов
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        // ========== ЗАГРУЖАЕМ ВОПРОСЫ СРАЗУ ПРИ ОТКРЫТИИ МОДАЛЬНОГО ОКНА ==========
+        // (счётчик обновится, даже если вкладка не активна)
+        loadQuestions();
+        window.questionsLoaded = true;
+
+        // ========== ОТПРАВКА ВОПРОСА ==========
+        $(document).on('click', '#submitQuestionBtn', async function() {
+            const $btn = $(this);
+            const pid = parseInt($btn.data('product-id'));
+            const question = $('#questionText').val().trim();
+
+            if (!question) {
+                alert('Введите текст вопроса');
+                return;
+            }
+
+            if (question.length > 1000) {
+                alert('Вопрос не должен превышать 1000 символов');
+                return;
+            }
+
+            $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Отправка...');
+
+            try {
+                const response = await fetch('/Products/AddQuestion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId: pid, question: question })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    $('#questionText').val('');
+                    alert('Ваш вопрос отправлен! Он будет опубликован после проверки администратором.');
+                    loadQuestions(); // Перезагружаем вопросы
+                } else {
+                    alert(result.message || 'Ошибка при отправке вопроса');
+                }
+            } catch (error) {
+                alert('Ошибка при отправке вопроса');
+            } finally {
+                $btn.prop('disabled', false).html('<i class="bi bi-send"></i> Отправить вопрос');
+            }
+        });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
     });
 </script>

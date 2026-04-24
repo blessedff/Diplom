@@ -109,22 +109,42 @@ using (var scope = app.Services.CreateScope())
         );
     END
 ";
-    //Таблица Reviews
+    // Таблица Reviews
     string createReviewsTable = @"
-    CREATE TABLE [Reviews] (
-        [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-        [ProductId] INT NULL,
-        [CustomerId] INT NOT NULL,
-        [Rating] INT NOT NULL,
-        [Comment] NVARCHAR(1000) NOT NULL,
-        [IsApproved] BIT NOT NULL DEFAULT 0,
-        [IsRejected] BIT NOT NULL DEFAULT 0,
-        [CreatedAt] DATETIME2 NOT NULL,
-        [AdminResponse] NVARCHAR(1000) NULL,
-        [AdminResponseDate] DATETIME2 NULL,
-        CONSTRAINT FK_Reviews_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductID),
-        CONSTRAINT FK_Reviews_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerID)
-    );
+    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Reviews')
+    BEGIN
+        CREATE TABLE [Reviews] (
+            [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+            [ProductId] INT NULL,
+            [CustomerId] INT NOT NULL,
+            [Rating] INT NOT NULL,
+            [Comment] NVARCHAR(1000) NOT NULL,
+            [IsApproved] BIT NOT NULL DEFAULT 0,
+            [IsRejected] BIT NOT NULL DEFAULT 0,
+            [CreatedAt] DATETIME2 NOT NULL,
+            [AdminResponse] NVARCHAR(1000) NULL,
+            [AdminResponseDate] DATETIME2 NULL,
+            CONSTRAINT FK_Reviews_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductID),
+            CONSTRAINT FK_Reviews_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerID)
+        );
+    END
+";
+    string createProductQuestionsTable = @"
+    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'ProductQuestions')
+    BEGIN
+        CREATE TABLE [ProductQuestions] (
+            [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+            [ProductId] INT NOT NULL,
+            [CustomerId] INT NOT NULL,
+            [Question] NVARCHAR(1000) NOT NULL,
+            [QuestionDate] DATETIME2 NOT NULL,
+            [Answer] NVARCHAR(2000) NULL,
+            [AnswerDate] DATETIME2 NULL,
+            [IsPublished] BIT NOT NULL DEFAULT 0,
+            CONSTRAINT FK_ProductQuestions_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductID),
+            CONSTRAINT FK_ProductQuestions_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerID)
+        );
+    END
 ";
 
 
@@ -209,8 +229,12 @@ using (var scope = app.Services.CreateScope())
         await context.Database.ExecuteSqlRawAsync(createReviewsTable);
         Console.WriteLine("Таблица Reviews создана или уже существует");
 
+        await context.Database.ExecuteSqlRawAsync(createProductQuestionsTable);
+        Console.WriteLine("Таблица ProductQuestions создана или уже существует");
+
         await context.Database.ExecuteSqlRawAsync(insertSettings);
         Console.WriteLine("Начальные настройки добавлены");
+
 
     }
     catch (Exception ex)

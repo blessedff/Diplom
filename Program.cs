@@ -129,6 +129,7 @@ using (var scope = app.Services.CreateScope())
         );
     END
 ";
+    //Таблица ProductQuestions
     string createProductQuestionsTable = @"
     IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'ProductQuestions')
     BEGIN

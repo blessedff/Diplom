@@ -208,8 +208,6 @@ namespace StationeryShop.Controllers
                 HttpContext.Session.SetString("CustomerName", customer.FullName ?? "");
                 HttpContext.Session.SetString("IsAdmin", customer.IsAdmin ? "true" : "false");
 
-                // Корзина теперь в БД, привязана к CustomerID
-                // Ничего переносить не нужно — данные уже в таблице CartItems
 
                 _logger.LogInformation($"Успешный вход: {email}, IP: {GetClientIpAddress()}");
                 TempData["Success"] = $"Добро пожаловать, {customer.FullName}!";
@@ -232,7 +230,7 @@ namespace StationeryShop.Controllers
             }
         }
 
-        // ==================== REGISTER (РЕГИСТРАЦИЯ) ====================
+
 
         [HttpGet]
         public IActionResult Register()
@@ -310,7 +308,6 @@ namespace StationeryShop.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // ==================== PROFILE (ПРОФИЛЬ) ====================
 
         [HttpGet]
         public IActionResult Profile()

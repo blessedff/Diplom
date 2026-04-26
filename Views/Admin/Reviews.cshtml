@@ -6,72 +6,54 @@
 @model IEnumerable<StationeryShop.Models.Review>
 
 <style>
+    /* Дополнительные стили специфичные для отзывов */
     .page-title {
         font-size: 1.6rem;
         font-weight: 700;
         color: #1a1a2e;
-        position: relative;
-        display: inline-block;
-        margin-bottom: 1rem;
-    }
-
-    .page-title::after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        left: 0;
-        width: 50px;
-        height: 3px;
-        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
-        border-radius: 2px;
+        margin-bottom: 0;
     }
 
     /* Карточки статистики */
+    .stats-row {
+        margin-bottom: 25px;
+    }
+
     .stat-card {
         border: none;
         border-radius: 16px;
-        padding: 15px 20px;
-        transition: all 0.2s ease;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
+        transition: all 0.3s ease;
         cursor: pointer;
+        overflow: hidden;
+        position: relative;
+        height: 100%;
     }
 
-    .stat-card:hover {
-        transform: translateY(-3px);
-    }
 
-    .stat-card .stat-icon {
-        font-size: 1.8rem;
-        opacity: 0.12;
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+    .stat-icon {
+        font-size: 2rem;
+        opacity: 0.15;
         position: absolute;
-        bottom: 10px;
+        bottom: 12px;
         right: 15px;
-    }
-
-    .stat-card .stat-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        margin-bottom: 3px;
-    }
-
-    .stat-card .stat-label {
-        font-size: 0.75rem;
-        opacity: 0.85;
     }
 
     /* Фильтры */
     .filter-bar {
         background: white;
-        border-radius: 16px;
-        padding: 15px 20px;
+        border-radius: 20px;
+        padding: 20px 24px;
         margin-bottom: 25px;
         display: flex;
         flex-wrap: wrap;
         align-items: flex-end;
         gap: 15px;
-        border: 1px solid #e9ecef;
+        border: 1px solid #eef2f6;
     }
 
     .filter-item {
@@ -79,131 +61,138 @@
         min-width: 150px;
     }
 
-    .filter-item label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: #6c757d;
-        margin-bottom: 4px;
-        display: block;
+        .filter-item label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .filter-item select,
+        .filter-item input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+            .filter-item select:focus,
+            .filter-item input:focus {
+                border-color: #2c5aa0;
+                box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+                outline: none;
+            }
+
+    /* Текст отзыва с ограничением */
+    .review-comment {
+        max-width: 300px;
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.4;
     }
 
-    .filter-item select, .filter-item input {
-        width: 100%;
-        padding: 8px 12px;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        font-size: 0.85rem;
-    }
-
-    /* Таблица */
-    .reviews-table {
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    .reviews-table thead th {
-        background: #f8f9fa;
-        font-weight: 600;
-        padding: 12px;
-        border-bottom: 2px solid #e9ecef;
-    }
-
-    .reviews-table tbody td {
-        padding: 10px 12px;
-        vertical-align: middle;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .reviews-table tbody tr:hover {
-        background: #f8f9fa;
-    }
-
-    /* Бейджи статусов */
-    .status-badge {
-        padding: 4px 12px;
-        border-radius: 30px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        display: inline-block;
-    }
-
-    .status-pending {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .status-approved {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .status-rejected {
-        background: #f8d7da;
-        color: #721c24;
+    .review-comment-full {
+        max-width: 500px;
+        white-space: normal;
+        word-break: break-word;
     }
 
     /* Звёзды */
     .stars {
-        color: #ffc107;
+        color: #f59e0b;
         font-size: 0.8rem;
         white-space: nowrap;
     }
 
-    /* Кнопки действий */
-    .action-buttons {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
+    /* Бейджи статусов для отзывов */
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
     }
 
-    .btn-icon {
-        padding: 4px 8px;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        transition: all 0.2s ease;
+    .status-approved {
+        background: #d1fae5;
+        color: #065f46;
     }
 
-    .btn-icon:hover {
-        transform: translateY(-2px);
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
     }
 
-    /* Модальное окно */
-    .modal-content {
-        border-radius: 20px;
+    /* Модальное окно для ответа */
+    .review-modal .modal-content {
+        border-radius: 24px;
+        overflow: hidden;
     }
 
-    .review-comment {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 12px;
-        margin: 10px 0;
+    .review-modal .modal-header {
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        color: white;
+        border: none;
+        padding: 18px 24px;
+    }
+
+        .review-modal .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+    .review-modal .modal-body {
+        padding: 24px;
+    }
+
+    .review-modal .original-comment {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 20px;
+        border-left: 4px solid #2c5aa0;
+    }
+
+    .review-modal .original-comment-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 </style>
 
-<div class="reviews-container">
 
 
     <!-- КАРТОЧКИ СТАТИСТИКИ -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4 col-6">
-            <div class="card stat-card bg-warning text-white" data-status="pending">
-                <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
-                <div class="stat-value" id="pendingCount">@ViewBag.PendingCount</div>
-                <div class="stat-label">На модерации</div>
+    <div class="stats-row">
+        <div class="row g-3">
+            <div class="col-md-4 col-6">
+                <div class="card stat-card bg-warning text-white" onclick="applyStatusFilter('pending')">
+                    <div class="card-body">
+                        <h6 class="card-title">На модерации</h6>
+                        <h3 id="pendingCount" class="mb-0">@ViewBag.PendingCount</h3>
+                        <i class="bi bi-clock-history stat-icon"></i>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-4 col-6">
-            <div class="card stat-card bg-success text-white" data-status="approved">
-                <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
-                <div class="stat-value" id="approvedCount">@ViewBag.ApprovedCount</div>
-                <div class="stat-label">Одобрено</div>
+            <div class="col-md-4 col-6">
+                <div class="card stat-card bg-success text-white" onclick="applyStatusFilter('approved')">
+                    <div class="card-body">
+                        <h6 class="card-title">Одобрено</h6>
+                        <h3 id="approvedCount" class="mb-0">@ViewBag.ApprovedCount</h3>
+                        <i class="bi bi-check-circle stat-icon"></i>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-4 col-6">
-            <div class="card stat-card bg-danger text-white" data-status="rejected">
-                <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
-                <div class="stat-value" id="rejectedCount">@ViewBag.RejectedCount</div>
-                <div class="stat-label">Отклонено</div>
+            <div class="col-md-4 col-6">
+                <div class="card stat-card bg-danger text-white" onclick="applyStatusFilter('rejected')">
+                    <div class="card-body">
+                        <h6 class="card-title">Отклонено</h6>
+                        <h3 id="rejectedCount" class="mb-0">@ViewBag.RejectedCount</h3>
+                        <i class="bi bi-x-circle stat-icon"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -231,12 +220,17 @@
             <label><i class="bi bi-search me-1"></i> Поиск</label>
             <input type="text" id="searchInput" class="form-control" placeholder="Email пользователя..." value="@ViewBag.Search">
         </div>
-
+        <div class="filter-item">
+            <label>&nbsp;</label>
+            <button id="resetFiltersBtn" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-repeat"></i> Сбросить
+            </button>
+        </div>
     </div>
 
     <!-- ТАБЛИЦА ОТЗЫВОВ -->
-    <div class="table-responsive">
-        <table class="table reviews-table">
+    <div class="admin-table-container">
+        <table class="admin-table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -246,10 +240,10 @@
                     <th>Отзыв</th>
                     <th>Статус</th>
                     <th>Дата</th>
-                    <th>Действия</th>
+                    <th style="text-align: center;">Действия</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="reviewsTableBody">
                 @if (Model != null && Model.Any())
                 {
                     @foreach (var review in Model)
@@ -259,20 +253,20 @@
                             <td>
                                 @if (review.ProductId != null)
                                 {
-                                    <span class="badge bg-info">
+                                    <span class="badge bg-info bg-opacity-10 text-info">
                                         <i class="bi bi-box-seam me-1"></i> @(review.Product?.Name ?? "Товар удалён")
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary">
-                                        <i class="bi bi-shop me-1"></i> Отзыв о магазине
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                        <i class="bi bi-shop me-1"></i> О магазине
                                     </span>
                                 }
                             </td>
                             <td>
-                                <strong>@(review.Customer?.FullName ?? "Пользователь")</strong><br>
-                                <small class="text-muted">@(review.Customer?.Email ?? "")</small>
+                                <div class="fw-semibold">@(review.Customer?.FullName ?? "Пользователь")</div>
+                                <div class="small text-muted">@(review.Customer?.Email ?? "")</div>
                             </td>
                             <td class="stars">
                                 @for (int i = 1; i <= 5; i++)
@@ -287,14 +281,12 @@
                                     }
                                 }
                             </td>
-                            <td style="max-width: 250px;">
-                                <div class="review-comment">
-                                    @review.Comment
-                                </div>
+                            <td class="review-comment">
+                                <div class="small">@(review.Comment.Length > 100 ? review.Comment.Substring(0, 100) + "..." : review.Comment)</div>
                                 @if (!string.IsNullOrEmpty(review.AdminResponse))
                                 {
                                     <div class="mt-2 small text-primary">
-                                        <i class="bi bi-reply-fill me-1"></i> Ответ: @review.AdminResponse
+                                        <i class="bi bi-reply-fill me-1"></i> <span class="fw-semibold">Ответ:</span> @(review.AdminResponse.Length > 60 ? review.AdminResponse.Substring(0, 60) + "..." : review.AdminResponse)
                                     </div>
                                 }
                             </td>
@@ -312,34 +304,40 @@
                                     <span class="status-badge status-rejected">Отклонён</span>
                                 }
                             </td>
-                            <td>@review.CreatedAt.ToString("dd.MM.yyyy")</td>
-                            <td>
-                                <div class="action-buttons">
+                            <td class="date-value">@review.CreatedAt.ToString("dd.MM.yyyy")</td>
+                            <td class="text-center">
+                                <div class="table-actions justify-content-center">
                                     @if (!review.IsApproved && !review.IsRejected)
                                     {
-                                        <button class="btn btn-sm btn-success approve-review" data-id="@review.Id" title="Одобрить">
+                                        <button class="btn-table-action btn-table-approve approve-review" data-id="@review.Id" title="Одобрить">
                                             <i class="bi bi-check-lg"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger reject-review" data-id="@review.Id" title="Отклонить">
+                                        <button class="btn-table-action btn-table-reject reject-review" data-id="@review.Id" title="Отклонить">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     }
                                     @if (review.IsApproved && !review.IsRejected)
                                     {
-                                        <button class="btn btn-sm btn-danger reject-review" data-id="@review.Id" title="Отклонить">
+                                        <button class="btn-table-action btn-table-reject reject-review" data-id="@review.Id" title="Отклонить">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     }
                                     @if (review.IsRejected && !review.IsApproved)
                                     {
-                                        <button class="btn btn-sm btn-success approve-review" data-id="@review.Id" title="Одобрить">
+                                        <button class="btn-table-action btn-table-approve approve-review" data-id="@review.Id" title="Одобрить">
                                             <i class="bi bi-check-lg"></i>
                                         </button>
                                     }
-                                    <button class="btn btn-sm btn-info reply-review" data-id="@review.Id" data-comment="@review.Comment" data-response="@review.AdminResponse" title="Ответить">
+                                    <button class="btn-table-action btn-table-reply reply-review"
+                                            data-id="@review.Id"
+                                            data-comment="@review.Comment"
+                                            data-response="@review.AdminResponse"
+                                            data-name="@(review.Customer?.FullName ?? "Пользователь")"
+                                            data-email="@(review.Customer?.Email ?? "")"
+                                            title="Ответить">
                                         <i class="bi bi-reply"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger delete-review" data-id="@review.Id" title="Удалить">
+                                    <button class="btn-table-action btn-table-delete delete-review" data-id="@review.Id" title="Удалить">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -350,9 +348,9 @@
                 else
                 {
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-5">
-                            <i class="bi bi-inbox fs-1"></i>
-                            <p class="mt-2">Нет отзывов</p>
+                        <td colspan="8" class="table-empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <p>Нет отзывов</p>
                         </td>
                     </tr>
                 }
@@ -362,18 +360,21 @@
 </div>
 
 <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ОТВЕТА -->
-<div class="modal fade" id="replyModal" tabindex="-1">
+<div class="modal fade review-modal" id="replyModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-reply-fill"></i> Ответ на отзыв</h5>
+                <h5 class="modal-title"><i></i> Ответ на отзыв</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="replyReviewId">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Отзыв пользователя</label>
-                    <div class="bg-light p-3 rounded" id="userComment"></div>
+                <div class="original-comment">
+                    <div class="original-comment-label">
+                        <i class="bi bi-chat-dots me-1"></i> Отзыв пользователя
+                    </div>
+                    <div class="fw-semibold" id="userNameEmail"></div>
+                    <div class="mt-2 text-muted small" id="userComment"></div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Ваш ответ</label>
@@ -382,98 +383,90 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" id="sendReplyBtn" class="btn btn-primary">Отправить ответ</button>
+                <button type="button" id="sendReplyBtn" class="btn btn-primary">
+                    <i></i> Отправить ответ
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-             function applyFilters() {
+        function applyStatusFilter(status) {
+            const type = document.getElementById('typeFilter').value;
+            const search = document.getElementById('searchInput').value;
+            window.location.href = `/Admin/Reviews?status=${status}&type=${type}&search=${encodeURIComponent(search)}`;
+        }
+
+        function applyFilters() {
             const status = document.getElementById('statusFilter').value;
             const type = document.getElementById('typeFilter').value;
             const search = document.getElementById('searchInput').value;
             window.location.href = `/Admin/Reviews?status=${status}&type=${type}&search=${encodeURIComponent(search)}`;
         }
 
-       
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            applyFilters();
-        });
+        // Фильтры
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyFilters);
 
-      
-        document.getElementById('typeFilter').addEventListener('change', function() {
-            applyFilters();
-        });
-
-        
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', function() {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                applyFilters();
-            }, 500);
+            searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        
-        document.querySelectorAll('.stat-card').forEach(card => {
-            card.addEventListener('click', function() {
-                const status = this.getAttribute('data-status');
-                const type = document.getElementById('typeFilter').value;
-                const search = document.getElementById('searchInput').value;
-                window.location.href = `/Admin/Reviews?status=${status}&type=${type}&search=${encodeURIComponent(search)}`;
-            });
+        document.getElementById('resetFiltersBtn').addEventListener('click', function() {
+            window.location.href = '/Admin/Reviews';
         });
 
         // Карточки статистики как фильтр
         document.querySelectorAll('.stat-card').forEach(card => {
             card.addEventListener('click', function() {
-                const status = this.getAttribute('data-status');
-                const type = document.getElementById('typeFilter').value;
-                const search = document.getElementById('searchInput').value;
-                window.location.href = `/Admin/Reviews?status=${status}&type=${type}&search=${encodeURIComponent(search)}`;
+                const status = this.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+                if (status) applyStatusFilter(status);
             });
         });
 
         // Одобрение отзыва
-        document.querySelectorAll('.approve-review').forEach(btn => {
-            btn.addEventListener('click', async function() {
-                const id = this.dataset.id;
-                const response = await fetch(`/Admin/ApproveReview?id=${id}`, { method: 'POST' });
-                if (response.ok) location.reload();
-            });
-        });
+        function approveReview(id) {
+            if (confirm('Одобрить этот отзыв? Он станет виден на сайте.')) {
+                fetch(`/Admin/ApproveReview?id=${id}`, { method: 'POST' })
+                    .then(response => response.ok ? location.reload() : alert('Ошибка'));
+            }
+        }
 
         // Отклонение отзыва
-        document.querySelectorAll('.reject-review').forEach(btn => {
-            btn.addEventListener('click', async function() {
-                const id = this.dataset.id;
-                const response = await fetch(`/Admin/RejectReview?id=${id}`, { method: 'POST' });
-                if (response.ok) location.reload();
-            });
-        });
+        function rejectReview(id) {
+            if (confirm('Отклонить этот отзыв? Он не будет опубликован.')) {
+                fetch(`/Admin/RejectReview?id=${id}`, { method: 'POST' })
+                    .then(response => response.ok ? location.reload() : alert('Ошибка'));
+            }
+        }
 
         // Удаление отзыва
-        document.querySelectorAll('.delete-review').forEach(btn => {
-            btn.addEventListener('click', async function() {
-                const id = this.dataset.id;
-                const response = await fetch(`/Admin/DeleteReview?id=${id}`, { method: 'POST' });
-                if (response.ok) location.reload();
-            });
-        });
+        function deleteReview(id) {
+            if (confirm('Удалить этот отзыв? Это действие нельзя отменить.')) {
+                fetch(`/Admin/DeleteReview?id=${id}`, { method: 'POST' })
+                    .then(response => response.ok ? location.reload() : alert('Ошибка'));
+            }
+        }
 
         // Модальное окно для ответа
         const replyModal = new bootstrap.Modal(document.getElementById('replyModal'));
-        
+
         document.querySelectorAll('.reply-review').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.dataset.id;
                 const comment = this.dataset.comment;
                 const response = this.dataset.response || '';
-                
+                const name = this.dataset.name;
+                const email = this.dataset.email;
+
                 document.getElementById('replyReviewId').value = id;
-                document.getElementById('userComment').innerHTML = comment;
+                document.getElementById('userNameEmail').innerHTML = `<i class="bi bi-person-circle me-1"></i> ${escapeHtml(name)} <span class="text-muted">(${escapeHtml(email)})</span>`;
+                document.getElementById('userComment').innerHTML = escapeHtml(comment);
                 document.getElementById('replyText').value = response;
                 replyModal.show();
             });
@@ -483,22 +476,41 @@
         document.getElementById('sendReplyBtn').addEventListener('click', async function() {
             const id = document.getElementById('replyReviewId').value;
             const reply = document.getElementById('replyText').value;
-            
+
+            if (!reply.trim()) {
+                alert('Введите текст ответа');
+                return;
+            }
+
+            const btn = this;
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Отправка...';
+
             const response = await fetch('/Admin/ReplyToReview', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `id=${id}&reply=${encodeURIComponent(reply)}`
             });
-            
+
             if (response.ok) {
                 replyModal.hide();
                 location.reload();
+            } else {
+                alert('Ошибка при отправке ответа');
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
             }
         });
 
-        // Enter для поиска
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') document.getElementById('applyFilter').click();
-        });
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
     </script>
 }

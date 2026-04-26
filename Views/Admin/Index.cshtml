@@ -4,6 +4,40 @@
 }
 
 <style>
+    /* Анимации и общие стили */
+    .dashboard-container {
+        animation: fadeInUp 0.4s ease-out;
+    }
+
+    .page-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 0;
+    }
+
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .date-time {
+        text-align: right;
+    }
+
+    .date-time .date {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #2c5aa0;
+    }
+
+    .date-time .time {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+
+    /* Карточки статистики (как на других вкладках) */
     .stat-card {
         border: none;
         border-radius: 16px;
@@ -11,22 +45,14 @@
         cursor: pointer;
         overflow: hidden;
         position: relative;
+        height: 100%;
     }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #3a7bd5, #00d2ff);
-        }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
 
     .stat-icon {
         font-size: 2.5rem;
@@ -35,183 +61,242 @@
         bottom: 15px;
         right: 15px;
     }
+    /* Секция последних заказов */
+    .recent-section {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        margin-top: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
 
-    .order-status {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
+    .section-header {
+        padding: 18px 24px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .section-title i {
+            font-size: 1.2rem;
+            color: #2c5aa0;
+        }
+
+        .section-title h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1a1a2e;
+        }
+
+    
+    .btn-all-orders {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        color: white;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+        .btn-all-orders:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+            color: white;
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        }
+
+        .btn-all-orders i {
+            font-size: 0.9rem;
+        }
+
+
+    /* Анимация */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Адаптивность */
+    @@media (max-width: 768px) {
+        .date-time {
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 8px 10px;
+            font-size: 0.7rem;
+        }
     }
 </style>
 
-<!-- Карточки статистики -->
-<div class="row mb-4">
-    <div class="col-md-3 col-6 mb-3">
-        <div class="card stat-card bg-primary text-white">
-            <div class="card-body">
-                <h6 class="card-title">Товары</h6>
-                <h2 class="mb-0">@ViewBag.TotalProducts</h2>
-                <small>в каталоге</small>
-                <i class="bi bi-box-seam stat-icon"></i>
+
+    <div class="row mb-4">
+        <div class="col-md-4 col-6 mb-3">
+            <div class="card stat-card bg-primary text-white" onclick="location.href='/Admin/Products'">
+                <div class="card-body">
+                    <h6 class="card-title">Товары</h6>
+                    <h2 class="mb-0">@ViewBag.TotalProducts</h2>
+                    <small>в каталоге</small>
+                    <i class="bi bi-box-seam stat-icon"></i>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-        <div class="card stat-card bg-success text-white">
-            <div class="card-body">
-                <h6 class="card-title">Категории</h6>
-                <h2 class="mb-0">@ViewBag.TotalCategories</h2>
-                <small>в каталоге</small>
-                <i class="bi bi-tags stat-icon"></i>
+        <div class="col-md-4 col-6 mb-3">
+            <div class="card stat-card bg-success text-white" onclick="location.href='/Admin/Categories'">
+                <div class="card-body">
+                    <h6 class="card-title">Категории</h6>
+                    <h2 class="mb-0">@ViewBag.TotalCategories</h2>
+                    <small>в каталоге</small>
+                    <i class="bi bi-tags stat-icon"></i>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-        <div class="card stat-card bg-info text-white">
-            <div class="card-body">
-                <h6 class="card-title">Клиенты</h6>
-                <h2 class="mb-0">@ViewBag.TotalCustomers</h2>
-                <small>зарегистрировано</small>
-                <i class="bi bi-people stat-icon"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-        <div class="card stat-card bg-warning text-white">
-            <div class="card-body">
-                <h6 class="card-title">Заказы</h6>
-                <h2 class="mb-0">@ViewBag.TotalOrders</h2>
-                <small>всего</small>
-                <i class="bi bi-bag-check stat-icon"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- Последние заказы -->
-<div class="card mb-4">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Последние заказы</h5>
-        <a asp-action="Orders" class="btn btn-sm btn-outline-primary">Все заказы →</a>
-    </div>
-    <div class="card-body">
-        @if (ViewBag.RecentOrders != null && ViewBag.RecentOrders.Count > 0)
-        {
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>№ заказа</th>
-                            <th>Клиент</th>
-                            <th>Дата</th>
-                            <th>Сумма</th>
-                            <th>Статус</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var order in ViewBag.RecentOrders)
-                        {
-                            <tr>
-                                <td>#@order.OrderID</td>
-                                <td>@order.Customer?.FullName</td>
-                                <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
-                                <td>@order.TotalAmount.ToString("0.00") BYN</td>
-                                <td>
-                                    @if (order.Status == "Выполнен")
-                                    {
-                                        <span class="order-status" style="background: #28a745;"></span>
-                                        <span class="text-success">@order.Status</span>
-                                    }
-                                    else if (order.Status == "Отменен")
-                                    {
-                                        <span class="order-status" style="background: #dc3545;"></span>
-                                        <span class="text-danger">@order.Status</span>
-                                    }
-                                    else if (order.Status == "Готов к выдаче")
-                                    {
-                                        <span class="order-status" style="background: #ffc107;"></span>
-                                        <span class="text-warning">@order.Status</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="order-status" style="background: #17a2b8;"></span>
-                                        <span class="text-info">@order.Status</span>
-                                    }
-                                </td>
-                                <td>      
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <p class="text-muted text-center mb-0">Заказов пока нет</p>
-        }
-    </div>
-</div>
-
-<!-- Товары с низким запасом и быстрые действия -->
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <div class="card h-100">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-exclamation-triangle text-warning"></i> Товары с низким запасом</h5>
-            </div>
-            <div class="card-body">
-                @if (ViewBag.LowStockProducts != null && ViewBag.LowStockProducts.Count > 0)
-                {
-                    <div class="list-group">
-                        @foreach (var product in ViewBag.LowStockProducts)
-                        {
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>@product.Name</strong>
-                                    <br>
-                                    <small class="text-muted">Осталось: @product.StockQuantity шт.</small>
-                                </div>
-                                <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.ProductID"
-                                   class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil"></i> Пополнить
-                                </a>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <p class="text-muted text-center mb-0">✅ Все товары в достаточном количестве</p>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6 mb-3">
-        <div class="card h-100">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-lightning-charge text-primary"></i> Быстрые действия</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a asp-controller="Products" asp-action="Create" class="btn btn-outline-success">
-                        <i class="bi bi-plus-circle"></i> Добавить товар
-                    </a>
-                    <a asp-controller="Categories" asp-action="Create" class="btn btn-outline-info">
-                        <i class="bi bi-tag"></i> Добавить категорию
-                    </a>
-                    <a asp-action="Orders" class="btn btn-outline-warning">
-                        <i class="bi bi-bag-check"></i> Управление заказами
-                    </a>
-                    <a asp-action="Analytics" class="btn btn-outline-primary">
-                        <i class="bi bi-graph-up"></i> Перейти к аналитике
-                    </a>
+        <div class="col-md-4 col-6 mb-3">
+            <div class="card stat-card bg-info text-white" onclick="location.href='/Admin/Customers'">
+                <div class="card-body">
+                    <h6 class="card-title">Клиенты</h6>
+                    <h2 class="mb-0">@ViewBag.TotalCustomers</h2>
+                    <small>зарегистрировано</small>
+                    <i class="bi bi-people stat-icon"></i>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 col-6 mb-3">
+            <div class="card stat-card bg-warning text-white" onclick="location.href='/Admin/ProductQuestions'">
+                <div class="card-body">
+                    <h6 class="card-title">Новые вопросы</h6>
+                    <h2 class="mb-0">@ViewBag.NewQuestionsToday</h2>
+                    <small>ожидают ответа</small>
+                    <i class="bi bi-question-circle stat-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6 mb-3">
+            <div class="card stat-card bg-warning text-white" onclick="location.href='/Admin/Reviews?status=pending'">
+                <div class="card-body">
+                    <h6 class="card-title">Новые отзывы</h6>
+                    <h2 class="mb-0">@ViewBag.NewReviewsToday</h2>
+                    <small>на модерации</small>
+                    <i class="bi bi-star stat-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6 mb-3">
+            <div class="card stat-card bg-warning text-white" onclick="location.href='/Admin/Orders'">
+                <div class="card-body">
+                    <h6 class="card-title">Новые заказы</h6>
+                    <h2 class="mb-0">@ViewBag.NewOrdersToday</h2>
+                    <small>сегодня</small>
+                    <i class="bi bi-bag-check stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПОСЛЕДНИЕ ЗАКАЗЫ -->
+<div class="recent-section">
+    <div class="section-header">
+        <div class="section-title">
+            <i class="bi bi-clock-history me-2"></i>
+            <h5>Последние заказы</h5>
+        </div>
+        <a href="/Admin/Orders" class="btn-all-orders">
+            <i class="bi bi-list-ul me-1"></i> Все заказы
+            <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+    <div class="table-responsive">
+        @if (ViewBag.RecentOrders != null && ViewBag.RecentOrders.Count > 0)
+        {
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>№ заказа</th>
+                        <th>Клиент</th>
+                        <th>Дата</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in ViewBag.RecentOrders)
+                    {
+                        <tr onclick="location.href='/Admin/Orders'">
+                            <td class="order-number">#@order.OrderID</td>
+                            <td>@(order.Customer?.FullName ?? "Не указан")</td>
+                            <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
+                            <td class="fw-bold text-success">@order.TotalAmount.ToString("0.00") BYN</td>
+                            <td>
+                                @{
+                                    string statusClass = "status-default";
+                                    string statusIcon = "bi-hourglass-split";
+                                    if (order.Status == "Выполнен")
+                                    {
+                                        statusClass = "status-completed";
+                                        statusIcon = "bi-check-circle";
+                                    }
+                                    else if (order.Status == "Отменен")
+                                    {
+                                        statusClass = "status-cancelled";
+                                        statusIcon = "bi-x-circle";
+                                    }
+                                    else if (order.Status == "Готов к выдаче")
+                                    {
+                                        statusClass = "status-ready";
+                                        statusIcon = "bi-clock-history";
+                                    }
+                                }
+                                <span class="status-badge @statusClass">
+                                    <i class="bi @statusIcon"></i> @order.Status
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>Нет заказов</p>
+            </div>
+        }
+    </div>
 </div>
+</div>
+</div>
+
+@section Scripts {
+    <script>
+    </script>
+}

@@ -4,10 +4,18 @@
 }
 
 <style>
+    /* Дополнительные стили специфичные для товаров */
+    .page-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 0;
+    }
+
     .product-card {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         border: none;
-        border-radius: 16px;
+        border-radius: 20px;
         overflow: hidden;
     }
 
@@ -19,29 +27,29 @@
     .stock-badge {
         padding: 4px 12px;
         border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
+        font-size: 0.7rem;
+        font-weight: 600;
     }
 
     .stock-high {
-        background: #d4edda;
-        color: #155724;
+        background: #d1fae5;
+        color: #065f46;
     }
 
     .stock-medium {
-        background: #fff3cd;
-        color: #856404;
+        background: #fef3c7;
+        color: #92400e;
     }
 
     .stock-low {
-        background: #f8d7da;
-        color: #721c24;
+        background: #fee2e2;
+        color: #991b1b;
     }
 
     .stock-bar {
         height: 6px;
         border-radius: 3px;
-        background: #e9ecef;
+        background: #e2e8f0;
         overflow: hidden;
     }
 
@@ -51,19 +59,65 @@
         transition: width 0.3s ease;
     }
 
-    .filter-section {
+    /* Фильтры (единый стиль) */
+    .filter-bar {
         background: white;
-        border-radius: 16px;
-        padding: 20px;
+        border-radius: 20px;
+        padding: 20px 24px;
         margin-bottom: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 15px;
+        border: 1px solid #eef2f6;
     }
+
+    .filter-item {
+        flex: 1;
+        min-width: 150px;
+    }
+
+        .filter-item label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+            .filter-item input:focus,
+            .filter-item select:focus {
+                border-color: #2c5aa0;
+                box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+                outline: none;
+            }
+
+    .btn-outline-secondary {
+        border-radius: 40px;
+        padding: 10px 20px;
+        font-weight: 500;
+    }
+
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+        }
 
     .product-image {
         width: 100%;
         height: 160px;
         object-fit: cover;
-        background: #f8f9fa;
+        background: #f8fafc;
     }
 
     /* Плавающая кнопка добавления */
@@ -71,17 +125,17 @@
         position: fixed;
         bottom: 30px;
         right: 30px;
-        width: 60px;
-        height: 60px;
+        width: 56px;
+        height: 56px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #28a745, #20c997);
+        background: linear-gradient(135deg, #10b981, #059669);
         border: none;
         color: white;
-        font-size: 28px;
+        font-size: 1.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         transition: all 0.3s ease;
         z-index: 1000;
         text-decoration: none;
@@ -89,27 +143,11 @@
 
         .floating-add-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
             color: white;
         }
 
-    /* Таблица */
-    .table-products th {
-        background: #f8f9fa;
-        font-weight: 600;
-    }
-
-    .table-products td {
-        vertical-align: middle;
-    }
-
-    .table-img {
-        width: 50px;
-        height: 50px;
-        object-fit: cover;
-        border-radius: 8px;
-    }
-
+    /* Переключатель вида */
     .view-toggle {
         display: flex;
         gap: 10px;
@@ -117,21 +155,54 @@
     }
 
         .view-toggle .btn {
-            padding: 6px 15px;
-            border-radius: 30px;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
+        .view-toggle .btn-outline-primary {
+            background: white;
+            color: #2c5aa0;
+            border: 1px solid #2c5aa0;
+        }
 
+            .view-toggle .btn-outline-primary:hover {
+                background: #2c5aa0;
+                color: white;
+            }
 
+        .view-toggle .btn-primary {
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            color: white;
+            border: none;
+        }
+
+        .view-toggle .btn-outline-secondary {
+            background: white;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+
+            .view-toggle .btn-outline-secondary:hover {
+                background: #f8f9fa;
+                border-color: #adb5bd;
+            }
+
+    /* Изображение в таблице */
+    .table-product-img {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 12px;
+        background: #f1f5f9;
     }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    
-
-    <!-- Переключатель вида карточки/таблица -->
     <div class="view-toggle">
-        <button id="cardViewBtn" class="btn btn-outline-primary active">
+        <button id="cardViewBtn" class="btn btn-primary">
             <i class="bi bi-grid-3x3-gap-fill"></i> Карточки
         </button>
         <button id="tableViewBtn" class="btn btn-outline-secondary">
@@ -141,53 +212,52 @@
 </div>
 
 <!-- Фильтры и поиск -->
-<div class="filter-section">
-    <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label fw-bold">🔍 Поиск</label>
-            <input type="text" id="searchInput" class="form-control" placeholder="Название товара...">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label fw-bold">📁 Категория</label>
-            <select id="categoryFilter" class="form-select">
-                <option value="">Все категории</option>
-                @foreach (var cat in ViewBag.Categories as List<StationeryShop.Models.Category> ?? new List<StationeryShop.Models.Category>())
-                {
-                    <option value="@cat.CategoryID">@cat.Name</option>
-                }
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label fw-bold">📊 Сортировать по</label>
-            <select id="sortBy" class="form-select">
-                <option value="Name">Названию (А-Я)</option>
-                <option value="NameDesc">Названию (Я-А)</option>
-                <option value="Price">Цене (возр.)</option>
-                <option value="PriceDesc">Цене (убыв.)</option>
-                <option value="Stock">Остатку (возр.)</option>
-                <option value="StockDesc">Остатку (убыв.)</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <button id="resetFilters" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-arrow-repeat"></i> Сброс
-            </button>
-        </div>
+<div class="filter-bar">
+    <div class="filter-item">
+        <label><i class="bi bi-search me-1"></i> Поиск</label>
+        <input type="text" id="searchInput" class="form-control" placeholder="Название товара...">
+    </div>
+    <div class="filter-item">
+        <label><i class="bi bi-folder me-1"></i> Категория</label>
+        <select id="categoryFilter" class="form-select">
+            <option value="">Все категории</option>
+            @foreach (var cat in ViewBag.Categories as List<StationeryShop.Models.Category> ?? new List<StationeryShop.Models.Category>())
+            {
+                <option value="@cat.CategoryID">@cat.Name</option>
+            }
+        </select>
+    </div>
+    <div class="filter-item">
+        <label><i class="bi bi-sort-down me-1"></i> Сортировка</label>
+        <select id="sortBy" class="form-select">
+            <option value="Name">Названию (А-Я)</option>
+            <option value="NameDesc">Названию (Я-А)</option>
+            <option value="Price">Цене (сначала дешевле)</option>
+            <option value="PriceDesc">Цене (сначала дороже)</option>
+            <option value="Stock">Остатку (сначала меньше)</option>
+            <option value="StockDesc">Остатку (сначала больше)</option>
+        </select>
+    </div>
+    <div class="filter-item" style="flex: 0.3;">
+        <label>&nbsp;</label>
+        <button id="resetFilters" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-arrow-repeat"></i> Сброс
+        </button>
     </div>
 </div>
 
-<!-- Контейнер для карточек -->
+<!-- Карточки товаров -->
 <div id="cardsContainer" class="row g-4">
     <div class="col-12 text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2">Загрузка товаров...</p>
+        <p class="mt-2 text-muted">Загрузка товаров...</p>
     </div>
 </div>
 
-<!-- Контейнер для таблицы (скрыт по умолчанию) -->
+<!-- ТАБЛИЦА ТОВАРОВ -->
 <div id="tableViewContainer" style="display: none;">
-    <div class="table-responsive">
-        <table class="table table-hover table-products">
+    <div class="admin-table-container">
+        <table class="admin-table">
             <thead>
                 <tr>
                     <th>Фото</th>
@@ -195,16 +265,19 @@
                     <th>Категория</th>
                     <th>Цена</th>
                     <th>Остаток</th>
-                    <th>Действия</th>
+                    <th style="text-align: center;">Действия</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
+                <tr>
+                    <td colspan="6" class="table-empty-state">Загрузка...</td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Плавающая кнопка добавления товара -->
+<!-- Плавающая кнопка добавления -->
 <a asp-controller="Products" asp-action="Create" class="floating-add-btn" title="Добавить товар">
     <i class="bi bi-plus-lg"></i>
 </a>
@@ -213,7 +286,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         let currentProducts = [];
-        let currentView = 'cards'; // cards или table
+        let currentView = 'cards';
 
         function getStockClass(quantity) {
             if (quantity >= 20) return 'stock-high';
@@ -222,9 +295,9 @@
         }
 
         function getStockBarColor(quantity) {
-            if (quantity >= 20) return '#28a745';
-            if (quantity >= 5) return '#ffc107';
-            return '#dc3545';
+            if (quantity >= 20) return '#10b981';
+            if (quantity >= 5) return '#f59e0b';
+            return '#ef4444';
         }
 
         async function loadProducts() {
@@ -247,10 +320,10 @@
             $('#cardsContainer').html(`
                 <div class="col-12 text-center py-5">
                     <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2">Загрузка товаров...</p>
+                    <p class="mt-2 text-muted">Загрузка товаров...</p>
                 </div>
             `);
-            $('#tableBody').html('<tr><td colspan="6" class="text-center">Загрузка...</td></tr>');
+            $('#tableBody').html('<tr><td colspan="6" class="table-empty-state">Загрузка...</td></tr>');
 
             try {
                 const response = await fetch(`/Admin/GetProducts?search=${encodeURIComponent(search)}&categoryId=${categoryId}&sortBy=${sortField}&ascending=${ascending}`);
@@ -261,7 +334,7 @@
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
                 $('#cardsContainer').html('<div class="col-12 text-center py-5 text-danger">Ошибка загрузки товаров</div>');
-                $('#tableBody').html('<tr><td colspan="6" class="text-center text-danger">Ошибка загрузки</td></tr>');
+                $('#tableBody').html('<tr><td colspan="6" class="table-empty-state text-danger">Ошибка загрузки</td></tr>');
             }
         }
 
@@ -269,7 +342,7 @@
             if (!products.length) {
                 $('#cardsContainer').html(`
                     <div class="col-12 text-center py-5">
-                        <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+                        <i class="bi bi-inbox" style="font-size: 4rem; color: #cbd5e1;"></i>
                         <p class="mt-3 text-muted">Товары не найдены</p>
                     </div>
                 `);
@@ -287,9 +360,9 @@
                         <div class="card product-card h-100">
                             <div class="position-relative">
                                 ${product.photoBase64 ?
-                                    `<img src="data:image/png;base64,${product.photoBase64}" class="product-image" alt="${product.name}">` :
+                                    `<img src="data:image/png;base64,${product.photoBase64}" class="product-image" alt="${escapeHtml(product.name)}">` :
                                     `<div class="product-image d-flex align-items-center justify-content-center bg-light">
-                                        <i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i>
+                                        <i class="bi bi-image" style="font-size: 3rem; color: #cbd5e1;"></i>
                                      </div>`
                                 }
                                 <div class="position-absolute top-0 end-0 m-2">
@@ -300,7 +373,7 @@
                                 <h6 class="card-title fw-bold">${escapeHtml(product.name)}</h6>
                                 <p class="card-text text-muted small">${escapeHtml(product.description?.substring(0, 60) || 'Без описания')}${product.description?.length > 60 ? '...' : ''}</p>
                                 <div class="mb-2">
-                                    <span class="badge bg-secondary">${product.categoryName || 'Без категории'}</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">${product.categoryName || 'Без категории'}</span>
                                 </div>
                                 <div class="mb-2">
                                     <div class="stock-bar">
@@ -309,14 +382,14 @@
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
                                     <span class="h5 mb-0 text-success">${product.price.toFixed(2)} BYN</span>
-                                    <div class="btn-group">
-                                        <a href="/Products/Details/${product.productID}" class="btn btn-sm btn-outline-info" title="Детали">
+                                    <div class="table-actions">
+                                        <a href="/Products/Details/${product.productID}" class="btn-table-action btn-table-view" title="Детали">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a href="/Products/Edit/${product.productID}" class="btn btn-sm btn-outline-primary" title="Редактировать">
+                                        <a href="/Products/Edit/${product.productID}" class="btn-table-action btn-table-edit" title="Редактировать">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a href="/Products/Delete/${product.productID}" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                        <a href="/Products/Delete/${product.productID}" class="btn-table-action btn-table-delete" title="Удалить">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
@@ -326,13 +399,12 @@
                     </div>
                 `;
             }
-
             $('#cardsContainer').html(html);
         }
 
         function renderTable(products) {
             if (!products.length) {
-                $('#tableBody').html('<tr><td colspan="6" class="text-center text-muted">Товары не найдены</td></tr>');
+                $('#tableBody').html('<tr><td colspan="6" class="table-empty-state"><i class="bi bi-inbox"></i><p>Товары не найдены</p></td></tr>');
                 return;
             }
 
@@ -343,25 +415,25 @@
                     <tr>
                         <td>
                             ${product.photoBase64 ?
-                                `<img src="data:image/png;base64,${product.photoBase64}" class="table-img" alt="${product.name}">` :
-                                `<div class="table-img d-flex align-items-center justify-content-center bg-light rounded">
-                                    <i class="bi bi-image text-muted"></i>
+                                `<img src="data:image/png;base64,${product.photoBase64}" class="table-product-img" alt="${escapeHtml(product.name)}">` :
+                                `<div class="table-product-img d-flex align-items-center justify-content-center bg-light">
+                                    <i class="bi bi-image text-muted" style="font-size: 1.2rem;"></i>
                                  </div>`
                             }
                         </td>
-                        <td class="fw-bold">${escapeHtml(product.name)}</td>
-                        <td><span class="badge bg-secondary">${product.categoryName || 'Без категории'}</span></td>
-                        <td class="text-success fw-bold">${product.price.toFixed(2)} BYN</td>
+                        <td class="fw-semibold">${escapeHtml(product.name)}</td>
+                        <td><span class="badge bg-secondary bg-opacity-10 text-secondary">${product.categoryName || 'Без категории'}</span></td>
+                        <td class="price-value">${product.price.toFixed(2)} BYN</td>
                         <td><span class="stock-badge ${stockClass}">${product.stockQuantity} шт</span></td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="/Products/Details/${product.productID}" class="btn btn-outline-info" title="Детали">
+                        <td class="text-center">
+                            <div class="table-actions justify-content-center">
+                                <a href="/Products/Details/${product.productID}" class="btn-table-action btn-table-view" title="Детали">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="/Products/Edit/${product.productID}" class="btn btn-outline-primary" title="Редактировать">
+                                <a href="/Products/Edit/${product.productID}" class="btn-table-action btn-table-edit" title="Редактировать">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="/Products/Delete/${product.productID}" class="btn btn-outline-danger" title="Удалить">
+                                <a href="/Products/Delete/${product.productID}" class="btn-table-action btn-table-delete" title="Удалить">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -382,7 +454,6 @@
             });
         }
 
-        // Переключение вида
         function setView(view) {
             currentView = view;
             if (view === 'cards') {

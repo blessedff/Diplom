@@ -174,6 +174,48 @@
             background: #f8f9fa;
         }
 
+    .filter-bar {
+        background: white;
+        border-radius: 20px;
+        padding: 20px 24px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 15px;
+        border: 1px solid #eef2f6;
+    }
+
+    .filter-item {
+        flex: 1;
+        min-width: 150px;
+    }
+
+        .filter-item label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+            .filter-item input:focus,
+            .filter-item select:focus {
+                border-color: #2c5aa0;
+                box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+                outline: none;
+            }
     .profit-bar-container {
         background: #e9ecef;
         border-radius: 8px;
@@ -218,29 +260,22 @@
     }
 </style>
 
-<div class="finance-container">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <button class="btn btn-outline-secondary" id="editExpensesMainBtn">
-            <i class="bi bi-gear"></i> Редактировать расходы
+<div class="filter-bar">
+    <div class="filter-item">
+        <label><i class="bi bi-calendar3 me-1"></i> Начало периода</label>
+        <input type="date" id="startDate" class="form-control" value="@ViewBag.StartDate">
+    </div>
+    <div class="filter-item">
+        <label><i class="bi bi-calendar3 me-1"></i> Конец периода</label>
+        <input type="date" id="endDate" class="form-control" value="@ViewBag.EndDate">
+    </div>
+    <div class="filter-item" style="flex: 0.5;">
+        <label>&nbsp;</label>
+        <button id="applyFilter" class="btn btn-primary w-100">
+            <i class="bi bi-arrow-repeat me-1"></i> Применить
         </button>
     </div>
-
-  
-    <div class="row g-3 mb-4">
-        <div class="col-md-5">
-            <label class="form-label fw-bold">📅 Начало периода</label>
-            <input type="date" id="startDate" class="form-control" value="@ViewBag.StartDate">
-        </div>
-        <div class="col-md-5">
-            <label class="form-label fw-bold">📅 Конец периода</label>
-            <input type="date" id="endDate" class="form-control" value="@ViewBag.EndDate">
-        </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button id="applyFilter" class="btn btn-primary w-100">
-                <i class="bi bi-arrow-repeat me-1"></i> Применить
-            </button>
-        </div>
-    </div>
+</div>
 
   
     <div class="mb-3">

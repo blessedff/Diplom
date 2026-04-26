@@ -4,205 +4,302 @@
 }
 
 <style>
-    .filter-section {
-        background: white;
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    /* Дополнительные стили специфичные для заказов */
+    .page-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 0;
     }
 
+
+
+    /* Карточки статистики */
     .stats-row {
         margin-bottom: 25px;
     }
 
     .stat-card {
         border: none;
-        border-radius: 12px;
-        transition: transform 0.2s;
-        text-align: center;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        overflow: hidden;
+        position: relative;
+        height: 100%;
     }
+
 
         .stat-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
 
-    .status-badge {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
+    .stat-icon {
+        font-size: 2rem;
+        opacity: 0.15;
+        position: absolute;
+        bottom: 12px;
+        right: 15px;
     }
 
-    .status-confirmed {
-        background: #cfe2ff;
-        color: #084298;
-    }
-
-    .status-processing {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .status-ready {
-        background: #d1e7dd;
-        color: #0f5132;
-    }
-
-    .status-completed {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .status-cancelled {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .table-orders th {
-        background: #f8f9fa;
+    /* Селект статуса в таблице */
+    .status-select {
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 0.75rem;
         font-weight: 600;
+        border: 1px solid #e2e8f0;
+        background: white;
         cursor: pointer;
+        transition: all 0.2s ease;
     }
 
-        .table-orders th:hover {
-            background: #e9ecef;
+        .status-select:hover {
+            border-color: #2c5aa0;
+        }
+
+        .status-select:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.2);
         }
 
     .pagination-container {
-        margin-top: 20px;
         display: flex;
         justify-content: center;
-        gap: 5px;
+        gap: 8px;
+        margin-top: 25px;
+        flex-wrap: wrap;
     }
 
     .pagination-btn {
-        padding: 8px 12px;
-        border: 1px solid #dee2e6;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid #e2e8f0;
         background: white;
-        border-radius: 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #475569;
         cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
+        .pagination-btn:hover {
+            background: #f1f5f9;
+            border-color: #2c5aa0;
+            color: #2c5aa0;
+            transform: translateY(-2px);
+        }
+
         .pagination-btn.active {
-            background: #3a7bd5;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
             color: white;
-            border-color: #3a7bd5;
+            border-color: #2c5aa0;
+            box-shadow: 0 4px 10px rgba(44, 90, 160, 0.25);
+        }
+
+        .pagination-btn.disabled {
+            background: #f8fafc;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+            .pagination-btn.disabled:hover {
+                transform: none;
+                background: #f8fafc;
+                border-color: #e2e8f0;
+            }
+
+    /* Стрелки назад/вперёд */
+    .pagination-arrow {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    /* Информация о пагинации */
+    .pagination-info {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+
+    .filter-bar {
+        background: white;
+        border-radius: 20px;
+        padding: 20px 24px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 15px;
+        border: 1px solid #eef2f6;
+    }
+
+    .filter-item {
+        flex: 1;
+        min-width: 150px;
+    }
+
+        .filter-item label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+            .filter-item input:focus,
+            .filter-item select:focus {
+                border-color: #2c5aa0;
+                box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+                outline: none;
+            }
+
+    .btn-outline-secondary {
+        border-radius: 40px;
+        padding: 10px 20px;
+        font-weight: 500;
+    }
+
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
         }
 </style>
 
-<!-- Статистика -->
-<div class="stats-row">
-    <div class="row g-3">
-        <div class="col-md-3 col-6">
-            <div class="card stat-card bg-primary text-white">
-                <div class="card-body">
-                    <h6 class="card-title">Всего заказов</h6>
-                    <h3 id="totalCount" class="mb-0">0</h3>
+
+
+    <!-- СТАТИСТИКА -->
+    <div class="stats-row">
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <div class="card stat-card bg-primary text-white" onclick="applyStatusFilter('')">
+                    <div class="card-body">
+                        <h6 class="card-title">Всего заказов</h6>
+                        <h3 id="totalCount" class="mb-0">0</h3>
+                        <i class="bi bi-bag-check stat-icon"></i>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card stat-card bg-success text-white">
-                <div class="card-body">
-                    <h6 class="card-title">Выполнено</h6>
-                    <h3 id="completedCount" class="mb-0">0</h3>
+            <div class="col-md-3 col-6">
+                <div class="card stat-card bg-success text-white" onclick="applyStatusFilter('Выполнен')">
+                    <div class="card-body">
+                        <h6 class="card-title">Выполнено</h6>
+                        <h3 id="completedCount" class="mb-0">0</h3>
+                        <i class="bi bi-check-circle stat-icon"></i>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card stat-card bg-warning text-white">
-                <div class="card-body">
-                    <h6 class="card-title">В обработке</h6>
-                    <h3 id="processingCount" class="mb-0">0</h3>
+            <div class="col-md-3 col-6">
+                <div class="card stat-card bg-warning text-white" onclick="applyStatusFilter('Сформирован')">
+                    <div class="card-body">
+                        <h6 class="card-title">В обработке</h6>
+                        <h3 id="processingCount" class="mb-0">0</h3>
+                        <i class="bi bi-hourglass-split stat-icon"></i>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card stat-card bg-danger text-white">
-                <div class="card-body">
-                    <h6 class="card-title">Отменено</h6>
-                    <h3 id="cancelledCount" class="mb-0">0</h3>
+            <div class="col-md-3 col-6">
+                <div class="card stat-card bg-danger text-white" onclick="applyStatusFilter('Отменен')">
+                    <div class="card-body">
+                        <h6 class="card-title">Отменено</h6>
+                        <h3 id="cancelledCount" class="mb-0">0</h3>
+                        <i class="bi bi-x-circle stat-icon"></i>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Фильтры -->
-<div class="filter-section">
-    <div class="row g-3 align-items-end">
-        <div class="col-md-3">
-            <label class="form-label fw-bold">🔍 Поиск</label>
-            <input type="text" id="searchInput" class="form-control" placeholder="№ заказа, клиент, email...">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label fw-bold">🏷️ Статус</label>
-            <select id="statusFilter" class="form-select">
-                <option value="">Все статусы</option>
-                <option value="Принят">Принят</option>
-                <option value="Сформирован">Сформирован</option>
-                <option value="Готов к выдаче">Готов к выдаче</option>
-                <option value="Выполнен">Выполнен</option>
-                <option value="Отменен">Отменен</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label fw-bold">📅 Дата с</label>
-            <input type="date" id="startDate" class="form-control">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label fw-bold">📅 Дата по</label>
-            <input type="date" id="endDate" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label fw-bold">📊 Сортировать по</label>
-            <select id="sortBy" class="form-select">
-                <option value="Date">Дате (новые сначала)</option>
-                <option value="DateAsc">Дате (старые сначала)</option>
-                <option value="Id">Номеру заказа</option>
-                <option value="Customer">Клиенту</option>
-                <option value="Amount">Сумме</option>
-                <option value="Status">Статусу</option>
-            </select>
-        </div>
+    <!-- ФИЛЬТРЫ -->
+<div class="filter-bar">
+    <div class="filter-item">
+        <label><i class="bi bi-search me-1"></i> Поиск</label>
+        <input type="text" id="searchInput" class="form-control" placeholder="№ заказа, клиент, email...">
     </div>
-    <div class="row mt-3">
-        <div class="col-12">
-            <button id="resetFilters" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-repeat"></i> Сбросить фильтры
-            </button>
-        </div>
+    <div class="filter-item">
+        <label><i class="bi bi-tag me-1"></i> Статус</label>
+        <select id="statusFilter" class="form-select">
+            <option value="">Все статусы</option>
+            <option value="Принят">Принят</option>
+            <option value="Сформирован">Сформирован</option>
+            <option value="Готов к выдаче">Готов к выдаче</option>
+            <option value="Выполнен">Выполнен</option>
+            <option value="Отменен">Отменен</option>
+        </select>
+    </div>
+    <div class="filter-item">
+        <label><i class="bi bi-calendar3 me-1"></i> Дата с</label>
+        <input type="date" id="startDate" class="form-control">
+    </div>
+    <div class="filter-item">
+        <label><i class="bi bi-calendar3 me-1"></i> Дата по</label>
+        <input type="date" id="endDate" class="form-control">
+    </div>
+    <div class="filter-item">
+        <label><i class="bi bi-sort-down me-1"></i> Сортировка</label>
+        <select id="sortBy" class="form-select">
+            <option value="Date">Дате (новые сначала)</option>
+            <option value="DateAsc">Дате (старые сначала)</option>
+            <option value="Id">Номеру заказа</option>
+            <option value="Customer">Клиенту</option>
+            <option value="Amount">Сумме</option>
+            <option value="Status">Статусу</option>
+        </select>
+    </div>
+    <div class="filter-item" style="flex: 0.3;">
+        <label>&nbsp;</label>
+        <button id="resetFilters" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-arrow-repeat"></i> Сброс
+        </button>
     </div>
 </div>
 
-<!-- Таблица заказов -->
-<div class="table-responsive">
-    <table class="table table-hover table-orders">
-        <thead>
-            <tr>
-                <th data-sort="Id">№ заказа <i class=""></i></th>
-                <th data-sort="Customer">Клиент <i class=""></i></th>
-                <th data-sort="Date">Дата <i class=""></i></th>
-                <th>Товаров</th>
-                <th data-sort="Amount">Сумма <i class=""></i></th>
-                <th data-sort="Status">Статус <i class=""></i></th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody id="ordersTableBody">
-            <tr>
-                <td colspan="7" class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2">Загрузка заказов...</p>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+    <!-- ТАБЛИЦА ЗАКАЗОВ -->
+    <div class="admin-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>№ заказа</th>
+                    <th>Клиент</th>
+                    <th>Дата</th>
+                    <th>Товаров</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th style="text-align: center;">Действия</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                <tr>
+                    <td colspan="7" class="table-empty-state">
+                        <i class="bi bi-inbox"></i>
+                        <p>Загрузка заказов...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-<!-- Пагинация -->
-<div id="paginationContainer" class="pagination-container"></div>
+    <!-- ПАГИНАЦИЯ -->
+    <div id="paginationContainer" class="pagination-container mt-4"></div>
+</div>
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -212,25 +309,48 @@
         let itemsPerPage = 15;
         let currentSort = { field: 'Date', ascending: false };
 
-       
+        // Применение фильтра по статусу из карточки
+        function applyStatusFilter(status) {
+            if (status === '') {
+                $('#statusFilter').val('');
+            } else {
+                $('#statusFilter').val(status);
+            }
+            currentPage = 1;
+            loadOrders();
+        }
+
+        // Получение класса статуса
         function getStatusClass(status) {
             switch(status) {
-                case 'Принят': return 'status-confirmed';
-                case 'Сформирован': return 'status-processing';
+                case 'Принят': return 'status-default';
+                case 'Сформирован': return 'status-pending';
                 case 'Готов к выдаче': return 'status-ready';
                 case 'Выполнен': return 'status-completed';
                 case 'Отменен': return 'status-cancelled';
-                default: return 'status-processing';
+                default: return 'status-pending';
             }
         }
 
-        // Функция загрузки заказов
+        // Получение иконки статуса
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'Принят': return 'bi-hourglass-split';
+                case 'Сформирован': return 'bi-arrow-repeat';
+                case 'Готов к выдаче': return 'bi-clock-history';
+                case 'Выполнен': return 'bi-check-circle';
+                case 'Отменен': return 'bi-x-circle';
+                default: return 'bi-hourglass-split';
+            }
+        }
+
+        // Загрузка заказов
         async function loadOrders() {
             const search = $('#searchInput').val();
             const status = $('#statusFilter').val();
             const startDate = $('#startDate').val();
             const endDate = $('#endDate').val();
-            let sortBy = $('#sortBy').val();
+            const sortBy = $('#sortBy').val();
 
             let sortField = 'Date';
             let ascending = false;
@@ -245,10 +365,12 @@
             }
 
             $('#ordersTableBody').html(`
-                <tr><td colspan="7" class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2">Загрузка заказов...</p>
-                </td></tr>
+                <tr>
+                    <td colspan="7" class="table-empty-state">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2">Загрузка заказов...</p>
+                    </td>
+                </tr>
             `);
 
             try {
@@ -265,7 +387,7 @@
                 renderPagination(orders);
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
-                $('#ordersTableBody').html('<tr><td colspan="7" class="text-center text-danger py-5">Ошибка загрузки заказов</td></tr>');
+                $('#ordersTableBody').html('<tr><td colspan="7" class="table-empty-state text-danger">Ошибка загрузки заказов</td></tr>');
             }
         }
 
@@ -274,7 +396,7 @@
             const total = orders.length;
             const completed = orders.filter(o => o.status === 'Выполнен').length;
             const cancelled = orders.filter(o => o.status === 'Отменен').length;
-            const processing = total - completed - cancelled;
+            const processing = orders.filter(o => o.status === 'Сформирован' || o.status === 'Принят' || o.status === 'Готов к выдаче').length;
 
             $('#totalCount').text(total);
             $('#completedCount').text(completed);
@@ -285,7 +407,14 @@
         // Отображение таблицы
         function renderTable(orders) {
             if (!orders.length) {
-                $('#ordersTableBody').html('<tr><td colspan="7" class="text-center text-muted py-5">Заказы не найдены</td></tr>');
+                $('#ordersTableBody').html(`
+                    <tr>
+                        <td colspan="7" class="table-empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <p>Заказы не найдены</p>
+                        </td>
+                    </tr>
+                `);
                 return;
             }
 
@@ -297,19 +426,20 @@
             for (const order of pageOrders) {
                 const date = new Date(order.orderDate).toLocaleDateString('ru-RU');
                 const statusClass = getStatusClass(order.status);
+                const statusIcon = getStatusIcon(order.status);
 
                 html += `
                     <tr>
-                        <td class="fw-bold">#${order.orderID}</td>
+                        <td class="order-number">#${order.orderID}</td>
                         <td>
-                            <strong>${escapeHtml(order.customerName)}</strong><br>
-                            <small class="text-muted">${escapeHtml(order.customerEmail)}</small>
+                            <div class="fw-semibold">${escapeHtml(order.customerName)}</div>
+                            <div class="small text-muted">${escapeHtml(order.customerEmail)}</div>
                         </td>
-                        <td>${date}</td>
+                        <td class="date-value">${date}</td>
                         <td>${order.itemsCount} шт</td>
-                        <td class="text-success fw-bold">${order.totalAmount.toFixed(2)} BYN</td>
+                        <td class="price-value">${order.totalAmount.toFixed(2)} BYN</td>
                         <td>
-                            <select class="form-select form-select-sm status-select" data-order-id="${order.orderID}" style="width: 130px;">
+                            <select class="status-select status-select-order" data-order-id="${order.orderID}" data-old-status="${order.status}">
                                 <option value="Принят" ${order.status === 'Принят' ? 'selected' : ''}>Принят</option>
                                 <option value="Сформирован" ${order.status === 'Сформирован' ? 'selected' : ''}>Сформирован</option>
                                 <option value="Готов к выдаче" ${order.status === 'Готов к выдаче' ? 'selected' : ''}>Готов к выдаче</option>
@@ -317,12 +447,12 @@
                                 <option value="Отменен" ${order.status === 'Отменен' ? 'selected' : ''}>Отменен</option>
                             </select>
                         </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-info view-details" data-id="${order.orderID}" title="Детали">
+                        <td class="text-center">
+                            <div class="table-actions justify-content-center">
+                                <button class="btn-table-action btn-table-view view-details" data-id="${order.orderID}" title="Детали">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                <button class="btn btn-outline-secondary print-invoice" data-id="${order.orderID}" title="Накладная">
+                                <button class="btn-table-action btn-table-print print-invoice" data-id="${order.orderID}" title="Накладная">
                                     <i class="bi bi-printer"></i>
                                 </button>
                             </div>
@@ -332,7 +462,7 @@
             }
             $('#ordersTableBody').html(html);
 
-            // Привязываем события к кнопкам
+            // Привязываем события
             $('.view-details').on('click', function() {
                 const orderId = $(this).data('id');
                 window.location.href = `/Orders/Details/${orderId}`;
@@ -344,15 +474,20 @@
             });
 
             // Привязываем событие изменения статуса
-            $('.status-select').on('change', async function() {
-                const orderId = $(this).data('order-id');
-                const newStatus = $(this).val();
-                const oldStatus = $(this).data('old-status') || '';
+            $('.status-select-order').off('change').on('change', async function() {
+                const $select = $(this);
+                const orderId = $select.data('order-id');
+                const newStatus = $select.val();
+                const oldStatus = $select.data('old-status');
 
                 if (!confirm(`Изменить статус заказа #${orderId} на "${newStatus}"?`)) {
-                    $(this).val(oldStatus);
+                    $select.val(oldStatus);
                     return;
                 }
+
+                // Показываем индикатор загрузки
+                const originalText = $select.html();
+                $select.prop('disabled', true);
 
                 try {
                     const response = await fetch('/Admin/UpdateOrderStatus', {
@@ -363,55 +498,107 @@
                     const result = await response.json();
 
                     if (result.success) {
-                        showNotification('Статус заказа обновлён', 'success');
+                        showNotification(result.message, 'success');
                         loadOrders();
                     } else {
                         showNotification(result.message, 'error');
-                        $(this).val(oldStatus);
+                        $select.val(oldStatus).prop('disabled', false);
                     }
                 } catch (error) {
                     showNotification('Ошибка при обновлении статуса', 'error');
-                    $(this).val(oldStatus);
+                    $select.val(oldStatus).prop('disabled', false);
                 }
-            });
-
-            $('.status-select').each(function() {
-                $(this).data('old-status', $(this).val());
             });
         }
 
-        
-        function renderPagination(orders) {
+        // Пагинация
+           function renderPagination(orders) {
             const totalPages = Math.ceil(orders.length / itemsPerPage);
+
+            // Удаляем старый блок информации, если он есть
+            $('.pagination-info').remove();
+
             if (totalPages <= 1) {
                 $('#paginationContainer').empty();
                 return;
             }
 
             let html = '';
-            for (let i = 1; i <= Math.min(totalPages, 10); i++) {
+
+            // Кнопка "Назад"
+            if (currentPage > 1) {
+                html += `<button class="pagination-btn pagination-arrow" data-page="${currentPage - 1}">‹</button>`;
+            } else {
+                html += `<button class="pagination-btn disabled" disabled>‹</button>`;
+            }
+
+            // Первая страница
+            if (currentPage > 2) {
+                html += `<button class="pagination-btn" data-page="1">1</button>`;
+                if (currentPage > 3) {
+                    html += `<span class="pagination-btn disabled">...</span>`;
+                }
+            }
+
+            // Страницы вокруг текущей
+            const startPage = Math.max(1, currentPage - 1);
+            const endPage = Math.min(totalPages, currentPage + 1);
+
+            for (let i = startPage; i <= endPage; i++) {
                 html += `<button class="pagination-btn ${currentPage === i ? 'active' : ''}" data-page="${i}">${i}</button>`;
             }
-            if (totalPages > 10) {
-                html += `<span class="pagination-btn disabled">...</span>`;
+
+            // Последняя страница
+            if (currentPage < totalPages - 1) {
+                if (currentPage < totalPages - 2) {
+                    html += `<span class="pagination-btn disabled">...</span>`;
+                }
                 html += `<button class="pagination-btn" data-page="${totalPages}">${totalPages}</button>`;
             }
 
+            // Кнопка "Вперёд"
+            if (currentPage < totalPages) {
+                html += `<button class="pagination-btn pagination-arrow" data-page="${currentPage + 1}">›</button>`;
+            } else {
+                html += `<button class="pagination-btn disabled" disabled>›</button>`;
+            }
+
             $('#paginationContainer').html(html);
-            $('.pagination-btn').on('click', function() {
-                const page = $(this).data('page');
-                if (page) {
+
+            // Информация о страницах
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, orders.length);
+
+            // Добавляем блок информации (только один раз)
+            $('#paginationContainer').after(`
+                <div class="pagination-info">
+                    Показано ${startItem}-${endItem} из ${orders.length} заказов
+                </div>
+            `);
+
+            $('.pagination-btn[data-page]').off('click').on('click', function() {
+                const page = parseInt($(this).data('page'));
+                if (!isNaN(page) && page !== currentPage) {
                     currentPage = page;
                     renderTable(allOrders);
                     renderPagination(allOrders);
+                    $('html, body').animate({ scrollTop: 0 }, 300);
                 }
             });
         }
 
+        // Уведомление
         function showNotification(message, type) {
             const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            const alert = $(`<div class="alert ${alertClass} alert-dismissible fade show">${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`);
-            $('.admin-header').after(alert);
+            const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+            const alert = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show position-fixed top-0 end-0 m-3" style="z-index: 9999; min-width: 300px;">
+                    <i class="bi ${icon} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+            $('body').append(alert);
             setTimeout(() => alert.fadeOut(() => alert.remove()), 3000);
         }
 

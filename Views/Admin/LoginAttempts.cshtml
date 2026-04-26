@@ -4,69 +4,53 @@
 }
 
 <style>
+    /* Дополнительные стили специфичные для логов */
     .page-title {
         font-size: 1.6rem;
         font-weight: 700;
         color: #1a1a2e;
-        position: relative;
-        display: inline-block;
-        margin-bottom: 1rem;
+        margin-bottom: 0;
     }
 
-        .page-title::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 50px;
-            height: 3px;
-            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
-            border-radius: 2px;
-        }
+    /* Карточки статистики */
+    .stats-row {
+        margin-bottom: 25px;
+    }
 
     .stat-card {
         border: none;
         border-radius: 16px;
-        padding: 15px 20px;
-        transition: all 0.2s ease;
-        height: 100%;
-        position: relative;
+        transition: all 0.3s ease;
         overflow: hidden;
+        position: relative;
+        height: 100%;
     }
 
+
         .stat-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
 
-        .stat-card .stat-icon {
-            font-size: 1.8rem;
-            opacity: 0.12;
-            position: absolute;
-            bottom: 10px;
-            right: 15px;
-        }
+    .stat-icon {
+        font-size: 2rem;
+        opacity: 0.15;
+        position: absolute;
+        bottom: 12px;
+        right: 15px;
+    }
 
-        .stat-card .stat-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 3px;
-        }
-
-        .stat-card .stat-label {
-            font-size: 0.75rem;
-            opacity: 0.85;
-        }
-
+    /* Фильтры */
     .filter-bar {
         background: white;
-        border-radius: 16px;
-        padding: 15px 20px;
+        border-radius: 20px;
+        padding: 20px 24px;
         margin-bottom: 25px;
         display: flex;
         flex-wrap: wrap;
         align-items: flex-end;
         gap: 15px;
-        border: 1px solid #e9ecef;
+        border: 1px solid #eef2f6;
     }
 
     .filter-item {
@@ -77,178 +61,206 @@
         .filter-item label {
             font-size: 0.7rem;
             font-weight: 600;
-            color: #6c757d;
-            margin-bottom: 4px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
             display: block;
         }
 
         .filter-item input,
         .filter-item select {
             width: 100%;
-            padding: 8px 12px;
-            border-radius: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
             border: 1px solid #e2e8f0;
             font-size: 0.85rem;
         }
 
-    .action-buttons {
+            .filter-item input:focus,
+            .filter-item select:focus {
+                border-color: #2c5aa0;
+                box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+                outline: none;
+            }
+
+    /* Кнопки действий */
+    .action-buttons-bar {
         display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 12px;
+        margin-bottom: 25px;
         justify-content: flex-end;
     }
 
     .btn-clear {
-        background: #dc3545;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
         border: none;
-        border-radius: 30px;
-        padding: 8px 20px;
+        border-radius: 40px;
+        padding: 10px 24px;
         font-weight: 600;
+        font-size: 0.85rem;
         transition: all 0.3s ease;
         color: white;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
         .btn-clear:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
         }
 
     .btn-export {
-        background: linear-gradient(135deg, #28a745, #20c997);
+        background: linear-gradient(135deg, #10b981, #059669);
         border: none;
-        border-radius: 30px;
-        padding: 8px 20px;
+        border-radius: 40px;
+        padding: 10px 24px;
         font-weight: 600;
+        font-size: 0.85rem;
         transition: all 0.3s ease;
         color: white;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
         .btn-export:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
         }
 
-    .log-table {
-        border-radius: 16px;
-        overflow: hidden;
-        width: 100%;
-    }
-
-        .log-table thead th {
-            background: #f8f9fa;
-            font-weight: 600;
-            padding: 12px;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        .log-table tbody td {
-            padding: 10px 12px;
-            vertical-align: middle;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .log-table tbody tr:hover {
-            background: #f8f9fa;
-        }
-
-    .status-badge {
-        padding: 4px 12px;
-        border-radius: 30px;
-        font-size: 0.7rem;
-        font-weight: 600;
+    /* IP-адрес в таблице */
+    .ip-address {
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 0.8rem;
+        background: #f1f5f9;
+        padding: 4px 8px;
+        border-radius: 8px;
         display: inline-block;
     }
 
+    /* User Agent */
+    .user-agent {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    /* Бейджи статусов */
     .status-success {
-        background: #d4edda;
-        color: #155724;
+        background: #d1fae5;
+        color: #065f46;
     }
 
     .status-failed {
-        background: #f8d7da;
-        color: #721c24;
+        background: #fee2e2;
+        color: #991b1b;
     }
 
+    /* Пагинация */
     .pagination-container {
         display: flex;
         justify-content: center;
-        gap: 5px;
-        margin-top: 20px;
+        gap: 8px;
+        margin-top: 25px;
         flex-wrap: wrap;
     }
 
     .pagination-btn {
-        padding: 6px 12px;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 12px;
         border: 1px solid #e2e8f0;
         background: white;
-        border-radius: 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #475569;
         cursor: pointer;
         transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
         .pagination-btn:hover {
-            background: #f8f9fa;
+            background: #f1f5f9;
             border-color: #2c5aa0;
+            color: #2c5aa0;
+            transform: translateY(-2px);
         }
 
         .pagination-btn.active {
             background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
             color: white;
             border-color: #2c5aa0;
+            box-shadow: 0 4px 10px rgba(44, 90, 160, 0.25);
         }
+
+        .pagination-btn.disabled {
+            background: #f8fafc;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+    .pagination-arrow {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
 
     .pagination-info {
         text-align: center;
         margin-top: 15px;
-        font-size: 0.8rem;
-        color: #6c757d;
-    }
-
-    @@keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        font-size: 0.75rem;
+        color: #94a3b8;
     }
 </style>
 
-<div class="analytics-container">
 
     <!-- КАРТОЧКИ СТАТИСТИКИ -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3 col-6">
-            <div class="card stat-card bg-primary text-white">
-                <div class="stat-icon"><i class="bi bi-list-check"></i></div>
-                <div class="stat-value" id="totalAttempts">0</div>
-                <div class="stat-label">Всего попыток</div>
+    <div class="stats-row">
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Всего попыток</h6>
+                        <h3 id="totalAttempts" class="mb-0">0</h3>
+                        <i class="bi bi-list-check stat-icon"></i>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card stat-card bg-success text-white">
-                <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
-                <div class="stat-value" id="successfulAttempts">0</div>
-                <div class="stat-label">Успешных</div>
+            <div class="col-md-3 col-6">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Успешных</h6>
+                        <h3 id="successfulAttempts" class="mb-0">0</h3>
+                        <i class="bi bi-check-circle stat-icon"></i>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card stat-card bg-danger text-white">
-                <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
-                <div class="stat-value" id="failedAttempts">0</div>
-                <div class="stat-label">Неудачных</div>
+            <div class="col-md-3 col-6">
+                <div class="card stat-card bg-danger text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Неудачных</h6>
+                        <h3 id="failedAttempts" class="mb-0">0</h3>
+                        <i class="bi bi-x-circle stat-icon"></i>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card stat-card bg-info text-white">
-                <div class="stat-icon"><i class="bi bi-globe"></i></div>
-                <div class="stat-value" id="uniqueIps">0</div>
-                <div class="stat-label">Уникальных IP</div>
+            <div class="col-md-3 col-6">
+                <div class="card stat-card bg-info text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Уникальных IP</h6>
+                        <h3 id="uniqueIps" class="mb-0">0</h3>
+                        <i class="bi bi-globe stat-icon"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -278,24 +290,24 @@
         <div class="filter-item">
             <label>&nbsp;</label>
             <button id="resetFiltersBtn" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-arrow-repeat me-1"></i> Сбросить фильтры
+                <i class="bi bi-arrow-repeat"></i> Сбросить
             </button>
         </div>
     </div>
 
     <!-- КНОПКИ ДЕЙСТВИЙ -->
-    <div class="action-buttons">
+    <div class="action-buttons-bar">
         <button id="clearLogsBtn" class="btn-clear">
-            <i class="bi bi-trash me-1"></i> Очистить логи за 30 дней
+            <i class="bi bi-trash3"></i> Очистить логи за 30 дней
         </button>
         <button id="exportLogsBtn" class="btn-export">
-            <i class="bi bi-file-earmark-excel me-1"></i> Экспорт в Excel
+            <i class="bi bi-file-earmark-excel"></i> Экспорт в Excel
         </button>
     </div>
 
     <!-- ТАБЛИЦА ЛОГОВ -->
-    <div class="table-responsive">
-        <table class="table log-table">
+    <div class="admin-table-container">
+        <table class="admin-table">
             <thead>
                 <tr>
                     <th>Дата и время</th>
@@ -306,22 +318,29 @@
                 </tr>
             </thead>
             <tbody id="logsTableBody">
-                <tr><td colspan="5" class="text-center text-muted">Загрузка...<\ /td><\ /tr>
+                <tr>
+                    <td colspan="5" class="table-empty-state">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2">Загрузка логов...</p>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 
     <!-- ПАГИНАЦИЯ -->
     <div id="paginationContainer" class="pagination-container"></div>
-    <div id="paginationInfo" class="pagination-info"></div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         let currentPage = 1;
         let totalPages = 1;
+        let totalCount = 0;
 
+        // Загрузка логов
         async function loadLogs() {
             const search = document.getElementById('searchInput').value;
             const status = document.getElementById('statusFilter').value;
@@ -347,15 +366,125 @@
 
                 renderTable(data.attempts);
                 totalPages = data.totalPages;
-                renderPagination(data.currentPage, data.totalPages);
-                document.getElementById('paginationInfo').innerHTML = `Показано ${data.attempts.length} из ${data.totalCount} записей, страница ${data.currentPage} из ${data.totalPages}`;
+                totalCount = data.totalCount;
+                renderPagination(data.currentPage, data.totalPages, data.totalCount);
 
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
-                document.getElementById('logsTableBody').innerHTML = '<tr><td colspan="5" class="text-center text-danger">Ошибка загрузки данных<\/td><\/tr>';
+                document.getElementById('logsTableBody').innerHTML = '<tr><td colspan="5" class="table-empty-state text-danger">Ошибка загрузки данных<\/td><\/tr>';
             }
         }
 
+        // Отображение таблицы
+        function renderTable(attempts) {
+            const tbody = document.getElementById('logsTableBody');
+            if (!attempts || attempts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="table-empty-state"><i class="bi bi-inbox"></i><p>Нет записей</p><\/td><\/tr>';
+                return;
+            }
+
+            let html = '';
+            for (const log of attempts) {
+                const date = new Date(log.attemptTime).toLocaleString('ru-RU');
+                const statusClass = log.isSuccessful ? 'status-success' : 'status-failed';
+                const statusText = log.isSuccessful ? 'Успех' : 'Ошибка';
+                const statusIcon = log.isSuccessful ? 'bi-check-circle' : 'bi-x-circle';
+                const userAgent = log.userAgent ? (log.userAgent.length > 60 ? log.userAgent.substring(0, 60) + '...' : log.userAgent) : '-';
+
+                html += `
+                    <tr>
+                        <td class="date-value" style="white-space: nowrap;">${date}<\/td>
+                        <td><strong>${escapeHtml(log.email)}<\/strong><\/td>
+                        <td><span class="ip-address">${log.ipAddress}<\/span><\/td>
+                        <td><span class="status-badge ${statusClass}"><i class="bi ${statusIcon} me-1"></i> ${statusText}<\/span><\/td>
+                        <td class="user-agent" title="${escapeHtml(log.userAgent || '')}">${escapeHtml(userAgent)}<\/td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        // Пагинация
+        function renderPagination(current, total, totalCount) {
+            const container = document.getElementById('paginationContainer');
+
+            // Удаляем старый блок информации
+            $('.pagination-info').remove();
+
+            if (total <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            // Кнопка "Назад"
+            if (current > 1) {
+                html += `<button class="pagination-btn pagination-arrow" data-page="${current - 1}">‹</button>`;
+            } else {
+                html += `<button class="pagination-btn disabled" disabled>‹</button>`;
+            }
+
+            // Первая страница
+            if (current > 2) {
+                html += `<button class="pagination-btn" data-page="1">1</button>`;
+                if (current > 3) {
+                    html += `<span class="pagination-btn disabled">...</span>`;
+                }
+            }
+
+            // Страницы вокруг текущей
+            const startPage = Math.max(1, current - 1);
+            const endPage = Math.min(total, current + 1);
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-btn ${current === i ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+
+            // Последняя страница
+            if (current < total - 1) {
+                if (current < total - 2) {
+                    html += `<span class="pagination-btn disabled">...</span>`;
+                }
+                html += `<button class="pagination-btn" data-page="${total}">${total}</button>`;
+            }
+
+            // Кнопка "Вперёд"
+            if (current < total) {
+                html += `<button class="pagination-btn pagination-arrow" data-page="${current + 1}">›</button>`;
+            } else {
+                html += `<button class="pagination-btn disabled" disabled>›</button>`;
+            }
+
+            container.innerHTML = html;
+
+            // Информация о страницах
+            const startItem = (current - 1) * 20 + 1;
+            const endItem = Math.min(current * 20, totalCount);
+            $(container).after(`
+                <div class="pagination-info">
+                    Показано ${startItem}-${endItem} из ${totalCount} записей
+                </div>
+            `);
+
+            // Обработчики кнопок
+            document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+                btn.removeEventListener('click', paginationClickHandler);
+                btn.addEventListener('click', paginationClickHandler);
+            });
+        }
+
+        function paginationClickHandler(e) {
+            e.preventDefault();
+            const newPage = parseInt(this.getAttribute('data-page'));
+            if (!isNaN(newPage) && newPage !== currentPage) {
+                currentPage = newPage;
+                loadLogs();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Сброс фильтров
         function resetFilters() {
             document.getElementById('searchInput').value = '';
             document.getElementById('statusFilter').value = '';
@@ -370,86 +499,15 @@
             loadLogs();
         }
 
-        function renderTable(attempts) {
-            const tbody = document.getElementById('logsTableBody');
-            if (!attempts || attempts.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Нет записей<\/td><\/tr>';
-                return;
-            }
-
-            let html = '';
-            for (const log of attempts) {
-                const date = new Date(log.attemptTime).toLocaleString('ru-RU');
-                const statusClass = log.isSuccessful ? 'status-success' : 'status-failed';
-                const statusText = log.isSuccessful ? 'Успех' : 'Ошибка';
-                const userAgent = log.userAgent ? (log.userAgent.length > 50 ? log.userAgent.substring(0, 50) + '...' : log.userAgent) : '-';
-
-                html += `
-                    <tr>
-                        <td class="text-nowrap">${date}<\/td>
-                        <td>${escapeHtml(log.email)}<\/td>
-                        <td><code>${log.ipAddress}<\/code><\/td>
-                        <td><span class="status-badge ${statusClass}">${statusText}<\/span><\/td>
-                        <td class="text-muted small">${escapeHtml(userAgent)}<\/td>
-                    <\/tr>
-                `;
-            }
-            tbody.innerHTML = html;
-        }
-
-        function renderPagination(current, total) {
-            const container = document.getElementById('paginationContainer');
-            if (total <= 1) {
-                container.innerHTML = '';
-                return;
-            }
-
-            let html = '';
-
-            if (current > 1) {
-                html += `<button class="pagination-btn" data-page="${current - 1}">«</button>`;
-            }
-
-            const startPage = Math.max(1, current - 2);
-            const endPage = Math.min(total, current + 2);
-
-            if (startPage > 1) {
-                html += `<button class="pagination-btn" data-page="1">1</button>`;
-                if (startPage > 2) html += `<span class="pagination-btn disabled">...</span>`;
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                html += `<button class="pagination-btn ${i === current ? 'active' : ''}" data-page="${i}">${i}</button>`;
-            }
-
-            if (endPage < total) {
-                if (endPage < total - 1) html += `<span class="pagination-btn disabled">...</span>`;
-                html += `<button class="pagination-btn" data-page="${total}">${total}</button>`;
-            }
-
-            if (current < total) {
-                html += `<button class="pagination-btn" data-page="${current + 1}">»</button>`;
-            }
-
-            container.innerHTML = html;
-
-            document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
-                btn.removeEventListener('click', paginationClickHandler);
-                btn.addEventListener('click', paginationClickHandler);
-            });
-        }
-
-        function paginationClickHandler(e) {
-            e.preventDefault();
-            const newPage = parseInt(this.getAttribute('data-page'));
-            if (!isNaN(newPage) && newPage !== currentPage) {
-                currentPage = newPage;
-                loadLogs();
-            }
-        }
-
+        // Очистка логов
         document.getElementById('clearLogsBtn').addEventListener('click', async function() {
-            if (!confirm('Вы уверены, что хотите удалить все логи старше 30 дней?')) return;
+            if (!confirm('Вы уверены, что хотите удалить все логи старше 30 дней? Это действие нельзя отменить.')) return;
+
+            const btn = this;
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Удаление...';
+
             try {
                 const response = await fetch('/Admin/DeleteOldLogins', { method: 'POST' });
                 const result = await response.json();
@@ -462,9 +520,13 @@
                 }
             } catch (error) {
                 alert('Ошибка при очистке логов');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
             }
         });
 
+        // Экспорт в Excel
         document.getElementById('exportLogsBtn').addEventListener('click', async function() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
@@ -474,13 +536,20 @@
             if (endDate) params.push(`endDate=${endDate}`);
             if (params.length) url += '?' + params.join('&');
 
+            const btn = this;
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Экспорт...';
+
             try {
                 const response = await fetch(url);
                 const data = await response.json();
+
                 if (!data || data.length === 0) {
                     alert('Нет данных для экспорта');
                     return;
                 }
+
                 const exportData = data.map(item => ({
                     'Email': item.email,
                     'Дата и время': new Date(item.attemptTime).toLocaleString('ru-RU'),
@@ -488,18 +557,22 @@
                     'Статус': item.status,
                     'User Agent': item.userAgent
                 }));
+
                 const ws = XLSX.utils.json_to_sheet(exportData);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, 'Логи входов');
                 XLSX.writeFile(wb, `login_logs_${new Date().toISOString().slice(0,10)}.xlsx`);
             } catch (error) {
+                console.error('Ошибка экспорта:', error);
                 alert('Ошибка при экспорте');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
             }
         });
 
-        document.getElementById('resetFiltersBtn').addEventListener('click', function() {
-            resetFilters();
-        });
+        // Обработчики событий
+        document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
 
         document.getElementById('searchInput').addEventListener('input', function() { currentPage = 1; loadLogs(); });
         document.getElementById('statusFilter').addEventListener('change', function() { currentPage = 1; loadLogs(); });
@@ -516,6 +589,7 @@
             });
         }
 
+        // Установка дат по умолчанию (последние 30 дней)
         function setDefaultDates() {
             const endDate = new Date();
             const startDate = new Date();

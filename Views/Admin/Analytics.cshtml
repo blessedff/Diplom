@@ -143,6 +143,62 @@
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
 
+    .filter-bar {
+        background: white;
+        border-radius: 20px;
+        padding: 20px 24px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 15px;
+        border: 1px solid #eef2f6;
+    }
+
+    .filter-item {
+        flex: 1;
+        min-width: 150px;
+    }
+
+        .filter-item label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+            .filter-item input:focus,
+            .filter-item select:focus {
+                border-color: #2c5aa0;
+                box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+                outline: none;
+            }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border: none;
+        border-radius: 40px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+        }
     /* Таблица топ-товаров */
     .top-products-table {
         border-radius: 16px;
@@ -201,9 +257,9 @@
             <label><i class="bi bi-calendar3 me-1"></i> Конец периода</label>
             <input type="date" id="endDate" class="form-control">
         </div>
-        <div class="filter-item">
+        <div class="filter-item" style="flex: 0.5;">
             <label>&nbsp;</label>
-            <button id="applyFilter" class="btn btn-primary w-100" style="background: linear-gradient(135deg, #2c5aa0, #3a7bd5); border: none;">
+            <button id="applyFilter" class="btn btn-primary w-100">
                 <i class="bi bi-arrow-repeat me-1"></i> Обновить
             </button>
         </div>

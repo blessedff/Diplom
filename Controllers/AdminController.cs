@@ -71,18 +71,24 @@ namespace StationeryShop.Controllers
             var totalOrders = _context.Orders.Count();
             var totalRevenue = _context.Orders.Sum(o => o.TotalAmount);
 
+
+            // Новые вопросы за сегодня (без ответа)
+            var newQuestionsToday = _context.ProductQuestions
+                .Count(q => q.QuestionDate.Date == DateTime.Today && (q.Answer == null || q.Answer == ""));
+
+            // Новые отзывы за сегодня (на модерации)
+            var newReviewsToday = _context.Reviews
+                .Count(r => r.CreatedAt.Date == DateTime.Today && !r.IsApproved && !r.IsRejected);
+
+            // Новые заказы за сегодня
+            var newOrdersToday = _context.Orders
+                .Count(o => o.OrderDate.Date == DateTime.Today);
+
             // Последние заказы
             var recentOrders = _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.OrderItems)
                 .OrderByDescending(o => o.OrderDate)
-                .Take(10)
-                .ToList();
-
-            // Товары с низким запасом
-            var lowStockProducts = _context.Products
-                .Where(p => p.StockQuantity < 10)
-                .OrderBy(p => p.StockQuantity)
                 .Take(10)
                 .ToList();
 
@@ -92,7 +98,11 @@ namespace StationeryShop.Controllers
             ViewBag.TotalOrders = totalOrders;
             ViewBag.TotalRevenue = totalRevenue;
             ViewBag.RecentOrders = recentOrders;
-            ViewBag.LowStockProducts = lowStockProducts;
+
+            // Новые ViewBag
+            ViewBag.NewQuestionsToday = newQuestionsToday;
+            ViewBag.NewReviewsToday = newReviewsToday;
+            ViewBag.NewOrdersToday = newOrdersToday;
 
             return View();
         }

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using StationeryShop.Data;
 using StationeryShop.Models;
 using StationeryShop.Services;
+using System.Net;
+using System.Net.Mail;
 
 namespace StationeryShop.Controllers
 {
@@ -10,11 +12,13 @@ namespace StationeryShop.Controllers
     {
         private readonly StationeryDbContext _context;
         private readonly EmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-        public AdminController(StationeryDbContext context, EmailService emailService)
+        public AdminController(StationeryDbContext context, EmailService emailService, IConfiguration configuration)
         {
             _context = context;
             _emailService = emailService;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> LoginAttempts()
@@ -1051,6 +1055,273 @@ namespace StationeryShop.Controllers
                 .ToListAsync();
 
             return Json(attempts);
+        }
+
+        // GET: Admin/ProductQuestions
+        public async Task<IActionResult> ProductQuestions()
+        {
+            if (!IsAdmin()) return RedirectToHome();
+
+            // Получаем все товары для фильтра
+            var products = await _context.Products
+                .Select(p => new { p.ProductID, p.Name })
+                .ToListAsync();
+
+            ViewBag.Products = products;
+            return View();
+        }
+
+        // GET: Admin/GetProductQuestionsAdmin (AJAX API)
+        [HttpGet]
+        public async Task<IActionResult> GetProductQuestionsAdmin(
+            string search = "",
+            int? productId = null,
+            string status = "",
+            string sort = "newest",
+            int page = 1,
+            int pageSize = 10)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+          
+            var query = _context.ProductQuestions
+                .Include(q => q.Customer)
+                .Include(q => q.Product)
+                .AsQueryable();
+
+          
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(q =>
+                    q.Question.Contains(search) ||
+                    (q.Customer != null && q.Customer.FullName.Contains(search)));
+            }
+
+           
+            if (productId.HasValue && productId > 0)
+            {
+                query = query.Where(q => q.ProductId == productId.Value);
+            }
+
+           
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (status == "pending")
+                    query = query.Where(q => q.Answer == null || q.Answer == "");
+                else if (status == "answered")
+                    query = query.Where(q => q.Answer != null && q.Answer != "");
+            }
+
+            
+            query = sort == "newest"
+                ? query.OrderByDescending(q => q.QuestionDate)
+                : query.OrderBy(q => q.QuestionDate);
+
+            
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            
+            var questions = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(q => new
+                {
+                    q.Id,
+                    q.ProductId,
+                    ProductName = q.Product != null ? q.Product.Name : "Товар удалён",
+                    q.Question,
+                    q.QuestionDate,
+                    q.Answer,
+                    q.AnswerDate,
+                    CustomerName = q.Customer != null ? q.Customer.FullName : "Пользователь",
+                    CustomerEmail = q.Customer != null ? q.Customer.Email : "",
+                    IsAnswered = !string.IsNullOrEmpty(q.Answer)
+                })
+                .ToListAsync();
+
+            
+            var totalQuestions = await _context.ProductQuestions.CountAsync();
+            var pendingQuestions = await _context.ProductQuestions
+                .Where(q => q.Answer == null || q.Answer == "")
+                .CountAsync();
+            var answeredQuestions = totalQuestions - pendingQuestions;
+
+            
+            return Json(new
+            {
+                questions = questions,
+                totalCount = totalCount,
+                totalPages = totalPages,
+                currentPage = page,
+                stats = new
+                {
+                    total = totalQuestions,
+                    pending = pendingQuestions,
+                    answered = answeredQuestions
+                }
+            });
+        }
+
+        // POST: Admin/AnswerQuestion
+        [HttpPost]
+        public async Task<IActionResult> AnswerQuestion([FromBody] AnswerQuestionRequest request)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            if (request == null || request.Id <= 0)
+                return Json(new { success = false, message = "Неверный ID вопроса" });
+
+            if (string.IsNullOrWhiteSpace(request.Answer))
+                return Json(new { success = false, message = "Ответ не может быть пустым" });
+
+            try
+            {
+                var question = await _context.ProductQuestions
+                    .Include(q => q.Customer)
+                    .Include(q => q.Product)
+                    .FirstOrDefaultAsync(q => q.Id == request.Id);
+
+                if (question == null)
+                    return Json(new { success = false, message = "Вопрос не найден" });
+
+                // Сохраняем ответ
+                question.Answer = request.Answer.Trim();
+                question.AnswerDate = DateTime.Now;
+                question.IsPublished = true;  // Автоматически публикуем
+
+                await _context.SaveChangesAsync();
+
+                // Отправляем email-уведомление пользователю
+                if (question.Customer != null && !string.IsNullOrEmpty(question.Customer.Email))
+                {
+                    await SendAnswerNotification(question.Customer.Email, question.Customer.FullName, question);
+                }
+
+                return Json(new { success = true, message = "Ответ сохранён и опубликован" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Ошибка: {ex.Message}" });
+            }
+        }
+
+        // POST: Admin/DeleteQuestion
+        [HttpPost]
+        public async Task<IActionResult> DeleteQuestion([FromBody] DeleteQuestionRequest request)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            if (request == null || request.Id <= 0)
+                return Json(new { success = false, message = "Неверный ID вопроса" });
+
+            try
+            {
+                var question = await _context.ProductQuestions.FindAsync(request.Id);
+                if (question == null)
+                    return Json(new { success = false, message = "Вопрос не найден" });
+
+                _context.ProductQuestions.Remove(question);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Вопрос удалён" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Ошибка: {ex.Message}" });
+            }
+        }
+
+        // Вспомогательный метод для отправки email-уведомления
+        private async Task SendAnswerNotification(string toEmail, string toName, ProductQuestion question)
+        {
+            try
+            {
+                var smtpServer = _configuration["EmailSettings:SmtpServer"];
+                var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+                var senderEmail = _configuration["EmailSettings:SenderEmail"];
+                var senderPassword = _configuration["EmailSettings:SenderPassword"];
+                var useSsl = bool.Parse(_configuration["EmailSettings:UseSsl"]);
+
+                string subject = $"Ответ на ваш вопрос о товаре #{question.ProductId}";
+
+                string body = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='utf-8'>
+                <style>
+                    body {{ font-family: Arial, sans-serif; }}
+                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                    .header {{ background: linear-gradient(135deg, #2c5aa0, #3a7bd5); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }}
+                    .content {{ padding: 20px; background: #f8f9fa; }}
+                    .question-box {{ background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #ffc107; }}
+                    .answer-box {{ background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #28a745; }}
+                    .footer {{ text-align: center; padding: 15px; font-size: 12px; color: #6c757d; }}
+                    .button {{ display: inline-block; background: #2c5aa0; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }}
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h2>Канцелярский Магазин</h2>
+                        <p>Ответ на ваш вопрос</p>
+                    </div>
+                    <div class='content'>
+                        <p>Здравствуйте, <strong>{toName}</strong>!</p>
+                        <p>Администратор ответил на ваш вопрос о товаре <strong>{(question.Product != null ? question.Product.Name : "товаре")}</strong>.</p>
+                        
+                        <div class='question-box'>
+                            <strong>📋 Ваш вопрос:</strong>
+                            <p style='margin-top: 8px;'>{question.Question}</p>
+                        </div>
+                        
+                        <div class='answer-box'>
+                            <strong>💬 Ответ администратора:</strong>
+                            <p style='margin-top: 8px;'>{question.Answer}</p>
+                        </div>
+                        
+                    </div>
+                    <div class='footer'>
+                        <p>Это письмо отправлено автоматически, пожалуйста, не отвечайте на него.</p>
+                        <p>© 2026 Канцелярский магазин</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+
+                using var client = new SmtpClient(smtpServer, smtpPort);
+                client.EnableSsl = useSsl;
+                client.Credentials = new NetworkCredential(senderEmail, senderPassword);
+
+                var mailMessage = new MailMessage();
+                mailMessage.From = new MailAddress(senderEmail, "Канцелярский магазин");
+                mailMessage.Subject = subject;
+                mailMessage.Body = body;
+                mailMessage.IsBodyHtml = true;
+                mailMessage.To.Add(new MailAddress(toEmail, toName));
+
+                await client.SendMailAsync(mailMessage);
+
+                Console.WriteLine($"Email уведомление отправлено на {toEmail}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка отправки email: {ex.Message}");
+            }
+        }
+
+        // Вспомогательные классы для приёма данных
+        public class AnswerQuestionRequest
+        {
+            public int Id { get; set; }
+            public string Answer { get; set; } = string.Empty;
+        }
+
+        public class DeleteQuestionRequest
+        {
+            public int Id { get; set; }
         }
     }
 

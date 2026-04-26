@@ -374,30 +374,39 @@
     }
 
     /* Стили для уведомлений */
-    .ajax-toast {
+    .toast-notification {
         position: fixed;
-        bottom: 20px;
+        top: 20px;
         right: 20px;
-        background: #28a745;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 10px;
-        font-size: 0.9rem;
         z-index: 9999;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
         animation: slideInRight 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
-        .ajax-toast.error {
-            background: #dc3545;
-        }
+    .toast-notification.success {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+
+    .toast-notification.error {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
 
     @@keyframes slideInRight {
         from {
-            transform: translateX(100%);
+            transform: translateX(100px);
             opacity: 0;
         }
-
         to {
             transform: translateX(0);
             opacity: 1;
@@ -411,7 +420,7 @@
     <button class="tab-btn" data-tab="questions">💬 Вопросы <span id="questionsCount">(0)</span></button>
 </div>
 
-
+<!-- Вкладка 1: Информация о товаре -->
 <div id="tab-info" class="tab-content active">
     <div class="row g-4">
         <!-- Левая колонка - фото -->
@@ -531,15 +540,15 @@
                     <table class="info-table">
                         <tbody>
                             <tr>
-                                <td><i class="bi bi-tag me-2"></i> Категория</td>
-                                <td>@Model.Category?.Name</td>
+                                <td><i class="bi bi-tag me-2"></i> Категория</td
+                                <td>@Model.Category?.Name</td
                             </tr>
                             <tr>
-                                <td><i class="bi bi-currency-dollar me-2"></i> Цена</td>
-                                <td class="text-primary fw-bold">@Model.Price.ToString("0.00") BYN</td>
-                            </tr>
+                                <td><i class="bi bi-currency-dollar me-2"></i> Цена</td
+                                <td class="text-primary fw-bold">@Model.Price.ToString("0.00") BYN</td
+                            </td>
                             <tr>
-                                <td><i class="bi bi-box-seam me-2"></i> Наличие</td>
+                                <td><i class="bi bi-box-seam me-2"></i> Наличие</td
                                 <td>
                                     @if (Model.StockQuantity > 0)
                                     {
@@ -549,11 +558,11 @@
                                     {
                                         <span class="text-danger">❌ Нет в наличии</span>
                                     }
-                                </td>
+                                </td
                             </tr>
                             <tr>
-                                <td><i class="bi bi-upc-scan me-2"></i> Артикул</td>
-                                <td>#@Model.ProductID</td>
+                                <td><i class="bi bi-upc-scan me-2"></i> Артикул</td
+                                <td>#@Model.ProductID</td
                             </tr>
                         </tbody>
                     </table>
@@ -600,82 +609,17 @@
 </div>
 
 <script>
-    $(document).ready(function() {
-            // Функция обновления счётчика корзины
-    function updateCartCounter() {
-        $.ajax({
-            url: '/Cart/GetCartSummary',
-            type: 'GET',
-            success: function(data) {
-                const cartCount = $('#cartItemsCount');
-                if (cartCount.length) {
-                    if (data.totalItems > 0) {
-                        cartCount.text(data.totalItems).show();
-                    } else {
-                        cartCount.hide();
-                    }
-                }
-            },
-            error: function() {
-                console.log('Ошибка обновления счётчика корзины');
-            }
-        });
-    }
-        const productId = @Model.ProductID;
+    // Используем IIFE, чтобы изолировать переменные для каждого экземпляра модального окна
+    (function() {
+        // ID текущего товара
+        let currentProductId = @Model.ProductID;
+        let isSubmitting = false;
 
-        // ========== AJAX ДОБАВЛЕНИЕ В КОРЗИНУ ==========
-        $('#addToCartForm').on('submit', function(e) {
-            e.preventDefault();
-
-            const $form = $(this);
-            const $button = $form.find('button[type="submit"]');
-            const originalText = $button.html();
-
-            // Блокируем кнопку
-            $button.prop('disabled', true).html('<i class="bi bi-hourglass-split me-2"></i> Добавление...');
-
-            $.ajax({
-                url: '/Cart/AddToCart',
-                type: 'POST',
-                data: $form.serialize(),
-                    success: function(response) {
-        // Показываем уведомление
-        showToast('Товар успешно добавлен в корзину!', 'success');
-
-        // Обновляем счётчик корзины
-        updateCartCounter();
-    },
-                error: function(xhr) {
-                    let errorMsg = 'Ошибка при добавлении в корзину';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMsg = xhr.responseJSON.message;
-                    }
-                    showToast(errorMsg, 'error');
-                },
-                complete: function() {
-                    // Разблокируем кнопку и возвращаем текст
-                    $button.prop('disabled', false).html(originalText);
-                }
-            });
-        });
-
-        // Функция показа уведомлений
-        function showToast(message, type) {
-            const toast = $(`<div class="ajax-toast ${type === 'error' ? 'error' : ''}">${message}</div>`);
-            $('body').append(toast);
-
-            setTimeout(function() {
-                toast.fadeOut(300, function() {
-                    $(this).remove();
-                });
-            }, 3000);
-        }
-
-        // ========== РЕЙТИНГ (ОРИГИНАЛЬНЫЙ КОД) ==========
+        // ========== РЕЙТИНГ ==========
         $.ajax({
             url: '/Products/GetProductRating',
             type: 'GET',
-            data: { productId: productId },
+            data: { productId: currentProductId },
             success: function(data) {
                 if (data.averageRating > 0) {
                     updateModalStars(data.averageRating);
@@ -707,7 +651,7 @@
         }
 
         // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
-        $('.tab-btn').on('click', function() {
+        $('.tab-btn').off('click').on('click', function() {
             const tabId = $(this).data('tab');
 
             $('.tab-btn').removeClass('active');
@@ -716,15 +660,13 @@
             $(this).addClass('active');
             $(`#tab-${tabId}`).addClass('active');
 
-            // Если переключились на вкладку вопросов и вопросы ещё не загружены
-            if (tabId === 'questions' && !window.questionsLoaded) {
-                loadQuestions();
-                window.questionsLoaded = true;
+            if (tabId === 'questions') {
+                loadQuestions(currentProductId);
             }
         });
 
         // ========== ЗАГРУЗКА ВОПРОСОВ ==========
-        function loadQuestions() {
+        function loadQuestions(productId) {
             const $container = $('#questionsContainer');
 
             $container.html(`
@@ -739,7 +681,6 @@
                 type: 'GET',
                 data: { productId: productId },
                 success: function(questions) {
-                    // Обновляем счётчик на вкладке
                     $('#questionsCount').text(`(${questions.length})`);
 
                     if (questions.length === 0) {
@@ -783,7 +724,7 @@
                                 </div>
                             `;
                         } else {
-                            html += `<div class="waiting-badge">⏳ Ожидает ответа</div>`;
+                            html += `<div class="waiting-badge">Ожидает ответа</div>`;
                         }
 
                         html += `</div>`;
@@ -801,51 +742,86 @@
             });
         }
 
-        // ========== ЗАГРУЖАЕМ ВОПРОСЫ СРАЗУ ПРИ ОТКРЫТИИ МОДАЛЬНОГО ОКНА ==========
-        // (счётчик обновится, даже если вкладка не активна)
-        loadQuestions();
-        window.questionsLoaded = true;
-
-        // ========== ОТПРАВКА ВОПРОСА ==========
+        // ========== ОТПРАВКА ВОПРОСА (С ЗАЩИТОЙ ОТ ДУБЛЕЙ И УВЕДОМЛЕНИЕМ) ==========
+        // Убираем старый обработчик, чтобы не накапливались
+        $(document).off('click', '#submitQuestionBtn');
         $(document).on('click', '#submitQuestionBtn', async function() {
+            // Защита от повторной отправки
+            if (isSubmitting) {
+                console.log('Отправка уже выполняется, игнорируем повторный клик');
+                return;
+            }
+
             const $btn = $(this);
-            const pid = parseInt($btn.data('product-id'));
-            const question = $('#questionText').val().trim();
+            // ✅ ВАЖНО: берём productId из data-product-id кнопки (актуальный для текущего товара)
+            const productId = parseInt($btn.data('product-id'));
+            const questionTextarea = $('#questionText');
+            const question = questionTextarea.val().trim();
+
+            console.log(`Отправка вопроса для товара ID: ${productId}`);
 
             if (!question) {
-                alert('Введите текст вопроса');
+                showNotification('Введите текст вопроса', 'error');
                 return;
             }
 
             if (question.length > 1000) {
-                alert('Вопрос не должен превышать 1000 символов');
+                showNotification('Вопрос не должен превышать 1000 символов', 'error');
                 return;
             }
 
+            isSubmitting = true;
+            const originalText = $btn.html();
             $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Отправка...');
 
             try {
                 const response = await fetch('/Products/AddQuestion', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productId: pid, question: question })
+                    body: JSON.stringify({ productId: productId, question: question })
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                    $('#questionText').val('');
-                    alert('Ваш вопрос отправлен! Он будет опубликован после проверки администратором.');
-                    loadQuestions(); // Перезагружаем вопросы
+                    questionTextarea.val('');
+                    
+                    showNotification('Ваш вопрос отправлен! Он будет опубликован после проверки администратором.', 'success');
+                    // Загружаем вопросы заново для текущего товара
+                    loadQuestions(productId);
                 } else {
-                    alert(result.message || 'Ошибка при отправке вопроса');
+                    showNotification(result.message || 'Ошибка при отправке вопроса', 'error');
                 }
             } catch (error) {
-                alert('Ошибка при отправке вопроса');
+                console.error('Ошибка:', error);
+                showNotification('Ошибка при отправке вопроса. Попробуйте позже.', 'error');
             } finally {
-                $btn.prop('disabled', false).html('<i class="bi bi-send"></i> Отправить вопрос');
+                isSubmitting = false;
+                $btn.prop('disabled', false).html(originalText);
             }
         });
+
+        // Функция показа уведомлений
+        function showNotification(message, type) {
+            const notifClass = type === 'success' ? 'success' : 'error';
+            const iconClass = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+            
+            const $notif = $(`
+                <div class="toast-notification ${notifClass}">
+                    <i class="bi ${iconClass}"></i>
+                    <span>${message}</span>
+                </div>
+            `);
+            
+            $('body').append($notif);
+            
+            // Автоматическое исчезновение через 3 секунды
+            setTimeout(() => {
+                $notif.fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -856,5 +832,8 @@
                 return m;
             });
         }
-    });
+
+        // Загружаем вопросы при открытии модального окна
+        loadQuestions(currentProductId);
+    })();
 </script>

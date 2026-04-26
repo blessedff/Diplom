@@ -237,6 +237,10 @@
            asp-controller="Admin" asp-action="Reviews">
             <i class="bi bi-chat-dots"></i> <span>Отзывы</span>
         </a>
+        <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ProductQuestions" ? "active" : "")"
+           asp-controller="Admin" asp-action="ProductQuestions">
+            <i class="bi-question-circle"></i> <span>Вопросы</span>
+        </a>
 
 
         <div class="sidebar-divider">АНАЛИТИКА</div>

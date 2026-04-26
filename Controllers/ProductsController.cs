@@ -200,55 +200,87 @@ namespace StationeryShop.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProductQuestions(int productId)
         {
-            var questions = await _context.ProductQuestions
-                .Include(q => q.Customer)
-                .Where(q => q.ProductId == productId && q.IsPublished == true)
-                .OrderByDescending(q => q.QuestionDate)
-                .Select(q => new
-                {
-                    q.Id,
-                    q.Question,
-                    q.QuestionDate,
-                    q.Answer,
-                    q.AnswerDate,
-                    CustomerName = q.Customer != null ? q.Customer.FullName : "Пользователь"
-                })
-                .ToListAsync();
+            try
+            {
+                var questions = await _context.ProductQuestions
+                    .Include(q => q.Customer)
+                    .Where(q => q.ProductId == productId && q.IsPublished == true)
+                    .OrderByDescending(q => q.QuestionDate)
+                    .Select(q => new
+                    {
+                        q.Id,
+                        q.Question,
+                        q.QuestionDate,
+                        q.Answer,
+                        q.AnswerDate,
+                        CustomerName = q.Customer != null ? q.Customer.FullName : "Пользователь"
+                    })
+                    .ToListAsync();
 
-            return Json(questions);
+                return Json(questions);
+            }
+            catch (Exception ex)
+            {
+                return Json(new List<object>());
+            }
         }
 
+        // POST: Products/AddQuestion
         [HttpPost]
         public async Task<IActionResult> AddQuestion([FromBody] AddQuestionRequest request)
         {
-            // Проверяем, авторизован ли пользователь
-            var customerId = HttpContext.Session.GetInt32("CustomerID");
-            if (customerId == null)
-                return Json(new { success = false, message = "Необходимо авторизоваться" });
-
-            // Проверяем, существует ли товар
-            var product = await _context.Products.FindAsync(request.ProductId);
-            if (product == null)
-                return Json(new { success = false, message = "Товар не найден" });
-
-            // Проверяем длину вопроса
-            if (string.IsNullOrWhiteSpace(request.Question) || request.Question.Length > 1000)
-                return Json(new { success = false, message = "Вопрос должен быть от 1 до 1000 символов" });
-
-            // Создаём новый вопрос
-            var question = new ProductQuestion
+            try
             {
-                ProductId = request.ProductId,
-                CustomerId = customerId.Value,
-                Question = request.Question.Trim(),
-                QuestionDate = DateTime.Now,
-                IsPublished = false
-            };
+                // 1. Проверяем авторизацию
+                var customerId = HttpContext.Session.GetInt32("CustomerID");
+                if (customerId == null)
+                    return Json(new { success = false, message = "Необходимо авторизоваться" });
 
-            _context.ProductQuestions.Add(question);
-            await _context.SaveChangesAsync();
+                // 2. Проверяем данные запроса
+                if (request == null || request.ProductId <= 0)
+                    return Json(new { success = false, message = "Неверный ID товара" });
 
-            return Json(new { success = true, message = "Вопрос отправлен на модерацию" });
+                if (string.IsNullOrWhiteSpace(request.Question))
+                    return Json(new { success = false, message = "Вопрос не может быть пустым" });
+
+                if (request.Question.Length > 1000)
+                    return Json(new { success = false, message = "Вопрос не должен превышать 1000 символов" });
+
+                // 3. Проверяем, существует ли товар
+                var product = await _context.Products.FindAsync(request.ProductId);
+                if (product == null)
+                    return Json(new { success = false, message = "Товар не найден" });
+
+                // 4. ЗАЩИТА ОТ ДУБЛЕЙ: проверяем, не задан ли такой же вопрос за последние 10 секунд
+                var recentQuestion = await _context.ProductQuestions
+                    .Where(q => q.CustomerId == customerId.Value
+                                && q.ProductId == request.ProductId
+                                && q.Question == request.Question.Trim()
+                                && q.QuestionDate > DateTime.Now.AddSeconds(-10))
+                    .FirstOrDefaultAsync();
+
+                if (recentQuestion != null)
+                    return Json(new { success = false, message = "Вы уже задали этот вопрос. Пожалуйста, дождитесь ответа." });
+
+                // 5. Создаём новый вопрос
+                var question = new ProductQuestion
+                {
+                    ProductId = request.ProductId,
+                    CustomerId = customerId.Value,
+                    Question = request.Question.Trim(),
+                    QuestionDate = DateTime.Now,
+                    IsPublished = false
+                };
+
+                _context.ProductQuestions.Add(question);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Вопрос отправлен на модерацию" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Ошибка сервера: {ex.Message}" });
+            }
         }
 
         public class AddQuestionRequest

@@ -1,0 +1,811 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Управление вопросами о товарах";
+}
+
+@using StationeryShop.Models
+@{
+    var products = ViewBag.Products as List<dynamic> ?? new List<dynamic>();
+}
+
+<style>
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border-radius: 2px;
+    }
+
+    /* Карточки статистики */
+    .stats-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 20px 25px;
+        flex: 1;
+        min-width: 150px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+
+    /* Фильтры */
+    .filter-bar {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+        border: 1px solid #e9ecef;
+    }
+
+    .filter-item {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .filter-item label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .filter-item input, .filter-item select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.85rem;
+    }
+
+    .filter-item input:focus, .filter-item select:focus {
+        border-color: #2c5aa0;
+        outline: none;
+    }
+
+    /* Список вопросов */
+    .questions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .question-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .question-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    /* Шапка карточки */
+    .question-header {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .product-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .product-info i {
+        color: #2c5aa0;
+        font-size: 1.1rem;
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .question-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .status-answered {
+        background: #d4edda;
+        color: #155724;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    /* Тело карточки */
+    .question-body {
+        padding: 20px;
+    }
+
+    .question-user {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-avatar i {
+        font-size: 1.2rem;
+        color: white;
+    }
+
+    .user-info {
+        flex: 1;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .user-email {
+        font-size: 0.7rem;
+        color: #6c757d;
+    }
+
+    .question-date {
+        font-size: 0.7rem;
+        color: #6c757d;
+    }
+
+    .question-text {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .question-text i {
+        color: #2c5aa0;
+        margin-right: 8px;
+    }
+
+    .question-text p {
+        margin: 0;
+        line-height: 1.5;
+        color: #4a5568;
+    }
+
+    /* Блок ответа */
+    .answer-section {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 15px;
+        margin-top: 10px;
+    }
+
+    .answer-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #28a745;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .answer-text {
+        background: white;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 15px;
+        font-size: 0.85rem;
+        color: #2d3748;
+    }
+
+    .answer-date {
+        font-size: 0.65rem;
+        color: #6c757d;
+        text-align: right;
+    }
+
+    .answer-form textarea {
+        width: 100%;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 0.85rem;
+        resize: vertical;
+    }
+
+    .answer-form textarea:focus {
+        border-color: #2c5aa0;
+        outline: none;
+    }
+
+    /* Кнопки */
+    .btn-answer {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-answer:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-delete {
+        background: none;
+        border: 1px solid #dc3545;
+        color: #dc3545;
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-edit {
+        background: none;
+        border: 1px solid #ffc107;
+        color: #856404;
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit:hover {
+        background: #ffc107;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        justify-content: flex-end;
+    }
+
+    /* Пагинация */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 8px 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .pagination-btn:hover {
+        background: #f8f9fa;
+        border-color: #2c5aa0;
+    }
+
+    .pagination-btn.active {
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        color: white;
+        border-color: #2c5aa0;
+    }
+
+    /* Пустое состояние */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e9ecef;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 15px;
+    }
+
+    /* Анимации */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .question-card {
+        animation: fadeInUp 0.3s ease-out;
+    }
+</style>
+
+<div class="questions-container">
+    <h2 class="page-title">
+        <i class="bi bi-chat-dots me-2"></i> Управление вопросами о товарах
+    </h2>
+
+    <!-- КАРТОЧКИ СТАТИСТИКИ -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-number text-primary" id="totalCount">0</div>
+            <div class="stat-label">Всего вопросов</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number text-warning" id="pendingCount">0</div>
+            <div class="stat-label">Ожидают ответа</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number text-success" id="answeredCount">0</div>
+            <div class="stat-label">Отвечено</div>
+        </div>
+    </div>
+
+    <!-- ФИЛЬТРЫ -->
+    <div class="filter-bar">
+        <div class="filter-item">
+            <label><i class="bi bi-search me-1"></i> Поиск</label>
+            <input type="text" id="searchInput" class="form-control" placeholder="Поиск по вопросу или имени...">
+        </div>
+        <div class="filter-item">
+            <label><i class="bi bi-funnel me-1"></i> Статус</label>
+            <select id="statusFilter" class="form-select">
+                <option value="">Все</option>
+                <option value="pending">Ожидают ответа</option>
+                <option value="answered">Отвечено</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <label><i class="bi bi-sort-down me-1"></i> Сортировка</label>
+            <select id="sortFilter" class="form-select">
+                <option value="newest">Сначала новые</option>
+                <option value="oldest">Сначала старые</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <label>&nbsp;</label>
+            <button id="resetFiltersBtn" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-repeat"></i> Сбросить
+            </button>
+        </div>
+    </div>
+
+    <!-- СПИСОК ВОПРОСОВ -->
+    <div id="questionsContainer" class="questions-list">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Загрузка вопросов...</p>
+        </div>
+    </div>
+
+    <!-- ПАГИНАЦИЯ -->
+    <div id="paginationContainer" class="pagination-container"></div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Глобальные переменные
+        let currentPage = 1;
+        let totalPages = 1;
+
+        // Параметры фильтрации
+        let currentSearch = '';
+        let currentStatus = '';
+        let currentSort = 'newest';
+
+        // Загрузка вопросов с сервера
+        async function loadQuestions() {
+            // Получаем значения из полей фильтров
+            currentSearch = document.getElementById('searchInput').value;
+            currentStatus = document.getElementById('statusFilter').value;
+            currentSort = document.getElementById('sortFilter').value;
+
+            // Собираем URL для запроса
+            let url = `/Admin/GetProductQuestionsAdmin?page=${currentPage}&pageSize=10`;
+            if (currentSearch) url += `&search=${encodeURIComponent(currentSearch)}`;
+            if (currentStatus) url += `&status=${currentStatus}`;
+            if (currentSort) url += `&sort=${currentSort}`;
+
+            // Показываем спиннер загрузки
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Загрузка вопросов...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // Обновляем статистику
+                if (data.stats) {
+                    document.getElementById('totalCount').innerText = data.stats.total;
+                    document.getElementById('pendingCount').innerText = data.stats.pending;
+                    document.getElementById('answeredCount').innerText = data.stats.answered;
+                }
+
+                // Обновляем пагинацию
+                totalPages = data.totalPages;
+                renderPagination(data.currentPage, data.totalPages);
+
+                // Отображаем вопросы
+                renderQuestions(data.questions);
+
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                document.getElementById('questionsContainer').innerHTML = `
+                    <div class="alert alert-danger text-center">
+                        <i class="bi bi-exclamation-triangle"></i> Ошибка при загрузке вопросов
+                    </div>
+                `;
+            }
+        }
+
+        // Отображение списка вопросов
+        function renderQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+
+            if (!questions || questions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-chat-dots"></i>
+                        <h5>Вопросов не найдено</h5>
+                        <p class="text-muted">Попробуйте изменить параметры фильтрации</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (const q of questions) {
+                const questionDate = new Date(q.questionDate).toLocaleString('ru-RU');
+                const isAnswered = q.isAnswered;
+
+                html += `
+                    <div class="question-card" data-id="${q.id}">
+                        <!-- Шапка карточки -->
+                        <div class="question-header">
+                            <div class="product-info">
+                                <i class="bi bi-box-seam"></i>
+                                <span class="product-name">${escapeHtml(q.productName)}</span>
+                            </div>
+                            <div class="question-meta">
+                                <span class="${isAnswered ? 'status-answered' : 'status-pending'}">
+                                    ${isAnswered ? 'Отвечено' : 'Ожидает ответа'}
+                                </span>
+                                <span><i class="bi bi-calendar3"></i> ${questionDate}</span>
+                            </div>
+                        </div>
+
+                        <!-- Тело карточки -->
+                        <div class="question-body">
+                            <!-- Информация о пользователе -->
+                            <div class="question-user">
+                                <div class="user-avatar">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-name">${escapeHtml(q.customerName)}</div>
+                                    <div class="user-email">${escapeHtml(q.customerEmail)}</div>
+                                </div>
+                            </div>
+
+                            <!-- Текст вопроса -->
+                            <div class="question-text">
+                                <i class="bi bi-question-circle"></i>
+                                <p>${escapeHtml(q.question)}</p>
+                            </div>
+                `;
+
+                // Если есть ответ — показываем его
+                if (isAnswered && q.answer) {
+                    const answerDate = new Date(q.answerDate).toLocaleString('ru-RU');
+                    html += `
+                        <div class="answer-section">
+                            <div class="answer-label">
+                                <i class="bi bi-reply-fill"></i> Ответ администратора
+                            </div>
+                            <div class="answer-text">${escapeHtml(q.answer)}</div>
+                            <div class="answer-date">${answerDate}</div>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="editAnswer(${q.id}, '${escapeHtml(q.answer).replace(/'/g, "\\'")}')">
+                                    <i class="bi bi-pencil"></i> Редактировать
+                                </button>
+                                <button class="btn-delete" onclick="deleteQuestion(${q.id})">
+                                    <i class="bi bi-trash"></i> Удалить
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Если нет ответа — показываем форму для ответа
+                    html += `
+                        <div class="answer-section">
+                            <div class="answer-label">
+                                <i class="bi bi-pencil-square"></i> Написать ответ
+                            </div>
+                            <div class="answer-form">
+                                <textarea id="answerText_${q.id}" rows="3" placeholder="Введите ответ на вопрос..."></textarea>
+                                <div class="action-buttons">
+                                    <button class="btn-answer" onclick="submitAnswer(${q.id})">
+                                        <i class="bi bi-send"></i> Отправить ответ
+                                    </button>
+                                    <button class="btn-delete" onclick="deleteQuestion(${q.id})">
+                                        <i class="bi bi-trash"></i> Удалить вопрос
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `</div></div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Отправка ответа на вопрос
+        async function submitAnswer(questionId) {
+            const answerText = document.getElementById(`answerText_${questionId}`).value.trim();
+
+            if (!answerText) {
+                alert('Введите текст ответа');
+                return;
+            }
+
+            const $btn = $(`#answerText_${questionId}`).closest('.answer-form').find('.btn-answer');
+            const originalText = $btn.html();
+            $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Отправка...');
+
+            try {
+                const response = await fetch('/Admin/AnswerQuestion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: questionId, answer: answerText })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Ответ успешно отправлен! Пользователь получит уведомление.');
+                    loadQuestions();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                    $btn.prop('disabled', false).html(originalText);
+                }
+            } catch (error) {
+                alert('Ошибка при отправке ответа');
+                $btn.prop('disabled', false).html(originalText);
+            }
+        }
+
+        // Редактирование ответа
+        async function editAnswer(questionId, currentAnswer) {
+            const newAnswer = prompt('Редактировать ответ:', currentAnswer);
+            if (newAnswer === null) return;
+            if (!newAnswer.trim()) {
+                alert('Ответ не может быть пустым');
+                return;
+            }
+
+            try {
+                const response = await fetch('/Admin/AnswerQuestion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: questionId, answer: newAnswer })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Ответ обновлён');
+                    loadQuestions();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            } catch (error) {
+                alert('Ошибка при редактировании ответа');
+            }
+        }
+
+        // Удаление вопроса
+        async function deleteQuestion(questionId) {
+            if (!confirm('Вы уверены, что хотите удалить этот вопрос? Это действие нельзя отменить.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/Admin/DeleteQuestion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: questionId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Вопрос удалён');
+                    loadQuestions();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            } catch (error) {
+                alert('Ошибка при удалении вопроса');
+            }
+        }
+
+        // Пагинация
+        function renderPagination(currentPage, totalPages) {
+            const container = document.getElementById('paginationContainer');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            if (currentPage > 1) {
+                html += `<button class="pagination-btn" data-page="1">1</button>`;
+                if (currentPage > 3) html += `<span class="pagination-btn disabled">...</span>`;
+            }
+
+            const startPage = Math.max(2, currentPage - 1);
+            const endPage = Math.min(totalPages - 1, currentPage + 1);
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+
+            if (currentPage < totalPages) {
+                if (currentPage < totalPages - 2) html += `<span class="pagination-btn disabled">...</span>`;
+                html += `<button class="pagination-btn" data-page="${totalPages}">${totalPages}</button>`;
+            }
+
+            container.innerHTML = html;
+
+            document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentPage = parseInt(this.dataset.page);
+                    loadQuestions();
+                });
+            });
+        }
+
+        // Сброс фильтров
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('sortFilter').value = 'newest';
+            currentPage = 1;
+            loadQuestions();
+        }
+
+        // Автоматическое применение фильтров
+        function bindFilterEvents() {
+            document.getElementById('searchInput').addEventListener('input', function() {
+                currentPage = 1;
+                loadQuestions();
+            });
+            document.getElementById('statusFilter').addEventListener('change', function() {
+                currentPage = 1;
+                loadQuestions();
+            });
+            document.getElementById('sortFilter').addEventListener('change', function() {
+                currentPage = 1;
+                loadQuestions();
+            });
+            document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            bindFilterEvents();
+            loadQuestions();
+        });
+    </script>
+}

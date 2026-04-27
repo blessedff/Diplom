@@ -1242,7 +1242,7 @@ namespace StationeryShop.Controllers
             }
         }
 
-        // Вспомогательный метод для отправки email-уведомления
+  
         private async Task SendAnswerNotification(string toEmail, string toName, ProductQuestion question)
         {
             try
@@ -1320,6 +1320,43 @@ namespace StationeryShop.Controllers
             {
                 Console.WriteLine($"Ошибка отправки email: {ex.Message}");
             }
+        }
+
+        // GET: Admin/GetCategoryRevenue
+        [HttpGet]
+        public async Task<IActionResult> GetCategoryRevenue(DateTime? startDate, DateTime? endDate)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var end = endDate ?? DateTime.Now;
+            var start = startDate ?? end.AddDays(-30);
+
+            var startUtc = start.Date;
+            var endUtc = end.Date.AddDays(1);
+
+            // Получаем все выполненные заказы за период
+            var orders = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.Category)
+                .Where(o => o.Status == "Выполнен" && o.OrderDate >= startUtc && o.OrderDate <= endUtc)
+                .ToListAsync();
+
+            // Группируем по категориям
+            var categoryRevenue = orders
+                .SelectMany(o => o.OrderItems)
+                .Where(oi => oi.Product != null && oi.Product.Category != null)
+                .GroupBy(oi => new { oi.Product.Category.CategoryID, oi.Product.Category.Name })
+                .Select(g => new
+                {
+                    CategoryId = g.Key.CategoryID,
+                    CategoryName = g.Key.Name,
+                    Revenue = g.Sum(oi => oi.Quantity * oi.UnitPrice)
+                })
+                .OrderByDescending(x => x.Revenue)
+                .ToList();
+
+            return Json(categoryRevenue);
         }
 
         // Вспомогательные классы для приёма данных

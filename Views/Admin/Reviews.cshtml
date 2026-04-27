@@ -305,43 +305,44 @@
                                 }
                             </td>
                             <td class="date-value">@review.CreatedAt.ToString("dd.MM.yyyy")</td>
-                            <td class="text-center">
-                                <div class="table-actions justify-content-center">
-                                    @if (!review.IsApproved && !review.IsRejected)
-                                    {
-                                        <button class="btn-table-action btn-table-approve approve-review" data-id="@review.Id" title="Одобрить">
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
-                                        <button class="btn-table-action btn-table-reject reject-review" data-id="@review.Id" title="Отклонить">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    }
-                                    @if (review.IsApproved && !review.IsRejected)
-                                    {
-                                        <button class="btn-table-action btn-table-reject reject-review" data-id="@review.Id" title="Отклонить">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    }
-                                    @if (review.IsRejected && !review.IsApproved)
-                                    {
-                                        <button class="btn-table-action btn-table-approve approve-review" data-id="@review.Id" title="Одобрить">
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
-                                    }
-                                    <button class="btn-table-action btn-table-reply reply-review"
-                                            data-id="@review.Id"
-                                            data-comment="@review.Comment"
-                                            data-response="@review.AdminResponse"
-                                            data-name="@(review.Customer?.FullName ?? "Пользователь")"
-                                            data-email="@(review.Customer?.Email ?? "")"
-                                            title="Ответить">
-                                        <i class="bi bi-reply"></i>
+                        <td class="text-center">
+                            <div class="table-actions justify-content-center">
+                                @if (!review.IsApproved && !review.IsRejected)
+                                {
+                                    <button class="btn-table-action btn-table-approve" data-id="@review.Id" data-action="approve" title="Одобрить">
+                                        <i class="bi bi-check-lg"></i>
                                     </button>
-                                    <button class="btn-table-action btn-table-delete delete-review" data-id="@review.Id" title="Удалить">
-                                        <i class="bi bi-trash"></i>
+                                    <button class="btn-table-action btn-table-reject" data-id="@review.Id" data-action="reject" title="Отклонить">
+                                        <i class="bi bi-x-lg"></i>
                                     </button>
-                                </div>
-                            </td>
+                                }
+                                @if (review.IsApproved && !review.IsRejected)
+                                {
+                                    <button class="btn-table-action btn-table-reject" data-id="@review.Id" data-action="reject" title="Отклонить">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                }
+                                @if (review.IsRejected && !review.IsApproved)
+                                {
+                                    <button class="btn-table-action btn-table-approve" data-id="@review.Id" data-action="approve" title="Одобрить">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                }
+                                <button class="btn-table-action btn-table-reply"
+                                        data-id="@review.Id"
+                                        data-comment="@review.Comment"
+                                        data-response="@review.AdminResponse"
+                                        data-name="@(review.Customer?.FullName ?? "Пользователь")"
+                                        data-email="@(review.Customer?.Email ?? "")"
+                                        data-action="reply"
+                                        title="Ответить">
+                                    <i class="bi bi-reply"></i>
+                                </button>
+                                <button class="btn-table-action btn-table-delete" data-id="@review.Id" data-action="delete" title="Удалить">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
                         </tr>
                     }
                 }
@@ -424,53 +425,126 @@
         // Карточки статистики как фильтр
         document.querySelectorAll('.stat-card').forEach(card => {
             card.addEventListener('click', function() {
-                const status = this.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+                const status = this.getAttribute('data-status');
                 if (status) applyStatusFilter(status);
             });
         });
 
+        // ========== ОБРАБОТЧИКИ ДЕЙСТВИЙ ==========
+
         // Одобрение отзыва
-        function approveReview(id) {
-            if (confirm('Одобрить этот отзыв? Он станет виден на сайте.')) {
-                fetch(`/Admin/ApproveReview?id=${id}`, { method: 'POST' })
-                    .then(response => response.ok ? location.reload() : alert('Ошибка'));
+        async function approveReview(id) {
+            if (!confirm('Одобрить этот отзыв? Он станет виден на сайте.')) return;
+
+            try {
+                const response = await fetch(`/Admin/ApproveReview?id=${id}`, { method: 'POST' });
+                if (response.ok) {
+                    showNotification('Отзыв одобрен', 'success');
+                    location.reload();
+                } else {
+                    showNotification('Ошибка при одобрении', 'error');
+                }
+            } catch (error) {
+                showNotification('Ошибка при одобрении', 'error');
             }
         }
 
         // Отклонение отзыва
-        function rejectReview(id) {
-            if (confirm('Отклонить этот отзыв? Он не будет опубликован.')) {
-                fetch(`/Admin/RejectReview?id=${id}`, { method: 'POST' })
-                    .then(response => response.ok ? location.reload() : alert('Ошибка'));
+        async function rejectReview(id) {
+            if (!confirm('Отклонить этот отзыв? Он не будет опубликован.')) return;
+
+            try {
+                const response = await fetch(`/Admin/RejectReview?id=${id}`, { method: 'POST' });
+                if (response.ok) {
+                    showNotification('Отзыв отклонён', 'success');
+                    location.reload();
+                } else {
+                    showNotification('Ошибка при отклонении', 'error');
+                }
+            } catch (error) {
+                showNotification('Ошибка при отклонении', 'error');
             }
         }
 
         // Удаление отзыва
-        function deleteReview(id) {
-            if (confirm('Удалить этот отзыв? Это действие нельзя отменить.')) {
-                fetch(`/Admin/DeleteReview?id=${id}`, { method: 'POST' })
-                    .then(response => response.ok ? location.reload() : alert('Ошибка'));
+        async function deleteReview(id) {
+            if (!confirm('Удалить этот отзыв? Это действие нельзя отменить.')) return;
+
+            try {
+                const response = await fetch(`/Admin/DeleteReview?id=${id}`, { method: 'POST' });
+                if (response.ok) {
+                    showNotification('Отзыв удалён', 'success');
+                    location.reload();
+                } else {
+                    showNotification('Ошибка при удалении', 'error');
+                }
+            } catch (error) {
+                showNotification('Ошибка при удалении', 'error');
             }
         }
 
+        // Показать уведомление
+        function showNotification(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+            const toast = document.createElement('div');
+            toast.className = `alert ${alertClass} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.style.minWidth = '300px';
+            toast.innerHTML = `
+                <i class="bi ${icon} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ========== ПРИВЯЗКА СОБЫТИЙ К КНОПКАМ (через делегирование) ==========
+
+        // Обработчик для всех кнопок в таблице
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-table-action');
+            if (!btn) return;
+
+            const action = btn.getAttribute('data-action');
+            const id = btn.getAttribute('data-id');
+
+            if (!id) return;
+
+            e.preventDefault();
+
+            switch(action) {
+                case 'approve':
+                    approveReview(id);
+                    break;
+                case 'reject':
+                    rejectReview(id);
+                    break;
+                case 'delete':
+                    deleteReview(id);
+                    break;
+                case 'reply':
+                    // Открываем модальное окно
+                    const comment = btn.getAttribute('data-comment') || '';
+                    const response = btn.getAttribute('data-response') || '';
+                    const name = btn.getAttribute('data-name') || 'Пользователь';
+                    const email = btn.getAttribute('data-email') || '';
+
+                    document.getElementById('replyReviewId').value = id;
+                    document.getElementById('userNameEmail').innerHTML = `<i class="bi bi-person-circle me-1"></i> ${escapeHtml(name)} <span class="text-muted">(${escapeHtml(email)})</span>`;
+                    document.getElementById('userComment').innerHTML = escapeHtml(comment);
+                    document.getElementById('replyText').value = response;
+                    replyModal.show();
+                    break;
+            }
+        });
+
         // Модальное окно для ответа
         const replyModal = new bootstrap.Modal(document.getElementById('replyModal'));
-
-        document.querySelectorAll('.reply-review').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.dataset.id;
-                const comment = this.dataset.comment;
-                const response = this.dataset.response || '';
-                const name = this.dataset.name;
-                const email = this.dataset.email;
-
-                document.getElementById('replyReviewId').value = id;
-                document.getElementById('userNameEmail').innerHTML = `<i class="bi bi-person-circle me-1"></i> ${escapeHtml(name)} <span class="text-muted">(${escapeHtml(email)})</span>`;
-                document.getElementById('userComment').innerHTML = escapeHtml(comment);
-                document.getElementById('replyText').value = response;
-                replyModal.show();
-            });
-        });
 
         // Отправка ответа
         document.getElementById('sendReplyBtn').addEventListener('click', async function() {
@@ -487,17 +561,23 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Отправка...';
 
-            const response = await fetch('/Admin/ReplyToReview', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `id=${id}&reply=${encodeURIComponent(reply)}`
-            });
+            try {
+                const response = await fetch('/Admin/ReplyToReview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id=${id}&reply=${encodeURIComponent(reply)}`
+                });
 
-            if (response.ok) {
-                replyModal.hide();
-                location.reload();
-            } else {
+                if (response.ok) {
+                    showNotification('Ответ отправлен', 'success');
+                    replyModal.hide();
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    alert('Ошибка при отправке ответа');
+                }
+            } catch (error) {
                 alert('Ошибка при отправке ответа');
+            } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
             }
@@ -513,4 +593,6 @@
             });
         }
     </script>
+}
+
 }

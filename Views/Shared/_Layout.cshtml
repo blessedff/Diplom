@@ -81,13 +81,14 @@
                 box-shadow: 0 4px 15px rgba(58, 123, 213, 0.3);
             }
 
-        /* Выпадающее меню пользователя */
         .dropdown-menu {
             background: white;
             border-radius: 16px;
             margin-top: 10px;
             border: none;
             box-shadow: 0 10px 35px rgba(0,0,0,0.1);
+            min-width: 200px; 
+            padding: 8px 0; 
         }
 
         .dropdown-item {
@@ -95,7 +96,8 @@
             font-size: 0.9rem;
             transition: all 0.2s ease;
             border-radius: 10px;
-            margin: 2px 8px;
+            margin: 2px 8px; 
+            width: auto;
         }
 
             .dropdown-item:hover {
@@ -114,7 +116,7 @@
         }
 
             .btn-register:hover {
-                background: rgba(255,255,255,0.25) !important;
+                /* background: rgba(255,255,255,0.25) !important;*/
                 transform: translateY(-2px);
             }
 

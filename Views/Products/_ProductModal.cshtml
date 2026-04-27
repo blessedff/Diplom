@@ -372,7 +372,60 @@
         padding: 40px;
         color: #6c757d;
     }
+    .auth-required-box {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    border-radius: 20px;
+    padding: 30px 25px;
+    margin-top: 20px;
+    text-align: center;
+    color: white;
+    animation: fadeIn 0.3s ease;
+}
 
+.auth-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.auth-icon i {
+    font-size: 1.8rem;
+    color: white;
+}
+
+.auth-required-box h5 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.auth-text {
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    opacity: 0.9;
+}
+
+.auth-small {
+    font-size: 0.7rem;
+    opacity: 0.75;
+}
+
+.auth-link {
+    color: #ffc107;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.auth-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
     /* Стили для уведомлений */
     .toast-notification {
         position: fixed;
@@ -582,31 +635,36 @@
     </div>
 
     <!-- Форма для авторизованных -->
-    @if (isAuthenticated && !isAdmin)
-    {
-        <div class="ask-question-form">
-            <h6><i class="bi bi-question-circle"></i> Задать вопрос о товаре</h6>
-            <textarea id="questionText" class="form-control" rows="3" placeholder="Напишите ваш вопрос..." maxlength="1000"></textarea>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-                <small class="text-muted">Максимум 1000 символов</small>
-                <button id="submitQuestionBtn" class="btn-ask" data-product-id="@Model.ProductID">
-                    <i class="bi bi-send"></i> Отправить вопрос
-                </button>
-            </div>
+   @if (isAuthenticated && !isAdmin)
+{
+    <div class="ask-question-form">
+        <h6><i class="bi bi-question-circle"></i> Задать вопрос о товаре</h6>
+        <textarea id="questionText" class="form-control" rows="3" placeholder="Напишите ваш вопрос..." maxlength="1000"></textarea>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+            <small class="text-muted">Максимум 1000 символов</small>
+            <button id="submitQuestionBtn" class="btn-ask" data-product-id="@Model.ProductID">
+                <i class="bi bi-send"></i> Отправить вопрос
+            </button>
         </div>
-    }
-    else if (!isAuthenticated)
-    {
-        <div class="auth-message">
-            <i class="bi bi-lock-fill fs-4"></i>
-            <p class="mt-2 mb-0">
-                Чтобы задать вопрос, необходимо
-                <a asp-controller="Account" asp-action="Login">войти в систему</a> или
-                <a asp-controller="Account" asp-action="Register">зарегистрироваться</a>
-            </p>
+    </div>
+}
+else if (!isAuthenticated)
+{
+    <div class="auth-required-box">
+        <div class="auth-icon">
+            <i class="bi bi-chat-dots"></i>
         </div>
-    }
-</div>
+        <h5>Хотите задать вопрос?</h5>
+        <p class="auth-text">
+            Чтобы задать вопрос о товаре, необходимо
+            <a asp-controller="Account" asp-action="Login" class="auth-link">войти в аккаунт</a>.
+        </p>
+        <small class="auth-small">
+            <i class="bi bi-question-circle me-1"></i>
+            Нет аккаунта? <a asp-controller="Account" asp-action="Register" class="auth-link">Зарегистрируйтесь</a>
+        </small>
+    </div>
+}
 
 <script>
     // Используем IIFE, чтобы изолировать переменные для каждого экземпляра модального окна

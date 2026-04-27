@@ -28,27 +28,62 @@
         text-align: center;
     }
 
-    .filter-section {
-        background: white;
-        border-radius: 24px;
-        padding: 25px;
-        margin-bottom: 30px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
-        border: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .filter-section .form-control,
-    .filter-section .form-select {
-        border-radius: 14px;
-        border: 1px solid #e2e8f0;
-        padding: 10px 15px;
-    }
-    
-    .filter-section .form-control:focus,
-    .filter-section .form-select:focus {
-        border-color: #2c5aa0;
-        box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
-    }
+.filter-bar {
+    background: white;
+    border-radius: 20px;
+    padding: 20px 24px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 15px;
+    border: 1px solid #eef2f6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.filter-item {
+    flex: 1;
+    min-width: 160px;
+}
+
+.filter-item label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.filter-item input,
+.filter-item select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.filter-item input:focus,
+.filter-item select:focus {
+    border-color: #2c5aa0;
+    box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+    outline: none;
+}
+
+.btn-outline-secondary {
+    border-radius: 40px;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    transform: translateY(-2px);
+    background: #f8f9fa;
+}
     
     .product-card {
         transition: all 0.3s ease;
@@ -279,40 +314,34 @@
 }
 
 <!-- Фильтры -->
-<div class="filter-section">
-    <div class="row g-3 align-items-end">
-        <div class="col-md-5">
-            <label class="form-label fw-bold">🔍 Поиск товаров</label>
-            <input type="text" id="searchInput" class="form-control" placeholder="Введите название...">
-        </div>
-        <div class="col-md-4">
-            <label class="form-label fw-bold">📁 Категория</label>
-            <select id="categoryFilter" class="form-select">
-                <option value="">Все категории</option>
-                @foreach (var category in Model.Select(p => p.Category).Distinct().Where(c => c != null))
-                {
-                    <option value="@category.Name">@category.Name</option>
-                }
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label fw-bold">📊 Сортировка</label>
-            <select id="sortBy" class="form-select">
-                <option value="Name">Название (А-Я)</option>
-                @* <option value="NameDesc">Названию (Я-А)</option> *@
-                <option value="Price">Сначала дешевле</option>
-                <option value="PriceDesc">Сначала дороже</option>
-                @* <option value="Stock">Остаток (сначала меньше)</option>
-                <option value="StockDesc">Остаток (убыв.)</option> *@
-            </select>
-        </div>
+<div class="filter-bar">
+    <div class="filter-item">
+        <label><i class="bi bi-search me-1"></i> Поиск</label>
+        <input type="text" id="searchInput" class="form-control" placeholder="Название товара...">
     </div>
-    <div class="row mt-3">
-        <div class="col-12">
-            <button id="resetFilters" class="btn btn-outline-secondary rounded-pill px-4">
-                <i class="bi bi-arrow-repeat"></i> Сбросить фильтры
-            </button>
-        </div>
+    <div class="filter-item">
+        <label><i class="bi bi-folder me-1"></i> Категория</label>
+        <select id="categoryFilter" class="form-select">
+            <option value="">Все категории</option>
+            @foreach (var category in Model.Select(p => p.Category).Distinct().Where(c => c != null))
+            {
+                <option value="@category.Name">@category.Name</option>
+            }
+        </select>
+    </div>
+    <div class="filter-item">
+        <label><i class="bi bi-sort-down me-1"></i> Сортировка</label>
+        <select id="sortBy" class="form-select">
+            <option value="Name">Названию (А-Я)</option>
+            <option value="Price">Цене (сначала дешевле)</option>
+            <option value="PriceDesc">Цене (сначала дороже)</option>
+        </select>
+    </div>
+    <div class="filter-item" style="flex: 0.3;">
+        <label>&nbsp;</label>
+        <button id="resetFilters" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-arrow-repeat"></i> Сброс
+        </button>
     </div>
 </div>
 

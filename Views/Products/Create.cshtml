@@ -209,21 +209,21 @@
 
         <!-- Блок с подсказками цен -->
         <div id="priceHints" class="price-hints">
-            <h6><i class="bi bi-lightbulb me-2"></i> Подсказки по ценообразованию</h6>
+            <h6><i class="bi bi-lightbulb me-2"></i> Ценообразование</h6>
             <div class="hint-row">
-                <span class="hint-label">💰 Рекомендуемая цена (наценка 50%):</span>
+                <span class="hint-label">Рекомендуемая цена (наценка 30%):</span>
                 <span class="hint-value recommended" id="recommendedPrice">—</span>
             </div>
             <div class="hint-row">
-                <span class="hint-label">⚠️ Минимальная цена (безубыток):</span>
+                <span class="hint-label">Минимальная цена (безубыток):</span>
                 <span class="hint-value breakeven" id="breakEvenPrice">—</span>
             </div>
             <div class="hint-row">
-                <span class="hint-label">📈 Прибыль с единицы:</span>
+                <span class="hint-label">Прибыль с единицы:</span>
                 <span class="hint-value profit" id="profitPerUnit">—</span>
             </div>
             <div class="hint-row">
-                <span class="hint-label">📊 Ваша текущая цена:</span>
+                <span class="hint-label">Текущая цена:</span>
                 <span class="hint-value" id="currentPriceStatus">—</span>
             </div>
             <div id="adviceText" class="advice-text">
@@ -290,17 +290,17 @@
                                 if (currentPrice < data.breakEven) {
                                     $('#currentPriceStatus').html('<span class="text-danger">' + currentPrice.toFixed(2) + ' BYN</span>');
                                     adviceHtml = '<i class="bi bi-exclamation-triangle-fill me-1"></i> ' +
-                                        '<strong class="text-danger">ВНИМАНИЕ!</strong> Ваша цена ниже минимальной! ' +
-                                        'Вы работаете в убыток. Рекомендуем поднять цену до ' + data.recommended + ' BYN';
+                                        '<strong class="text-danger">ВНИМАНИЕ!</strong>Цена ниже минимальной! ' +
+                                        'Работа в убыток. Требуется поднять цену до ' + data.recommended + ' BYN';
                                     $('#currentPriceStatus').addClass('warning');
                                 } else if (currentPrice < data.recommended) {
                                     $('#currentPriceStatus').html(currentPrice.toFixed(2) + ' BYN');
                                     adviceHtml = '<i class="bi bi-arrow-up-circle me-1"></i> ' +
-                                        'Вы можете поднять цену до рекомендуемой ' + data.recommended + ' BYN, чтобы увеличить прибыль';
+                                        'Можно поднять цену до рекомендуемой ' + data.recommended + ' BYN, чтобы увеличить прибыль';
                                 } else {
                                     $('#currentPriceStatus').html('<span class="text-success">' + currentPrice.toFixed(2) + ' BYN</span>');
                                     adviceHtml = '<i class="bi bi-check-circle-fill me-1"></i> ' +
-                                        '✅ Отличная цена! Вы работаете с хорошей прибылью.';
+                                        'Отличная цена!';
                                 }
                             } else {
                                 $('#currentPriceStatus').html('не указана');

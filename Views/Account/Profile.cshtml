@@ -55,65 +55,31 @@
             padding: 25px;
         }
 
-    .form-label {
-        font-weight: 600;
-        color: #2d3748;
-        margin-bottom: 8px;
+    .info-row {
+        display: flex;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f0f2f5;
     }
 
-    .form-control {
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        padding: 12px 15px;
-        transition: all 0.2s ease;
-        width: 100%;
-    }
-
-        .form-control:focus {
-            border-color: #2c5aa0;
-            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
-            outline: none;
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
         }
 
-    .btn-save {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        border: none;
-        border-radius: 30px;
-        padding: 12px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        width: 100%;
-        color: white;
-        cursor: pointer;
+    .info-label {
+        width: 120px;
+        font-weight: 500;
+        color: #6c757d;
+        flex-shrink: 0;
     }
 
-        .btn-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-            color: white;
-        }
-
-    .btn-all-orders {
-        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
-        color: white;
-        border: none;
-        border-radius: 30px;
-        padding: 8px 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
+    .info-value {
+        flex: 1;
+        font-weight: 500;
+        color: #1a1a2e;
     }
-
-        .btn-all-orders:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.4);
-            color: white;
-            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
-        }
 
     .stat-box {
         background: #f8f9fa;
@@ -138,6 +104,28 @@
         color: #6c757d;
         margin-top: 5px;
     }
+
+    .btn-all-orders {
+        background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .btn-all-orders:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.4);
+            color: white;
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        }
 
     .orders-table {
         width: 100%;
@@ -243,21 +231,12 @@
             margin-bottom: 15px;
         }
 
-    .password-required {
-        background: #f8f9fa;
-        border-radius: 16px;
-        padding: 15px;
-        margin-top: 20px;
-        border-left: 4px solid #ffc107;
-    }
-
-    .required-field::after {
-        content: '*';
-        color: #dc3545;
-        margin-left: 4px;
-    }
-
     @@media (max-width: 768px) {
+        .info-label {
+            width: 90px;
+            font-size: 0.8rem;
+        }
+
         .orders-table th,
         .orders-table td {
             padding: 8px 5px;
@@ -304,55 +283,28 @@
     }
 
     <div class="row g-4">
-        <!-- ЛЕВАЯ КОЛОНКА: Редактирование профиля -->
         <div class="col-lg-7">
             <div class="profile-card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i> Редактирование профиля</h5>
+                    <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i> Информация о профиле</h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="UpdateProfile" method="post" id="profileForm">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                        <div class="mb-3">
-                            <label asp-for="FullName" class="form-label required-field">ФИО</label>
-                            <input asp-for="FullName" class="form-control" placeholder="Введите ваше ФИО" />
-                            <span asp-validation-for="FullName" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label required-field">Email</label>
-                            <input asp-for="Email" class="form-control" placeholder="example@mail.com" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Phone" class="form-label">Телефон</label>
-                                <input asp-for="Phone" class="form-control" placeholder="+375 XX XXX-XX-XX" />
-                                <span asp-validation-for="Phone" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Address" class="form-label">Адрес</label>
-                                <input asp-for="Address" class="form-control" placeholder="Город, улица, дом" />
-                                <span asp-validation-for="Address" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        @if (!isAdmin)
-                        {
-                            <div class="password-required">
-                                <label class="form-label required-field">Подтверждение пароля</label>
-                                <input type="password" name="currentPassword" class="form-control" placeholder="Введите текущий пароль для сохранения изменений" required />
-                                <small class="text-muted"><i class="bi bi-shield-lock me-1"></i> Для сохранения изменений необходимо ввести текущий пароль</small>
-                            </div>
-                        }
-
-                        <button type="submit" class="btn btn-save mt-3">
-                            <i class="bi bi-save me-2"></i> Сохранить изменения
-                        </button>
-                    </form>
+                    <div class="info-row">
+                        <div class="info-label">ФИО</div>
+                        <div class="info-value">@Model.FullName</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">@Model.Email</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Телефон</div>
+                        <div class="info-value">@(string.IsNullOrEmpty(Model.Phone) ? "—" : Model.Phone)</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Адрес</div>
+                        <div class="info-value">@(string.IsNullOrEmpty(Model.Address) ? "—" : Model.Address)</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -388,7 +340,7 @@
         </div>
     </div>
 
-    <!-- Последние заказы (на всю ширину) -->
+    <!-- Последние заказы -->
     @if (!isAdmin)
     {
         <div class="profile-card mt-4">
@@ -481,7 +433,7 @@
         </div>
     }
 
-    <!-- Для администратора -->
+
     @if (isAdmin)
     {
         <div class="profile-card mt-4">
@@ -490,7 +442,7 @@
                 <p class="mt-2 mb-0">Вы вошли как администратор.</p>
                 <p class="small">История заказов доступна в админ-панели.</p>
                 <a asp-controller="Admin" asp-action="Orders" class="btn btn-outline-primary rounded-pill mt-2">
-                    <i class="bi bi-speedometer2 me-2"></i> Перейти в админ-панель
+                    <i></i> Перейти в админ-панель
                 </a>
             </div>
         </div>

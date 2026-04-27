@@ -216,15 +216,7 @@ namespace StationeryShop.Controllers
             else
             {
                 Console.WriteLine("НЕВЕРНЫЙ ПАРОЛЬ или пользователь не найден");
-
-               
-
-              
-
-         
                     ViewBag.Error = $"Неверный email или пароль.";
-
-
                 _logger.LogWarning($"Неудачный вход: {email}, IP: {GetClientIpAddress()}");
                 return View();
             }
@@ -332,62 +324,6 @@ namespace StationeryShop.Controllers
             return View(customer);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(Customer updatedCustomer, string currentPassword)
-        {
-            if (!IsAuthenticated())
-                return RedirectToAction("Login");
-
-            try
-            {
-                var customerId = HttpContext.Session.GetInt32("CustomerID");
-                var existingCustomer = await _context.Customers.FindAsync(customerId);
-
-                if (existingCustomer == null)
-                {
-                    TempData["Error"] = "Пользователь не найден";
-                    return RedirectToAction("Login");
-                }
-
-                // Проверка текущего пароля (обязательно!)
-                if (string.IsNullOrEmpty(currentPassword) || !VerifyPassword(currentPassword, existingCustomer.Password))
-                {
-                    ModelState.AddModelError("", "Неверный текущий пароль. Изменения не сохранены.");
-                    return View("Profile", existingCustomer);
-                }
-
-                // Проверяем, не используется ли email другим пользователем
-                if (_context.Customers.Any(c => c.Email == updatedCustomer.Email && c.CustomerID != customerId))
-                {
-                    ModelState.AddModelError("Email", "Этот email уже используется другим пользователем");
-                    return View("Profile", existingCustomer);
-                }
-
-                // Обновляем разрешенные поля (пароль не обновляем!)
-                existingCustomer.FullName = updatedCustomer.FullName;
-                existingCustomer.Email = updatedCustomer.Email;
-                existingCustomer.Phone = updatedCustomer.Phone;
-                existingCustomer.Address = updatedCustomer.Address;
-
-                _context.Customers.Update(existingCustomer);
-                await _context.SaveChangesAsync();
-
-                // Обновляем имя в сессии
-                HttpContext.Session.SetString("CustomerName", existingCustomer.FullName);
-
-                TempData["Success"] = "Профиль успешно обновлен!";
-                return RedirectToAction("Profile");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при обновлении профиля");
-                TempData["Error"] = "Произошла ошибка при обновлении профиля";
-                return RedirectToAction("Profile");
-            }
-        }
-
-        // ==================== LOGOUT (ВЫХОД) ====================
 
         public IActionResult Logout()
         {

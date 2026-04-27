@@ -454,8 +454,11 @@
             });
         }
 
-        function setView(view) {
+                function setView(view) {
             currentView = view;
+
+            localStorage.setItem('productsViewMode', view);
+
             if (view === 'cards') {
                 $('#cardsContainer').show();
                 $('#tableViewContainer').hide();
@@ -491,9 +494,15 @@
             };
         }
 
-        $(document).ready(function() {
+               $(document).ready(function() {
+            var savedView = localStorage.getItem('productsViewMode');
+            if (savedView === 'table') {
+                setView('table');
+            } else {
+                setView('cards');
+            }
+
             loadProducts();
-            setView('cards');
         });
     </script>
 }

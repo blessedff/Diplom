@@ -426,6 +426,24 @@
     color: #fff;
     text-decoration: underline;
 }
+
+.product-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    word-wrap: break-word;
+}
+
+.info-table td:first-child {
+    font-weight: 600;
+    color: #4a5568;
+    width: 35%;
+    vertical-align: top;
+}
+
+.info-table td:last-child {
+    vertical-align: top;
+}
     /* Стили для уведомлений */
     .toast-notification {
         position: fixed;
@@ -555,13 +573,9 @@
                 {
                     if (Model.StockQuantity > 0)
                     {
-                        <form id="addToCartForm">
-                            <input type="hidden" name="productId" value="@Model.ProductID" />
-                            <input type="hidden" name="quantity" value="1" />
-                            <button type="submit" class="btn btn-add-to-cart w-100 text-white">
-                                <i class="bi bi-cart-plus me-2"></i> Добавить в корзину
-                            </button>
-                        </form>
+                        <button type="button" id="addToCartBtn" class="btn btn-add-to-cart w-100 text-white" data-product-id="@Model.ProductID">
+    <i class="bi bi-cart-plus me-2"></i> Добавить в корзину
+</button>
                     }
                     else
                     {
@@ -593,15 +607,15 @@
                     <table class="info-table">
                         <tbody>
                             <tr>
-                                <td><i class="bi bi-tag me-2"></i> Категория</td
-                                <td>@Model.Category?.Name</td
+                                <td><i class="bi bi-tag me-2"></i> Категория</td>
+                                <td>@Model.Category?.Name</td>
                             </tr>
                             <tr>
-                                <td><i class="bi bi-currency-dollar me-2"></i> Цена</td
-                                <td class="text-primary fw-bold">@Model.Price.ToString("0.00") BYN</td
-                            </td>
+                                <td><i class="bi bi-currency-dollar me-2"></i> Цена</td>
+                                <td class="text-primary fw-bold">@Model.Price.ToString("0.00") BYN</td>
+                            </tr>
                             <tr>
-                                <td><i class="bi bi-box-seam me-2"></i> Наличие</td
+                                <td><i class="bi bi-box-seam me-2"></i> Наличие</td>
                                 <td>
                                     @if (Model.StockQuantity > 0)
                                     {
@@ -611,11 +625,11 @@
                                     {
                                         <span class="text-danger">❌ Нет в наличии</span>
                                     }
-                                </td
+                                </td>
                             </tr>
                             <tr>
-                                <td><i class="bi bi-upc-scan me-2"></i> Артикул</td
-                                <td>#@Model.ProductID</td
+                                <td><i class="bi bi-upc-scan me-2"></i> Артикул</td>
+                                <td>#@Model.ProductID</td>
                             </tr>
                         </tbody>
                     </table>
@@ -623,7 +637,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <!-- Вкладка 2: Вопросы о товаре -->
 <div id="tab-questions" class="tab-content">
@@ -893,5 +906,65 @@ else if (!isAuthenticated)
 
         // Загружаем вопросы при открытии модального окна
         loadQuestions(currentProductId);
+
+        $(document).off('click', '#addToCartBtn');
+$(document).on('click', '#addToCartBtn', async function() {
+    const $btn = $(this);
+    const productId = $btn.data('product-id');
+    const quantity = 1;
+    
+    // Блокируем кнопку и показываем загрузку
+    const originalText = $btn.html();
+    $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-2"></i> Добавление...');
+    
+    try {
+        const response = await fetch('/Cart/AddToCartAjax', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `productId=${productId}&quantity=${quantity}`
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Товар добавлен в корзину!', 'success');
+            
+            // Обновляем счётчик корзины
+            updateCartCounter();
+            
+            // Меняем текст кнопки на время
+            $btn.html('<i class="bi bi-check-lg me-2"></i> В корзине');
+            setTimeout(() => {
+                $btn.html(originalText).prop('disabled', false);
+            }, 2000);
+        } else {
+            showNotification(result.message || 'Ошибка при добавлении', 'error');
+            $btn.html(originalText).prop('disabled', false);
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showNotification('Ошибка при добавлении в корзину', 'error');
+        $btn.html(originalText).prop('disabled', false);
+    }
+});
+
+// Функция обновления счётчика в шапке
+function updateCartCounter() {
+    fetch('/Cart/GetCartSummary')
+        .then(response => response.json())
+        .then(data => {
+            const cartCounter = $('#cartItemsCount');
+            if (cartCounter.length) {
+                const totalItems = data.totalItems || 0;
+                cartCounter.text(totalItems);
+                if (totalItems > 0) {
+                    cartCounter.show();
+                } else {
+                    cartCounter.hide();
+                }
+            }
+        })
+        .catch(error => console.error('Error updating cart counter:', error));
+}
     })();
 </script>

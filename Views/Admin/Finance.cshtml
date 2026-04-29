@@ -277,6 +277,11 @@
     </div>
 </div>
 
+<div class="mb-3 d-flex justify-content-end">
+    <button class="btn btn-outline-primary" id="editExpensesMainBtn">
+        <i class="bi bi-gear"></i> Редактировать постоянные расходы
+    </button>
+</div>
   
     <div class="mb-3">
         <span class="badge bg-primary fs-6">@periodTitle</span>
@@ -533,6 +538,71 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     <button type="submit" class="btn btn-primary">➕ Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно для редактирования постоянных расходов -->
+<div class="modal fade" id="expensesModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-gear"></i> Редактирование постоянных расходов (в месяц)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="expensesForm" method="post" action="/Admin/UpdateExpensesSettings">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">👥 Зарплата сотрудников (BYN/мес)</label>
+                            <input type="number" name="SalaryTotal" class="form-control" step="100" value="@salaryTotalMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🏢 Аренда склада (BYN/мес)</label>
+                            <input type="number" name="WarehouseRent" class="form-control" step="50" value="@warehouseRentMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🏪 Аренда ПВЗ (BYN/мес)</label>
+                            <input type="number" name="PickupPointRent" class="form-control" step="50" value="@pickupPointRentMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🚚 Логистика до склада (BYN/мес)</label>
+                            <input type="number" name="LogisticsToWarehouse" class="form-control" step="50" value="@logisticsToWarehouseMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🚛 Логистика на ПВЗ (BYN/мес)</label>
+                            <input type="number" name="LogisticsToPickup" class="form-control" step="50" value="@logisticsToPickupMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">📢 Реклама (BYN/мес)</label>
+                            <input type="number" name="Advertising" class="form-control" step="50" value="@advertisingMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">💳 Банковское обслуживание (BYN/мес)</label>
+                            <input type="number" name="BankService" class="form-control" step="10" value="@bankServiceMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">🌐 Хостинг и домен (BYN/мес)</label>
+                            <input type="number" name="Hosting" class="form-control" step="10" value="@hostingMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">💡 Коммунальные услуги (BYN/мес)</label>
+                            <input type="number" name="Utilities" class="form-control" step="50" value="@utilitiesMonthly" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">📝 Канцтовары и прочее (BYN/мес)</label>
+                            <input type="number" name="OfficeExpenses" class="form-control" step="20" value="@officeExpensesMonthly" />
+                        </div>
+                    </div>
+                    <div class="alert alert-info small mt-2">
+                        <i class="bi bi-info-circle"></i> Эти расходы умножаются на коэффициент периода (@monthlyFactor.ToString("0.00")) и пересчитываются в отчёте.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить расходы</button>
                 </div>
             </form>
         </div>

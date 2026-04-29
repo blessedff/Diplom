@@ -6,10 +6,9 @@
 }
 
 <style>
-
     #tab-info,
     #tab-questions {
-        min-height: 800px;
+        min-height: 400px;
     }
 
     .product-modal-image {
@@ -30,13 +29,10 @@
     }
 
     .product-modal-title {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #1a1a2e, #2c5aa0);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
         margin-bottom: 15px;
+        word-wrap: break-word;
     }
 
     .category-badge {
@@ -129,6 +125,7 @@
         .info-table td {
             padding: 10px 15px;
             border-bottom: 1px solid #f0f2f5;
+            vertical-align: top;
         }
 
         .info-table tr:last-child td {
@@ -138,7 +135,7 @@
         .info-table td:first-child {
             font-weight: 600;
             color: #4a5568;
-            width: 40%;
+            width: 35%;
         }
 
     .alert-auth {
@@ -153,7 +150,6 @@
             font-weight: 600;
         }
 
-    /* ========== СТИЛИ ДЛЯ ВКЛАДОК ========== */
     .modal-tabs {
         display: flex;
         gap: 0;
@@ -201,18 +197,20 @@
         }
 
     @@keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
+        from
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    {
+        opacity: 0;
+        transform: translateY(10px);
     }
 
-    /* Стили для вопросов */
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
     .questions-list {
         max-height: 400px;
         overflow-y: auto;
@@ -353,98 +351,59 @@
             box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
         }
 
-    .auth-message {
-        background: #e8f4fd;
-        border-radius: 16px;
-        padding: 20px;
-        text-align: center;
+    .auth-required-box {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        border-radius: 20px;
+        padding: 30px 25px;
         margin-top: 20px;
+        text-align: center;
+        color: white;
     }
 
-        .auth-message a {
-            color: #2c5aa0;
-            font-weight: 600;
-            text-decoration: none;
+    .auth-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+    }
+
+        .auth-icon i {
+            font-size: 1.8rem;
+            color: white;
         }
 
-    .empty-questions {
-        text-align: center;
-        padding: 40px;
-        color: #6c757d;
+    .auth-required-box h5 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 10px;
     }
-    .auth-required-box {
-    background: linear-gradient(135deg, #6c757d, #5a6268);
-    border-radius: 20px;
-    padding: 30px 25px;
-    margin-top: 20px;
-    text-align: center;
-    color: white;
-    animation: fadeIn 0.3s ease;
-}
 
-.auth-icon {
-    width: 60px;
-    height: 60px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 15px;
-}
+    .auth-text {
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+        opacity: 0.9;
+    }
 
-.auth-icon i {
-    font-size: 1.8rem;
-    color: white;
-}
+    .auth-small {
+        font-size: 0.7rem;
+        opacity: 0.75;
+    }
 
-.auth-required-box h5 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
+    .auth-link {
+        color: #ffc107;
+        text-decoration: none;
+        font-weight: 600;
+    }
 
-.auth-text {
-    font-size: 0.85rem;
-    margin-bottom: 12px;
-    opacity: 0.9;
-}
+        .auth-link:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
 
-.auth-small {
-    font-size: 0.7rem;
-    opacity: 0.75;
-}
-
-.auth-link {
-    color: #ffc107;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.auth-link:hover {
-    color: #fff;
-    text-decoration: underline;
-}
-
-.product-modal-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 15px;
-    word-wrap: break-word;
-}
-
-.info-table td:first-child {
-    font-weight: 600;
-    color: #4a5568;
-    width: 35%;
-    vertical-align: top;
-}
-
-.info-table td:last-child {
-    vertical-align: top;
-}
-    /* Стили для уведомлений */
     .toast-notification {
         position: fixed;
         top: 20px;
@@ -461,31 +420,34 @@
         animation: slideInRight 0.3s ease;
     }
 
-    .toast-notification.success {
-        background: #d4edda;
-        color: #155724;
-        border-left: 4px solid #28a745;
-    }
+        .toast-notification.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
 
-    .toast-notification.error {
-        background: #f8d7da;
-        color: #721c24;
-        border-left: 4px solid #dc3545;
-    }
+        .toast-notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
 
     @@keyframes slideInRight {
-        from {
-            transform: translateX(100px);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+        from
+
+    {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
     }
 </style>
 
-<!-- Вкладки -->
 <div class="modal-tabs">
     <button class="tab-btn active" data-tab="info">📦 Информация о товаре</button>
     <button class="tab-btn" data-tab="questions">💬 Вопросы <span id="questionsCount">(0)</span></button>
@@ -494,13 +456,10 @@
 <!-- Вкладка 1: Информация о товаре -->
 <div id="tab-info" class="tab-content active">
     <div class="row g-4">
-        <!-- Левая колонка - фото -->
         <div class="col-md-6">
             @if (Model.PhotoBase64 != null)
             {
-                <img src="data:image/png;base64,@Model.PhotoBase64"
-                     class="product-modal-image"
-                     alt="@Model.Name">
+                <img src="data:image/png;base64,@Model.PhotoBase64" class="product-modal-image" alt="@Model.Name">
             }
             else
             {
@@ -510,7 +469,6 @@
             }
         </div>
 
-        <!-- Правая колонка - информация -->
         <div class="col-md-6">
             <h4 class="product-modal-title">@Model.Name</h4>
 
@@ -531,21 +489,15 @@
                 </span>
                 @if (Model.StockQuantity > 10)
                 {
-                    <span class="stock-badge stock-high">
-                        <i class="bi bi-check-circle-fill me-1"></i> В наличии
-                    </span>
+                    <span class="stock-badge stock-high"><i class="bi bi-check-circle-fill me-1"></i> В наличии</span>
                 }
                 else if (Model.StockQuantity > 0)
                 {
-                    <span class="stock-badge stock-medium">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Мало осталось
-                    </span>
+                    <span class="stock-badge stock-medium"><i class="bi bi-exclamation-triangle-fill me-1"></i> Мало осталось</span>
                 }
                 else
                 {
-                    <span class="stock-badge stock-low">
-                        <i class="bi bi-x-circle-fill me-1"></i> Нет в наличии
-                    </span>
+                    <span class="stock-badge stock-low"><i class="bi bi-x-circle-fill me-1"></i> Нет в наличии</span>
                 }
             </div>
 
@@ -567,15 +519,14 @@
                 </div>
             }
 
-            <!-- Кнопки действий -->
             <div class="d-grid gap-2">
                 @if (isAuthenticated && !isAdmin)
                 {
                     if (Model.StockQuantity > 0)
                     {
                         <button type="button" id="addToCartBtn" class="btn btn-add-to-cart w-100 text-white" data-product-id="@Model.ProductID">
-    <i class="bi bi-cart-plus me-2"></i> Добавить в корзину
-</button>
+                            <i class="bi bi-cart-plus me-2"></i> Добавить в корзину
+                        </button>
                     }
                     else
                     {
@@ -596,7 +547,6 @@
         </div>
     </div>
 
-    <!-- Характеристики товара -->
     <div class="row mt-4">
         <div class="col-12">
             <div class="card info-card">
@@ -637,6 +587,7 @@
             </div>
         </div>
     </div>
+</div>
 
 <!-- Вкладка 2: Вопросы о товаре -->
 <div id="tab-questions" class="tab-content">
@@ -647,46 +598,44 @@
         </div>
     </div>
 
-    <!-- Форма для авторизованных -->
-   @if (isAuthenticated && !isAdmin)
-{
-    <div class="ask-question-form">
-        <h6><i class="bi bi-question-circle"></i> Задать вопрос о товаре</h6>
-        <textarea id="questionText" class="form-control" rows="3" placeholder="Напишите ваш вопрос..." maxlength="1000"></textarea>
-        <div class="d-flex justify-content-between align-items-center mt-2">
-            <small class="text-muted">Максимум 1000 символов</small>
-            <button id="submitQuestionBtn" class="btn-ask" data-product-id="@Model.ProductID">
-                <i class="bi bi-send"></i> Отправить вопрос
-            </button>
+    @if (isAuthenticated && !isAdmin)
+    {
+        <div class="ask-question-form">
+            <h6><i class="bi bi-question-circle"></i> Задать вопрос о товаре</h6>
+            <textarea id="questionText" class="form-control" rows="3" placeholder="Напишите ваш вопрос..." maxlength="1000"></textarea>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <small class="text-muted">Максимум 1000 символов</small>
+                <button id="submitQuestionBtn" class="btn-ask" data-product-id="@Model.ProductID">
+                    <i class="bi bi-send"></i> Отправить вопрос
+                </button>
+            </div>
         </div>
-    </div>
-}
-else if (!isAuthenticated)
-{
-    <div class="auth-required-box">
-        <div class="auth-icon">
-            <i class="bi bi-chat-dots"></i>
+    }
+    else if (!isAuthenticated)
+    {
+        <div class="auth-required-box">
+            <div class="auth-icon">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <h5>Хотите задать вопрос?</h5>
+            <p class="auth-text">
+                Чтобы задать вопрос о товаре, необходимо
+                <a asp-controller="Account" asp-action="Login" class="auth-link">войти в аккаунт</a>.
+            </p>
+            <small class="auth-small">
+                <i class="bi bi-question-circle me-1"></i>
+                Нет аккаунта? <a asp-controller="Account" asp-action="Register" class="auth-link">Зарегистрируйтесь</a>
+            </small>
         </div>
-        <h5>Хотите задать вопрос?</h5>
-        <p class="auth-text">
-            Чтобы задать вопрос о товаре, необходимо
-            <a asp-controller="Account" asp-action="Login" class="auth-link">войти в аккаунт</a>.
-        </p>
-        <small class="auth-small">
-            <i class="bi bi-question-circle me-1"></i>
-            Нет аккаунта? <a asp-controller="Account" asp-action="Register" class="auth-link">Зарегистрируйтесь</a>
-        </small>
-    </div>
-}
+    }
+</div>
 
 <script>
-    // Используем IIFE, чтобы изолировать переменные для каждого экземпляра модального окна
     (function() {
-        // ID текущего товара
         let currentProductId = @Model.ProductID;
         let isSubmitting = false;
 
-        // ========== РЕЙТИНГ ==========
+        // Рейтинг
         $.ajax({
             url: '/Products/GetProductRating',
             type: 'GET',
@@ -694,7 +643,7 @@ else if (!isAuthenticated)
             success: function(data) {
                 if (data.averageRating > 0) {
                     updateModalStars(data.averageRating);
-                    $('#modal-rating-text').text(`${data.averageRating} (${data.totalReviews} отзывов)`);
+                    $('#modal-rating-text').text(data.averageRating + ' (' + data.totalReviews + ' отзывов)');
                 } else {
                     $('#modal-rating-text').text('(нет отзывов)');
                 }
@@ -705,12 +654,11 @@ else if (!isAuthenticated)
         });
 
         function updateModalStars(rating) {
-            const fullStars = Math.floor(rating);
-            const hasHalfStar = (rating - fullStars) >= 0.5;
-            const $container = $('.rating-stars-modal');
+            var fullStars = Math.floor(rating);
+            var hasHalfStar = (rating - fullStars) >= 0.5;
+            var $container = $('.rating-stars-modal');
             $container.empty();
-
-            for (let i = 1; i <= 5; i++) {
+            for (var i = 1; i <= 5; i++) {
                 if (i <= fullStars) {
                     $container.append('<i class="bi bi-star-fill text-warning"></i>');
                 } else if (i === fullStars + 1 && hasHalfStar) {
@@ -721,150 +669,93 @@ else if (!isAuthenticated)
             }
         }
 
-        // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
+        // Переключение вкладок
         $('.tab-btn').off('click').on('click', function() {
-            const tabId = $(this).data('tab');
-
+            var tabId = $(this).data('tab');
             $('.tab-btn').removeClass('active');
             $('.tab-content').removeClass('active');
-
             $(this).addClass('active');
-            $(`#tab-${tabId}`).addClass('active');
-
+            $('#tab-' + tabId).addClass('active');
             if (tabId === 'questions') {
                 loadQuestions(currentProductId);
             }
         });
 
-        // ========== ЗАГРУЗКА ВОПРОСОВ ==========
+        // Загрузка вопросов
         function loadQuestions(productId) {
-            const $container = $('#questionsContainer');
-
-            $container.html(`
-                <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2 text-muted">Загрузка вопросов...</p>
-                </div>
-            `);
-
+            var $container = $('#questionsContainer');
+            $container.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Загрузка вопросов...</p></div>');
             $.ajax({
                 url: '/Products/GetProductQuestions',
                 type: 'GET',
                 data: { productId: productId },
                 success: function(questions) {
-                    $('#questionsCount').text(`(${questions.length})`);
-
+                    $('#questionsCount').text('(' + questions.length + ')');
                     if (questions.length === 0) {
-                        $container.html(`
-                            <div class="empty-questions">
-                                <i class="bi bi-chat-dots fs-1"></i>
-                                <p class="mt-2">Пока нет вопросов. Будьте первым, кто спросит!</p>
-                            </div>
-                        `);
+                        $container.html('<div class="empty-questions"><i class="bi bi-chat-dots fs-1"></i><p class="mt-2">Пока нет вопросов. Будьте первым, кто спросит!</p></div>');
                         return;
                     }
-
-                    let html = '<div class="questions-list">';
-                    for (const q of questions) {
-                        const date = new Date(q.questionDate).toLocaleDateString('ru-RU');
-                        html += `
-                            <div class="question-item">
-                                <div class="question-header">
-                                    <div class="question-avatar">
-                                        <i class="bi bi-person-fill"></i>
-                                    </div>
-                                    <div class="question-user-info">
-                                        <div class="question-user-name">${escapeHtml(q.customerName)}</div>
-                                        <div class="question-date">${date}</div>
-                                    </div>
-                                </div>
-                                <div class="question-text">
-                                    <i class="bi bi-question-circle"></i> ${escapeHtml(q.question)}
-                                </div>
-                        `;
-
+                    var html = '<div class="questions-list">';
+                    for (var i = 0; i < questions.length; i++) {
+                        var q = questions[i];
+                        var date = new Date(q.questionDate).toLocaleDateString('ru-RU');
+                        html += '<div class="question-item">';
+                        html += '<div class="question-header"><div class="question-avatar"><i class="bi bi-person-fill"></i></div>';
+                        html += '<div class="question-user-info"><div class="question-user-name">' + escapeHtml(q.customerName) + '</div>';
+                        html += '<div class="question-date">' + date + '</div></div></div>';
+                        html += '<div class="question-text"><i class="bi bi-question-circle"></i> ' + escapeHtml(q.question) + '</div>';
                         if (q.answer) {
-                            const answerDate = new Date(q.answerDate).toLocaleDateString('ru-RU');
-                            html += `
-                                <div class="answer-block">
-                                    <div class="answer-header">
-                                        <i class="bi bi-reply-fill"></i> Ответ администратора
-                                    </div>
-                                    <div class="answer-text">${escapeHtml(q.answer)}</div>
-                                    <div class="question-date mt-1">${answerDate}</div>
-                                </div>
-                            `;
+                            var answerDate = new Date(q.answerDate).toLocaleDateString('ru-RU');
+                            html += '<div class="answer-block"><div class="answer-header"><i class="bi bi-reply-fill"></i> Ответ администратора</div>';
+                            html += '<div class="answer-text">' + escapeHtml(q.answer) + '</div>';
+                            html += '<div class="question-date mt-1">' + answerDate + '</div></div>';
                         } else {
-                            html += `<div class="waiting-badge">Ожидает ответа</div>`;
+                            html += '<div class="waiting-badge">Ожидает ответа</div>';
                         }
-
-                        html += `</div>`;
+                        html += '</div>';
                     }
-                    html += `</div>`;
+                    html += '</div>';
                     $container.html(html);
                 },
                 error: function() {
-                    $container.html(`
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle"></i> Ошибка при загрузке вопросов
-                        </div>
-                    `);
+                    $container.html('<div class="alert alert-danger">Ошибка при загрузке вопросов</div>');
                 }
             });
         }
 
-        // ========== ОТПРАВКА ВОПРОСА (С ЗАЩИТОЙ ОТ ДУБЛЕЙ И УВЕДОМЛЕНИЕМ) ==========
-        // Убираем старый обработчик, чтобы не накапливались
+        // Отправка вопроса
         $(document).off('click', '#submitQuestionBtn');
         $(document).on('click', '#submitQuestionBtn', async function() {
-            // Защита от повторной отправки
-            if (isSubmitting) {
-                console.log('Отправка уже выполняется, игнорируем повторный клик');
-                return;
-            }
-
-            const $btn = $(this);
-            // ✅ ВАЖНО: берём productId из data-product-id кнопки (актуальный для текущего товара)
-            const productId = parseInt($btn.data('product-id'));
-            const questionTextarea = $('#questionText');
-            const question = questionTextarea.val().trim();
-
-            console.log(`Отправка вопроса для товара ID: ${productId}`);
-
+            if (isSubmitting) return;
+            var $btn = $(this);
+            var productId = parseInt($btn.data('product-id'));
+            var question = $('#questionText').val().trim();
             if (!question) {
                 showNotification('Введите текст вопроса', 'error');
                 return;
             }
-
             if (question.length > 1000) {
                 showNotification('Вопрос не должен превышать 1000 символов', 'error');
                 return;
             }
-
             isSubmitting = true;
-            const originalText = $btn.html();
+            var originalText = $btn.html();
             $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Отправка...');
-
             try {
-                const response = await fetch('/Products/AddQuestion', {
+                var response = await fetch('/Products/AddQuestion', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ productId: productId, question: question })
                 });
-
-                const result = await response.json();
-
+                var result = await response.json();
                 if (result.success) {
-                    questionTextarea.val('');
-                    
+                    $('#questionText').val('');
                     showNotification('Ваш вопрос отправлен! Он будет опубликован после проверки администратором.', 'success');
-                    // Загружаем вопросы заново для текущего товара
                     loadQuestions(productId);
                 } else {
                     showNotification(result.message || 'Ошибка при отправке вопроса', 'error');
                 }
             } catch (error) {
-                console.error('Ошибка:', error);
                 showNotification('Ошибка при отправке вопроса. Попробуйте позже.', 'error');
             } finally {
                 isSubmitting = false;
@@ -872,25 +763,62 @@ else if (!isAuthenticated)
             }
         });
 
-        // Функция показа уведомлений
-        function showNotification(message, type) {
-            const notifClass = type === 'success' ? 'success' : 'error';
-            const iconClass = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
-            
-            const $notif = $(`
-                <div class="toast-notification ${notifClass}">
-                    <i class="bi ${iconClass}"></i>
-                    <span>${message}</span>
-                </div>
-            `);
-            
-            $('body').append($notif);
-            
-            // Автоматическое исчезновение через 3 секунды
-            setTimeout(() => {
-                $notif.fadeOut(300, function() {
-                    $(this).remove();
+        // Добавление в корзину
+        $(document).off('click', '#addToCartBtn');
+        $(document).on('click', '#addToCartBtn', async function() {
+            var $btn = $(this);
+            var productId = $btn.data('product-id');
+            var originalText = $btn.html();
+            $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-2"></i> Добавление...');
+            try {
+                var response = await fetch('/Cart/AddToCartAjax', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'productId=' + productId + '&quantity=1'
                 });
+                var result = await response.json();
+                if (result.success) {
+                    showNotification('Товар добавлен в корзину!', 'success');
+                    updateCartCounter();
+                    $btn.html('<i class="bi bi-check-lg me-2"></i> В корзине');
+                    setTimeout(function() {
+                        $btn.html(originalText).prop('disabled', false);
+                    }, 2000);
+                } else {
+                    showNotification(result.message || 'Ошибка при добавлении', 'error');
+                    $btn.html(originalText).prop('disabled', false);
+                }
+            } catch (error) {
+                showNotification('Ошибка при добавлении в корзину', 'error');
+                $btn.html(originalText).prop('disabled', false);
+            }
+        });
+
+        function updateCartCounter() {
+            fetch('/Cart/GetCartSummary')
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    var cartCounter = $('#cartItemsCount');
+                    if (cartCounter.length) {
+                        var totalItems = data.totalItems || 0;
+                        cartCounter.text(totalItems);
+                        if (totalItems > 0) {
+                            cartCounter.show();
+                        } else {
+                            cartCounter.hide();
+                        }
+                    }
+                })
+                .catch(function(error) { console.error('Error updating cart counter:', error); });
+        }
+
+        function showNotification(message, type) {
+            var notifClass = type === 'success' ? 'success' : 'error';
+            var iconClass = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+            var $notif = $('<div class="toast-notification ' + notifClass + '"><i class="bi ' + iconClass + '"></i><span>' + message + '</span></div>');
+            $('body').append($notif);
+            setTimeout(function() {
+                $notif.fadeOut(300, function() { $(this).remove(); });
             }, 3000);
         }
 
@@ -904,67 +832,6 @@ else if (!isAuthenticated)
             });
         }
 
-        // Загружаем вопросы при открытии модального окна
         loadQuestions(currentProductId);
-
-        $(document).off('click', '#addToCartBtn');
-$(document).on('click', '#addToCartBtn', async function() {
-    const $btn = $(this);
-    const productId = $btn.data('product-id');
-    const quantity = 1;
-    
-    // Блокируем кнопку и показываем загрузку
-    const originalText = $btn.html();
-    $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-2"></i> Добавление...');
-    
-    try {
-        const response = await fetch('/Cart/AddToCartAjax', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `productId=${productId}&quantity=${quantity}`
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            showNotification('Товар добавлен в корзину!', 'success');
-            
-            // Обновляем счётчик корзины
-            updateCartCounter();
-            
-            // Меняем текст кнопки на время
-            $btn.html('<i class="bi bi-check-lg me-2"></i> В корзине');
-            setTimeout(() => {
-                $btn.html(originalText).prop('disabled', false);
-            }, 2000);
-        } else {
-            showNotification(result.message || 'Ошибка при добавлении', 'error');
-            $btn.html(originalText).prop('disabled', false);
-        }
-    } catch (error) {
-        console.error('Ошибка:', error);
-        showNotification('Ошибка при добавлении в корзину', 'error');
-        $btn.html(originalText).prop('disabled', false);
-    }
-});
-
-// Функция обновления счётчика в шапке
-function updateCartCounter() {
-    fetch('/Cart/GetCartSummary')
-        .then(response => response.json())
-        .then(data => {
-            const cartCounter = $('#cartItemsCount');
-            if (cartCounter.length) {
-                const totalItems = data.totalItems || 0;
-                cartCounter.text(totalItems);
-                if (totalItems > 0) {
-                    cartCounter.show();
-                } else {
-                    cartCounter.hide();
-                }
-            }
-        })
-        .catch(error => console.error('Error updating cart counter:', error));
-}
     })();
 </script>

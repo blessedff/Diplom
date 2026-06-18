@@ -247,6 +247,124 @@
         font-weight: 700;
         font-size: 0.8rem;
     }
+    @@media (max-width: 992px) {
+        .filter-bar
+
+    {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-item {
+        min-width: 100%;
+    }
+
+        .filter-item[style*="flex: 0.5;"] {
+            flex: 1 !important;
+        }
+
+    .export-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .export-buttons .btn-export {
+            width: 100%;
+            justify-content: center;
+        }
+
+    }
+
+
+    @@media (max-width: 576px) {
+        .page-title
+
+    {
+        font-size: 1.2rem;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1.2rem;
+    }
+
+    .stat-card .stat-label {
+        font-size: 0.65rem;
+    }
+
+    .chart-container {
+        padding: 12px;
+    }
+
+    .chart-title {
+        font-size: 0.85rem;
+    }
+
+    canvas {
+        max-height: 200px;
+    }
+
+    .category-item {
+        padding: 8px 0;
+    }
+
+    .category-name {
+        font-size: 0.75rem;
+    }
+
+    .category-revenue {
+        font-size: 0.75rem;
+    }
+
+    .rank-badge {
+        width: 22px;
+        height: 22px;
+        line-height: 22px;
+        font-size: 0.65rem;
+    }
+
+    /* Карточки статистики на телефонах — по 2 в ряд */
+    .row.g-3 > .col-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding: 6px;
+    }
+
+    .stat-card {
+        padding: 10px 12px;
+    }
+
+    }
+
+   
+    @@media (max-width: 400px) {
+        .row.g-3 > .col-6
+
+    {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .filter-item input {
+        font-size: 0.75rem;
+        padding: 8px 10px;
+    }
+
+    .btn-primary {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1rem;
+    }
+
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    }
 
     @@keyframes fadeInUp {
         from {

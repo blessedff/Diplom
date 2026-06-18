@@ -169,14 +169,14 @@ namespace StationeryShop.Controllers
             Console.WriteLine("Проверяем reCAPTCHA...");
 
             //Отключение капчи временно + вьюшка аккаунт/логин
-            //var isRecaptchaValid = await VerifyRecaptcha(recaptchaToken);
-            //Console.WriteLine($"reCAPTCHA результат: {isRecaptchaValid}");
+            var isRecaptchaValid = await VerifyRecaptcha(recaptchaToken);
+            Console.WriteLine($"reCAPTCHA результат: {isRecaptchaValid}");
 
-            //if (!isRecaptchaValid)
-            //{
-            //    ViewBag.Error = "Подтвердите, что вы не робот";
-            //    return View();
-            //}
+            if (!isRecaptchaValid)
+            {
+                ViewBag.Error = "Подтвердите, что вы не робот";
+                return View();
+            }
             var isRecapthaValid = true;
             
 

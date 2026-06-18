@@ -538,7 +538,7 @@ namespace StationeryShop.Controllers
             }
             else
             {
-                start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                start = DateTime.Now.AddDays(-30);
                 end = DateTime.Now.AddDays(1);
             }
 
